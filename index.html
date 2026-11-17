@@ -1,99 +1,124 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0a0b0e">
-<title>MX</title>
+<meta name="theme-color" content="#0b0c0e">
+<title>RideTracker</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>
-:root{--bg:#0a0b0e;--panel:#14161b;--panel2:#1c1f26;--line:#2a2e38;--fg:#f1f3f6;--muted:#8d93a0;--accent:#ff4a2b;--purple:#b25cff;--green:#2bd35a;--yellow:#f2c419;--red:#ff4545;--blue:#3fa9ff}
+:root{--bg:#0b0c0e;--panel:#141518;--panel2:#1c1d21;--panel3:#24262b;--line:#26282d;--fg:#f3f4f6;--muted:#8b8f97;--dim:#5d6168;--accent:#f3f4f6;--onaccent:#0b0c0e;--purple:#b06cff;--green:#34d36b;--yellow:#f5c84a;--red:#ff5a5a;--blue:#4fb0ff;color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
 button,input,select{font:inherit;color:inherit}
-header{position:sticky;top:0;z-index:5;background:var(--panel);border-bottom:1px solid var(--line);padding:8px max(14px,env(safe-area-inset-right)) 0 max(14px,env(safe-area-inset-left))}
+header{position:sticky;top:0;z-index:5;background:rgba(11,12,14,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:max(10px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left))}
 .hrow{display:flex;align-items:center;gap:10px}
-.brand{font-weight:800;font-size:18px;letter-spacing:.08em}.brand span{font-weight:500;font-size:13px;color:var(--muted);letter-spacing:0;margin-left:8px}
-.pill{margin-left:auto;font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--panel2);white-space:nowrap}
+.brand{font-weight:700;font-size:19px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px;min-width:0}.brand img{width:26px;height:26px;border-radius:7px}.brand span{font-weight:500;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{margin-left:auto;font-size:12px;font-weight:600;padding:5px 11px;border-radius:99px;background:var(--panel2);white-space:nowrap;color:var(--muted)}
 .pill i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:var(--muted)}
 .pill.g i{background:var(--green)}.pill.y i{background:var(--yellow)}.pill.r i{background:var(--red)}
-nav{display:flex;margin-top:6px}
-nav button{flex:1;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:9px 0;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase}
-nav button.on{color:var(--fg);border-bottom-color:var(--accent)}
-main{max-width:760px;margin:0 auto;padding:12px max(14px,env(safe-area-inset-right)) 60px max(14px,env(safe-area-inset-left))}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
-.lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+nav{display:flex;margin-top:8px}
+nav button{flex:1;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:10px 0 11px;font-weight:600;font-size:14px}
+nav button.on{color:var(--fg);border-bottom-color:var(--fg)}
+main{max-width:760px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right)) 70px max(16px,env(safe-area-inset-left))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:12px}
+.lbl{font-size:12px;font-weight:600;letter-spacing:.02em;color:var(--muted)}
 .note{font-size:13px;color:var(--muted)}
 .empty{text-align:center;color:var(--muted);padding:40px 10px}
 .titleRow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .titleBox{flex:1;min-width:0}
-#rideTitle{font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#rideTitle{font-size:21px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #rideTitleIn{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:16px}
 .sub{font-size:13px;color:var(--muted)}
-.star{background:none;border:0;font-size:24px;line-height:1;padding:4px;color:var(--muted)}.star.on{color:var(--yellow)}
-.btn{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-weight:600;font-size:13px}
-.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}.btn.danger{color:var(--red)}
+.star{background:none;border:0;font-size:24px;line-height:1;padding:4px;color:var(--dim)}.star.on{color:var(--fg)}
+.btn{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:9px 14px;font-weight:600;font-size:14px;text-decoration:none}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--onaccent)}.btn.danger{color:var(--red)}
 .btn:disabled{opacity:.5}
-.seg{display:flex;background:var(--panel2);border-radius:9px;padding:3px;margin-bottom:10px}
-.seg button{flex:1;border:0;background:none;padding:8px 0;border-radius:7px;font-weight:700;font-size:13px;color:var(--muted)}
-.seg button.on{background:var(--accent);color:#fff}
-.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 8px}
+.seg{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:4px;margin-bottom:12px}
+.seg button{flex:1;border:0;background:none;padding:9px 0;border-radius:10px;font-weight:600;font-size:14px;color:var(--muted)}
+.seg button.on{background:var(--panel3);color:var(--fg)}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 10px}
 .summary .big{grid-column:1/-1}
-.stat b{display:block;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15}
-.stat.big b{font-size:44px;letter-spacing:-.01em}
-.stat span{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.purple{color:var(--purple)}.green{color:var(--green)}.yellow{color:var(--yellow)}.red{color:var(--red)}
-.banner{background:#2b1a12;border:1px solid #6b3520;border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.stat b{display:block;font-size:23px;font-weight:650;font-variant-numeric:tabular-nums;line-height:1.15;letter-spacing:-.01em}
+.stat.big b{font-size:46px;font-weight:700;letter-spacing:-.03em}
+.stat span{display:block;margin-top:2px;font-size:12px;font-weight:500;color:var(--muted)}
+.purple{color:var(--purple)}.green{color:var(--green)}.yellow{color:var(--yellow)}.red{color:var(--red)}.blue{color:var(--blue)}
+.banner{background:var(--panel2);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
 .banner div{flex:1}
-.mapWrap{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0f1115;margin-bottom:8px}
+.mapWrap{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#101113;margin-bottom:10px}
 #map{display:block;width:100%;height:52vh;min-height:280px;touch-action:none}
 .mapBtns{position:absolute;top:8px;left:8px;display:flex;gap:6px;flex-wrap:wrap}
-.mapBtns button{background:rgba(15,17,21,.82);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12px;font-weight:700}
+.mapBtns button{background:rgba(11,12,14,.78);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:7px 11px;font-size:12px;font-weight:600}
 .mapNote{position:absolute;left:8px;bottom:8px;font-size:11px;background:rgba(15,17,21,.82);padding:3px 7px;border-radius:6px;color:var(--muted)}
 .attrib{position:absolute;right:6px;bottom:4px;font-size:9px;color:rgba(255,255,255,.75);text-shadow:0 0 3px #000}
-#timeline{display:block;width:100%;height:48px;border-radius:8px;touch-action:none;margin-bottom:8px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:10px}
-.grid .cell{background:var(--panel);padding:9px 10px;min-width:0}
-.cell b{display:block;font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cell span{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#timeline{display:block;width:100%;height:52px;border-radius:12px;touch-action:none;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:12px}
+.grid .cell{background:var(--panel);padding:11px 12px;min-width:0}
+.cell b{display:block;font-size:18px;font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell span{font-size:11px;font-weight:500;color:var(--muted)}
 table{width:100%;border-collapse:collapse}
 td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;font-variant-numeric:tabular-nums}
-th{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+th{font-size:12px;font-weight:500;color:var(--muted)}
 td.num,th.num{text-align:right}
 tr.del td{opacity:.4;text-decoration:line-through}tr.del td:last-child{opacity:1;text-decoration:none}
 tr.cur td{background:var(--panel2)}
+tr.selA td:first-child{box-shadow:inset 3px 0 0 #f3f4f6}tr.selB td:first-child{box-shadow:inset 3px 0 0 var(--blue)}tr.selA td,tr.selB td{background:var(--panel2)}
 .chip{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:8px;background:var(--muted)}
 .chip.purple{background:var(--purple)}.chip.green{background:var(--green)}.chip.yellow{background:var(--yellow)}
 .x{background:none;border:1px solid var(--line);border-radius:6px;padding:3px 8px;font-size:12px;color:var(--muted)}
-.rideItem{display:flex;align-items:center;gap:8px;padding:12px 4px;border-bottom:1px solid var(--line)}
+.rideItem{display:flex;align-items:center;gap:10px;padding:14px 6px;border-bottom:1px solid var(--line)}
 .rideItem .main{flex:1;min-width:0}
-.rideItem .t{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rideItem .r{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
-.tag{font-size:10px;font-weight:800;letter-spacing:.08em;padding:2px 6px;border-radius:5px;background:var(--panel2);color:var(--muted);margin-left:6px}
+.rideItem .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rideItem .r{font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tag{font-size:10px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:6px;background:var(--panel2);color:var(--muted);margin-left:6px}
 .tag.rec{background:var(--red);color:#fff}
 .field{margin-bottom:12px}.field label{display:block;margin-bottom:5px}
-.field input[type=text],.field select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-size:16px}
-input[type=range]{width:100%;accent-color:var(--accent)}
+.field input[type=text],.field select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-size:16px}
+input[type=range]{width:100%;accent-color:var(--fg)}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}.kv span{color:var(--muted)}
 details>summary{cursor:pointer;font-weight:700;padding:4px 0;list-style:none}details>summary::-webkit-details-marker{display:none}
 details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:after{content:" \25BE"}
 .prog{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-top:8px}.prog i{display:block;height:100%;width:0;background:var(--accent)}
 [hidden]{display:none!important}
-#conn{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:12px}
+#conn{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:12px}
 #conn .t{flex:1;min-width:160px;font-size:13px}#conn .t b{display:block;font-size:14px}
 .prog2{height:4px;background:var(--panel2);border-radius:2px;overflow:hidden;margin-top:6px}.prog2 i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
-#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#000;border:1px solid var(--line);padding:9px 14px;border-radius:99px;font-size:13px;font-weight:600;z-index:9;max-width:90vw}
+#liveCard{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 8px}
+#liveCard .wide{grid-column:1/-1;display:flex;align-items:center;gap:10px}
+#liveCard .dot{width:12px;height:12px;border-radius:50%;background:var(--muted);flex:none}
+#liveCard .dot.g{background:var(--green)}#liveCard .dot.y{background:var(--yellow)}#liveCard .dot.r{background:var(--red)}
+#liveCard .dot.rec{background:var(--red);animation:pulse 1.2s infinite}@keyframes pulse{50%{opacity:.35}}
+#liveCard .head{font-size:17px;font-weight:650}
+.speedBig{grid-column:1/-1;display:flex;align-items:baseline;gap:8px;margin:2px 0 -4px}
+.speedBig b{font-size:72px;font-weight:700;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.speedBig span{font-size:15px;color:var(--muted);font-weight:500}
+.lapRow{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:var(--panel2);border-radius:14px;padding:12px 14px}
+.lapRow .stat b{font-size:24px}
+.toggleRow{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:12px;margin-top:2px;font-size:14px;color:var(--muted)}
+.sw{position:relative;width:46px;height:28px;border-radius:99px;background:var(--panel3);border:0;flex:none;transition:background .15s}
+.sw:after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--muted);transition:transform .15s,background .15s}
+.sw.on{background:var(--fg)}.sw.on:after{transform:translateX(18px);background:var(--onaccent)}
+#backBar{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.backBtn{background:none;border:0;color:var(--fg);font-weight:600;font-size:15px;padding:6px 0}
+.exp{font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--panel2);color:var(--muted);margin-left:8px;vertical-align:middle}
+#toast{position:fixed;left:50%;bottom:max(22px,env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--fg);color:var(--onaccent);padding:10px 16px;border-radius:99px;font-size:13px;font-weight:600;z-index:9;max-width:90vw}
 </style></head><body>
 <header>
-  <div class="hrow"><div class="brand">MX<span id="hdrName"></span></div><div id="pill" class="pill"><i></i>Connecting</div></div>
-  <nav id="nav"><button data-v="ride" class="on">Ride</button><button data-v="rides">Rides</button><button data-v="settings">Settings</button></nav>
+  <div class="hrow"><div class="brand"><img src="icon.svg" alt="">RideTracker<span id="hdrName"></span></div><div id="pill" class="pill"><i></i>Connecting</div></div>
+  <nav id="nav"><button data-v="live" class="on">Live</button><button data-v="history">History</button><button data-v="settings">Settings</button></nav>
 </header>
 <main>
 <div id="conn" hidden><div class="t"><b id="connTitle">Not connected</b><span id="connSub" class="note"></span><div class="prog2" id="dlBarBox" hidden><i id="dlBar"></i></div></div><button class="btn pri" id="connBtn">Connect</button></div>
 
-<section id="v-ride">
-  <div id="rideEmpty" class="empty">Loading…</div>
+<section id="v-live">
+  <div class="card" id="liveCard"></div>
+  <div id="liveEmpty" class="empty" hidden></div>
+</section>
+
+<section id="v-ride" hidden>
+  <div id="backBar" hidden><button class="backBtn" id="backBtn">&#8249; History</button></div>
+  <div id="rideEmpty" class="empty" hidden>Loading…</div>
   <div id="rideBody" hidden>
     <div class="titleRow">
       <button id="favBtn" class="star" aria-label="Favourite">&#9734;</button>
@@ -101,7 +126,6 @@ details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:
       <button id="renameBtn" class="btn">Rename</button>
     </div>
     <div class="seg" id="modeSeg"><button data-m="0">Track</button><button data-m="1">Adventure</button></div>
-    <div id="summary" class="card summary"></div>
     <div id="trackBanner" class="banner" hidden><div id="trackBannerText"></div><button id="trackBannerBtn" class="btn pri"></button></div>
     <div class="mapWrap">
       <canvas id="map"></canvas>
@@ -112,7 +136,7 @@ details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:
       <div class="lbl" style="margin-bottom:8px">Track setup</div>
       <div class="field"><label class="note" for="suName">Track name</label><input id="suName" type="text" maxlength="30" placeholder="e.g. Home track"></div>
       <div class="field"><label class="note">Finish line: <b>tap the map</b> where you want it (a fast, open straight is best). Length <b id="suLenV"></b> m</label>
-        <input id="suLen" type="range" min="6" max="20" step="1" value="9"></div>
+        <input id="suLen" type="range" min="6" max="30" step="1" value="12"><div class="note" id="suWarn" hidden style="color:var(--red);margin-top:6px">This line also crosses another part of the track - make it shorter or move it.</div></div>
       <div class="field"><label class="note">Tree zones (GPS is less reliable there): <b id="suZoneN">0</b></label>
         <div class="row"><button id="suZoneAdd" class="btn">Add tree zone</button><button id="suZoneUndo" class="btn">Remove last</button></div>
         <div id="suZoneSizeRow" hidden style="margin-top:8px"><label class="note">Tap the map to place it. Size <b id="suZoneV"></b> m across</label><input id="suZone" type="range" min="10" max="80" step="2" value="24"></div>
@@ -121,10 +145,14 @@ details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:
     </div>
     <canvas id="timeline"></canvas>
     <div id="point" class="grid"></div>
+    <div class="row" style="justify-content:flex-end;margin:-4px 0 12px"><button class="btn" id="moreBtn">More</button></div>
+    <div id="summary" class="card summary"></div>
+    <div id="imuCard" class="card" hidden><div class="lbl" style="margin-bottom:10px">Bike sensor<span class="exp">EXPERIMENTAL</span></div><div id="imuStats" class="summary"></div></div>
     <div id="lapsCard" class="card" hidden>
-      <div class="lbl" style="margin-bottom:6px">Laps</div>
-      <table><thead><tr><th>Lap</th><th class="num">Time</th><th class="num">To best</th><th class="num">Top km/h</th><th></th></tr></thead><tbody id="laps"></tbody></table>
-      <p class="note" style="margin:8px 0 0">Tap a lap to jump to it. Remove a lap you cut and it stops counting.</p>
+      <div class="row" style="margin-bottom:6px"><div class="lbl" style="flex:1">Laps</div><button class="btn" id="cmpBtn">Compare 2 laps</button></div>
+      <div id="cmpInfo" class="note" hidden style="margin:0 0 8px"></div>
+      <table><thead><tr><th>Lap</th><th class="num">Time</th><th class="num">To best</th><th></th></tr></thead><tbody id="laps"></tbody></table>
+      <p class="note" style="margin:10px 0 0" id="lapsNote">Tap a lap to jump to it. Remove a lap you cut and it stops counting.</p>
     </div>
     <div class="row" style="justify-content:flex-end"><button id="delRideBtn" class="btn danger">Delete ride</button></div>
   </div>
@@ -146,7 +174,7 @@ details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:
     <div class="field" style="margin:0"><label class="lbl" for="setBike">Bike</label><input id="setBike" type="text" maxlength="24" placeholder="e.g. CRF250R"></div>
   </div>
   <div class="card">
-    <details id="details"><summary>Details</summary>
+    <div id="details"><div class="lbl" style="font-size:13px;color:var(--fg)">Details</div>
       <div class="lbl" style="margin:12px 0 6px">Status</div><div class="kv" id="dStatus"></div>
       <div class="lbl" style="margin:16px 0 6px">Test controls</div>
       <p class="note" style="margin:0 0 6px">These do what the buttons will do once they're fitted.</p>
@@ -154,15 +182,22 @@ details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:
       <div class="lbl" style="margin:16px 0 6px">GPS</div>
       <div class="row" style="margin-bottom:6px"><button class="btn" id="setSbas"></button></div>
       <p class="note" style="margin:0">SouthPAN is the free NZ correction service (u-blox only, applies after a power cycle).</p>
+      <div class="seg" id="setRate" style="margin:12px 0 6px"><button data-r="10">10 Hz</button><button data-r="18">18 Hz test</button><button data-r="25">25 Hz test</button></div>
+      <p class="note" style="margin:0" id="rateNote">10 Hz uses every satellite system. The test rates use GPS satellites only (fewer satellites, so a bit less accurate). Applies after switching off and on.</p>
+      <div class="lbl" style="margin:16px 0 6px">Tracks</div>
+      <div class="field"><label class="note">Finish line width for new tracks: <b id="gwV"></b> m</label><input id="gwIn" type="range" min="6" max="30" step="1"></div>
+      <p class="note" style="margin:0">After 3 laps somewhere new, a finish line goes on the fastest straight by itself, as long as no other part of the track comes within reach of it. Wider catches every pass even with GPS wobble; narrower fits tight tracks. Change one track's line with Edit track.</p>
       <div class="lbl" style="margin:16px 0 6px">This ride</div>
-      <div class="row"><button class="btn" id="gpxBtn">Export GPX</button><button class="btn" id="reportBtn">Report for Claude</button></div>
+      <div class="row"><button class="btn" id="csvBtn">Export CSV</button><button class="btn" id="gpxBtn">Export GPX</button><button class="btn" id="reportBtn">Report for Claude</button></div>
+      <div class="lbl" style="margin:16px 0 6px">All rides</div>
+      <div class="row"><button class="btn" id="csvAllBtn">Export all rides (CSV)</button><span class="note" id="csvAllMsg"></span></div>
       <div class="lbl" style="margin:16px 0 6px">Firmware update</div>
       <input type="file" id="fwFile" accept=".bin">
       <div class="row" style="margin-top:8px"><button class="btn" id="fwGo">Update</button><span class="note" id="fwMsg"></span></div>
       <div class="prog"><i id="fwBar"></i></div>
       <p class="note" style="margin:8px 0 0">After it restarts, leave it switched on for 30 seconds. If the new version doesn't start properly, the unit goes back to the old one.</p>
       <div id="oldBox" hidden><div class="lbl" style="margin:16px 0 6px">Old test files</div><div class="row"><span class="note" id="oldMsg"></span><button class="btn danger" id="oldDel">Delete them</button></div></div>
-    </details>
+    </div>
   </div>
 </section>
 </main>
@@ -172,7 +207,7 @@ details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let S=null,RIDES=[],TR={tracks:[]},cur=null,scrub=0,setup=null,view='ride',toastT=0;
+let S=null,RIDES=[],TR={tracks:[]},cur=null,scrub=0,setup=null,view='live',toastT=0,liveOpening=false,liveBusy=false;
 const LS={get:(k,d)=>{try{return localStorage.getItem(k)||d}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 
 /* ---------- helpers ---------- */
@@ -283,7 +318,7 @@ function parseRide(buf){
   if(len<28||String.fromCharCode(d.getUint8(0),d.getUint8(1),d.getUint8(2),d.getUint8(3))!=='MXL2')throw new Error('This is not a ride file');
   const hl=d.getUint8(4);
   const head={format:d.getUint8(5),mode:d.getUint8(6),gpsKind:d.getUint8(7),flags:d.getUint8(8),reset:d.getUint8(9),rideNo:d.getUint16(10,true),bootNo:d.getUint32(12,true)};
-  const F=[],markers=[],pauses=[],health=[];let o=hl,seg=0,t=0,prevUtc=null;
+  const F=[],markers=[],pauses=[],health=[],I={ms:[],ax:[],ay:[],az:[],gx:[],gy:[],gz:[],aFs:16,gFs:2000};let o=hl,seg=0,t=0,prevUtc=null;
   while(o+2<=len){
     const type=d.getUint8(o),l=d.getUint8(o+1);o+=2;if(o+l>len)break;
     if(type===1&&l>=29){
@@ -291,18 +326,66 @@ function parseRide(buf){
       if(lat||lon){
         if(prevUtc!==null)t+=((utc-prevUtc+86400000)%86400000)/1000;prevUtc=utc;
         const c=d.getUint16(o+22,true);
-        F.push({t,utc,date:d.getUint32(o+4,true),lat,lon,kmh:d.getUint16(o+20,true)*0.036,course:c===0xFFFF?null:c/100,altRaw:d.getInt16(o+24,true)/10,sats:d.getUint8(o+26),hdop:d.getUint8(o+27)/10,q:d.getUint8(o+28),seg});
+        F.push({t,utc,ms:d.getUint32(o,true),date:d.getUint32(o+4,true),lat,lon,kmh:d.getUint16(o+20,true)*0.036,course:c===0xFFFF?null:c/100,altRaw:d.getInt16(o+24,true)/10,sats:d.getUint8(o+26),hdop:d.getUint8(o+27)/10,q:d.getUint8(o+28),seg});
       }
     }else if(type===5&&l>=17){
       const kind=d.getUint8(o+8);
       if(kind===1)markers.push({i:Math.max(0,F.length-1),lat:d.getInt32(o+9,true)/1e7,lon:d.getInt32(o+13,true)/1e7});
       else if(kind===2){pauses.push({i:Math.max(0,F.length-1)});seg++;}
+    }else if(type===6&&l>=8){                 // IMU: head (board ms, n, rate, ranges) + n x [dt ax ay az gx gy gz]
+      const base=d.getUint32(o,true),n=d.getUint8(o+4);I.aFs=d.getUint8(o+6)||16;I.gFs=(d.getUint8(o+7)||200)*10;
+      for(let k=0;k<n&&8+k*14+14<=l;k++){const q=o+8+k*14;I.ms.push(base+d.getUint16(q,true));
+        I.ax.push(d.getInt16(q+2,true));I.ay.push(d.getInt16(q+4,true));I.az.push(d.getInt16(q+6,true));
+        I.gx.push(d.getInt16(q+8,true));I.gy.push(d.getInt16(q+10,true));I.gz.push(d.getInt16(q+12,true));}
     }else if(type===2&&l>=19){
       health.push({fixes:d.getUint8(o+4),missed:d.getUint16(o+5,true),maxGap:d.getUint16(o+7,true),heap:d.getUint32(o+9,true),loopUs:d.getUint16(o+13,true),temp:d.getInt8(o+15),batt:d.getUint16(o+16,true)});
     }
     o+=l;
   }
-  return{head,fixes:F,markers,pauses,health};
+  return{head,fixes:F,markers,pauses,health,imu:I.ms.length?I:null};
+}
+
+/* ---------- bike sensor (IMU) - rough, EXPERIMENTAL ----------
+   Lean:   from how fast the bike turns (gyro, about the "up" direction) and the GPS speed:
+           lean = atan(speed x turn rate / g). Doesn't care how the unit is mounted, only needs "up",
+           which comes from the accelerometer while stopped. + = leaning left, - = right.
+   Jumps:  the accelerometer reads near 0 g in the air (free fall). Air time = how long that lasts;
+           landing = the biggest g just after.
+   Brake / accel g: from the GPS speed change (steadier than the IMU on a rough track). */
+function imuAnalyse(R){
+  const I=R.imu,F=R.fixes;if(!I||I.ms.length<100||F.length<20)return null;
+  const n=I.ms.length,ka=I.aFs/32768,kg=I.gFs/32768;
+  // board time -> ride time, using the fixes (both carry board time)
+  const fm=F.map(f=>f.ms),ft=F.map(f=>f.t),fv=F.map(f=>f.kmh/3.6);
+  const idxAt=ms=>{let lo=0,hi=fm.length-1;while(lo<hi){const m=(lo+hi)>>1;if(fm[m]<ms)lo=m+1;else hi=m;}return lo;};
+  const T=new Float32Array(n),V=new Float32Array(n),A=new Float32Array(n);
+  for(let i=0;i<n;i++){const j=idxAt(I.ms[i]),p=Math.max(0,j-1);const span=fm[j]-fm[p];const f=span>0?Math.min(1,Math.max(0,(I.ms[i]-fm[p])/span)):0;
+    T[i]=ft[p]+f*(ft[j]-ft[p])+(I.ms[i]>fm[j]?(I.ms[i]-fm[j])/1000:0);V[i]=fv[p]+f*(fv[j]-fv[p]);
+    A[i]=Math.hypot(I.ax[i],I.ay[i],I.az[i])*ka;}
+  // "up" = average accelerometer direction while stopped (or over the whole ride if it never stopped)
+  let ux=0,uy=0,uz=0,c=0;
+  for(let i=0;i<n;i++)if(V[i]<0.3&&A[i]>0.9&&A[i]<1.1){ux+=I.ax[i];uy+=I.ay[i];uz+=I.az[i];c++;}
+  if(c<50){ux=uy=uz=0;for(let i=0;i<n;i++){ux+=I.ax[i];uy+=I.ay[i];uz+=I.az[i];}}
+  const un=Math.hypot(ux,uy,uz)||1;ux/=un;uy/=un;uz/=un;
+  // turn rate about "up" (deg/s), smoothed over ~0.25 s; lean from it
+  const L=new Float32Array(n);let w=0;
+  for(let i=0;i<n;i++){const r=(I.gx[i]*ux+I.gy[i]*uy+I.gz[i]*uz)*kg,dt=i?Math.max(0.001,(I.ms[i]-I.ms[i-1])/1000):0.02;w+=(r-w)*Math.min(1,dt/0.25);
+    L[i]=V[i]>2.2?Math.max(-65,Math.min(65,Math.atan(V[i]*w*Math.PI/180/9.81)*180/Math.PI)):0;}
+  // jumps: under 0.35 g for at least 0.12 s while moving
+  const jumps=[];let j0=-1;
+  for(let i=0;i<=n;i++){const air=i<n&&A[i]<0.35&&V[i]>3;
+    if(air){if(j0<0)j0=i;}else if(j0>=0){const dur=(I.ms[i-1]-I.ms[j0])/1000+0.02;
+      if(dur>=0.12){let land=0;for(let k=i;k<n&&I.ms[k]-I.ms[i-1]<600;k++)land=Math.max(land,A[k]);jumps.push({t0:T[j0],t1:T[i-1],air:dur,land});}j0=-1;}}
+  // per fix: lean, g load, in the air, brake/accel g (GPS)
+  let si=0;let maxL=0,maxR=0,maxB=0,maxA=0;
+  for(let k=0;k<F.length;k++){const f=F[k];while(si<n-1&&T[si+1]<=f.t)si++;
+    let lean=0,load=0;for(let q=Math.max(0,si-2);q<=Math.min(n-1,si+2);q++){if(Math.abs(L[q])>Math.abs(lean))lean=L[q];load=Math.max(load,A[q]);}
+    f.lean=lean;f.load=load;f.air=jumps.some(J=>f.t>=J.t0-0.05&&f.t<=J.t1+0.05);
+    const a=F[Math.max(0,k-3)],b=F[Math.min(F.length-1,k+3)];f.lg=b.t>a.t&&b.t-a.t<1.2?((b.kmh-a.kmh)/3.6/(b.t-a.t))/9.81:0;
+    if(f.kmh>10){if(lean>maxL)maxL=lean;if(lean<maxR)maxR=lean;}
+    if(f.lg<maxB)maxB=f.lg;if(f.lg>maxA)maxA=f.lg;}
+  const longest=jumps.reduce((m,J)=>J.air>m.air?J:m,{air:0,land:0}),hardest=jumps.reduce((m,J)=>Math.max(m,J.land),0);
+  return{jumps,maxL,maxR:-maxR,maxB:-maxB,maxA,longest,hardest,samples:n};
 }
 
 /* ---------- maths ---------- */
@@ -323,6 +406,7 @@ function analyse(R){
   for(let i=0;i<n;i++){while(hi<Math.min(n-1,i+10)){hi++;sum+=F[hi].altRaw;cnt++;}while(lo<i-10){sum-=F[lo].altRaw;cnt--;lo++;}F[i].alt=sum/cnt;}
   let ref=F[0].alt;for(let i=1;i<n;i++){const a=F[i].alt;if(a>ref+3){A.climb+=a-ref;ref=a;}else if(a<ref-3)ref=a;}
   // stops: under 3 km/h for 10 s or more
+  A.imu=imuAnalyse(R);
   let s0=-1;for(let i=0;i<=n;i++){const slow=i<n&&F[i].kmh<3&&!(i&&F[i].brk);if(slow){if(s0<0)s0=i;}else{if(s0>=0&&F[i-1].t-F[s0].t>=10)A.stops.push({i0:s0,i1:i-1});s0=(i<n&&F[i].kmh<3)?i:-1;}}
   return A;
 }
@@ -348,7 +432,46 @@ function computeLaps(R,A,trk,del){
   let best=null,prev=null;const ok=out.filter(l=>!l.del&&!l.paused);
   for(const l of ok)if(!best||l.time<best.time)best=l;
   for(const l of ok){l.col=l===best?'purple':(!prev||l.time<prev.time)?'green':'yellow';prev=l;}
-  out.best=best;return out;
+  out.best=best;out.cross=cr;return out;
+}
+// New track? Look for a loop ridden at least 3 times and suggest a finish line on its fastest straight.
+// Tries a line across the path every second or so (on straight, fast bits) and counts how many
+// similar-length laps each one would give; the most laps wins, then the fastest spot.
+const SUG_MIN_LAPS=3;
+const gateW=()=>{const w=+LS.get('mxGateW','12');return w>=6&&w<=30?w:12;};
+// Would this line catch any other part of the track? Stretch it a few metres past each end and count every
+// time the path crosses it, either way. Only the real lap passes (right way, a lap apart) are allowed.
+function gateOverlaps(R,A,trk){
+  const F=R.fixes,ax0=(trk.fin[1]-A.lon0)*A.kx,ay0=(trk.fin[0]-A.lat0)*A.ky,bx0=(trk.fin[3]-A.lon0)*A.kx,by0=(trk.fin[2]-A.lat0)*A.ky;
+  const L=Math.hypot(bx0-ax0,by0-ay0)||1,ux=(bx0-ax0)/L,uy=(by0-ay0)/L,m=Math.max(4,L*0.3);
+  const ax=ax0-ux*m,ay=ay0-uy*m,sx=(bx0+ux*m)-ax,sy=(by0+uy*m)-ay,dir=trk.dir*Math.PI/180,dx=Math.sin(dir),dy=Math.cos(dir),minLap=trk.minLap||20;
+  let last=-1e9;
+  for(let i=1;i<F.length;i++){const p=F[i-1],q=F[i];if(q.brk)continue;
+    const rx=q.x-p.x,ry=q.y-p.y,den=rx*sy-ry*sx;if(Math.abs(den)<1e-9)continue;
+    const u=((ax-p.x)*sy-(ay-p.y)*sx)/den,w=((ax-p.x)*ry-(ay-p.y)*rx)/den;
+    if(u<0||u>=1||w<0||w>1)continue;
+    const t=p.t+u*(q.t-p.t);
+    if(rx*dx+ry*dy<=0||t-last<minLap)return true;      // wrong way through it, or back through it too soon: another part of the track
+    last=t;}
+  return false;
+}
+function suggestLine(R,A){
+  const F=R.fixes,n=F.length;if(n<600)return null;
+  const head=i=>{const a=F[Math.max(0,i-5)],b=F[Math.min(n-1,i+5)];return Math.atan2(b.x-a.x,b.y-a.y);};
+  const cand=[];let lastT=-1e9;
+  for(let i=5;i<n-5;i++){const f=F[i];if(f.kmh<20||f.t-lastT<1.5||F[i-5].brk||F[i+5].brk)continue;
+    let dh=Math.abs(head(i-5)-head(i+5));if(dh>Math.PI)dh=2*Math.PI-dh;if(dh>0.2)continue;   // straight: under ~11 degrees of turn
+    cand.push(i);lastT=f.t;}
+  if(!cand.length)return null;
+  const step=Math.max(1,Math.ceil(cand.length/400));let best=null;
+  const half=gateW()/2;
+  for(let c=0;c<cand.length;c+=step){const i=cand[c],g=gateFor(F,A,i,half),trk={fin:g.fin,dir:g.dir,minLap:20},L=computeLaps(R,A,trk,[]);
+    if(L.length<SUG_MIN_LAPS||gateOverlaps(R,A,trk))continue;
+    const times=L.filter(l=>!l.paused).map(l=>l.time).sort((a,b)=>a-b);if(!times.length)continue;
+    const med=times[times.length>>1],good=times.filter(t=>t>med*0.7&&t<med*1.35).length;   // laps with a stop in them don't count
+    if(good<SUG_MIN_LAPS)continue;
+    const sc=good*1000+F[i].kmh;if(!best||sc>best.sc)best={sc,i,laps:good,med,g};}
+  return best;
 }
 function lapAt(i){if(!cur||!cur.laps)return null;for(const l of cur.laps)if(i>=l.i0&&i<=l.i1)return l;return null;}
 function gapToBest(i,l){
@@ -357,8 +480,9 @@ function gapToBest(i,l){
   while(lo<hi){const m=(lo+hi)>>1;if(F[m].d<target)lo=m+1;else hi=m;}
   return(F[i].t-l.t0)-(F[lo].t-b.t0);
 }
-function gateAt(i,half){
-  const F=cur.R.fixes,A=cur.A,a=F[Math.max(0,i-3)],b=F[Math.min(F.length-1,i+3)];let hx=b.x-a.x,hy=b.y-a.y;const L=Math.hypot(hx,hy)||1;hx/=L;hy/=L;
+function gateAt(i,half){return gateFor(cur.R.fixes,cur.A,i,half);}
+function gateFor(F,A,i,half){
+  const a=F[Math.max(0,i-3)],b=F[Math.min(F.length-1,i+3)];let hx=b.x-a.x,hy=b.y-a.y;const L=Math.hypot(hx,hy)||1;hx/=L;hy/=L;
   const f=F[i],px=-hy,py=hx,ll=(x,y)=>[+(A.lat0+y/A.ky).toFixed(7),+(A.lon0+x/A.kx).toFixed(7)];
   const p1=ll(f.x+px*half,f.y+py*half),p2=ll(f.x-px*half,f.y-py*half);
   return{fin:[p1[0],p1[1],p2[0],p2[1]],dir:+((Math.atan2(hx,hy)*180/Math.PI+360)%360).toFixed(1)};
@@ -424,24 +548,27 @@ MAP.onDraw=(ctx,W,H)=>{
   if(trk&&trk.zones)for(const z of trk.zones){const[x,y]=MAP.toS(mercX(z[1]),mercY(z[0]));ctx.beginPath();ctx.arc(x,y,z[2]*mpm*sc,0,7);ctx.fillStyle='rgba(43,211,90,.16)';ctx.fill();ctx.setLineDash([6,5]);ctx.strokeStyle='rgba(43,211,90,.8)';ctx.lineWidth=1.5;ctx.stroke();ctx.setLineDash([]);}
   // trace
   const lap=cur.mode===0&&cur.laps&&cur.laps.length?lapAt(scrub):null,under=new Path2D(),dim=new Path2D(),bright=SPEED_COLS.map(()=>new Path2D()),plain=new Path2D();
-  let lx=0,ly=0,have=false,vmax=A.vmax||1;
+  let lx=0,ly=0,have=false,vmax=A.vmax||1;const cl=cmpLaps(),blue=new Path2D();
   for(let i=0;i<F.length;i++){const f=F[i],x=(f.mx-MAP.v.cx)*sc+W/2,y=(f.my-MAP.v.cy)*sc+H/2;
     if(f.brk||!have){lx=x;ly=y;have=true;continue;}
     if(Math.abs(x-lx)+Math.abs(y-ly)<1.5)continue;
     if((lx<-50&&x<-50)||(lx>W+50&&x>W+50)||(ly<-50&&y<-50)||(ly>H+50&&y>H+50)){lx=x;ly=y;continue;}
-    const path=(lap&&(i<lap.i0||i>lap.i1))?dim:traceColour==='speed'?bright[Math.min(5,Math.floor(f.kmh/vmax*6))]:plain;
+    const path=cl.length?(cl[0]&&i>=cl[0].i0&&i<=cl[0].i1?plain:cl[1]&&i>=cl[1].i0&&i<=cl[1].i1?blue:null)
+      :(lap&&(i<lap.i0||i>lap.i1))?dim:traceColour==='speed'?bright[Math.min(5,Math.floor(f.kmh/vmax*6))]:plain;
+    if(!path){lx=x;ly=y;continue;}
     under.moveTo(lx,ly);under.lineTo(x,y);path.moveTo(lx,ly);path.lineTo(x,y);lx=x;ly=y;}
   ctx.lineCap='round';ctx.lineJoin='round';
   ctx.strokeStyle='rgba(0,0,0,.55)';ctx.lineWidth=6;ctx.stroke(under);
   ctx.lineWidth=3;ctx.strokeStyle='rgba(255,255,255,.38)';ctx.stroke(dim);
-  ctx.strokeStyle='#ff5a36';ctx.stroke(plain);
+  ctx.strokeStyle='#f3f4f6';ctx.stroke(plain);
   bright.forEach((p,k)=>{ctx.strokeStyle=SPEED_COLS[k];ctx.stroke(p);});
+  ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--blue');ctx.stroke(blue);
   // start / end, markers
   const dot=(f,col,r)=>{const[x,y]=MAP.toS(f.mx,f.my);ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fillStyle=col;ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#000';ctx.stroke();};
   if(cur.mode===1){dot(F[0],'#2bd35a',5);dot(F[F.length-1],'#ff4545',5);}
   for(const m of cur.R.markers){const f=F[m.i];if(!f)continue;const[x,y]=MAP.toS(f.mx,f.my);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-7,y-16);ctx.lineTo(x+7,y-16);ctx.closePath();ctx.fillStyle='#ff9f0a';ctx.fill();ctx.lineWidth=1.5;ctx.strokeStyle='#000';ctx.stroke();}
   // where the scrub bar is
-  const s=F[scrub];if(s){const[x,y]=MAP.toS(s.mx,s.my);ctx.beginPath();ctx.arc(x,y,setup?5:8,0,7);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#ff4a2b';ctx.stroke();}
+  const s=F[scrub];if(s){const[x,y]=MAP.toS(s.mx,s.my);ctx.beginPath();ctx.arc(x,y,setup?5:8,0,7);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#0b0c0e';ctx.stroke();}
   // finish line
   if(trk&&trk.fin&&cur.mode===0){const a=MAP.toS(mercX(trk.fin[1]),mercY(trk.fin[0])),b=MAP.toS(mercX(trk.fin[3]),mercY(trk.fin[2]));
     ctx.lineCap='butt';ctx.strokeStyle='#000';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();
@@ -454,7 +581,7 @@ MAP.onTap=(x,y)=>{
   for(let i=0;i<F.length;i++){const dx=(F[i].mx-MAP.v.cx)*sc+W/2-x,dy=(F[i].my-MAP.v.cy)*sc+H/2-y;D[i]=Math.hypot(dx,dy);if(D[i]<bd)bd=D[i];}
   if(bd>60)return;
   let best=-1;for(let i=0;i<F.length;i++)if(D[i]<=bd+6&&(best<0||Math.abs(i-scrub)<Math.abs(best-scrub)))best=i;   // several laps pass here: stay near the current one
-  if(setup){const g=gateAt(best,+$('suLen').value/2);setup.fin=g.fin;setup.dir=g.dir;setup.finI=best;MAP.req();}
+  if(setup){const g=gateAt(best,+$('suLen').value/2);setup.fin=g.fin;setup.dir=g.dir;setup.finI=best;renderSetup();MAP.req();}
   setScrub(best,false);
 };
 
@@ -463,7 +590,7 @@ const TL=(()=>{
   const cv=$('timeline'),ctx=cv.getContext('2d');let W=0,H=0,dpr=1,dragging=false;
   function resize(){const r=cv.getBoundingClientRect();if(!r.width)return;dpr=window.devicePixelRatio||1;W=r.width;H=r.height;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);draw();}
   function draw(){
-    if(!W)return;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#1c1f26';ctx.fillRect(0,0,W,H);
+    if(!W)return;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#141518';ctx.fillRect(0,0,W,H);
     if(!cur)return;const F=cur.R.fixes,T=cur.A.dur||1;if(!F.length)return;const X=t=>t/T*W;
     const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n);
     if(cur.mode===0&&cur.laps&&cur.laps.length){
@@ -472,10 +599,11 @@ const TL=(()=>{
     }else{ // speed shape
       ctx.beginPath();ctx.moveTo(0,H);const vm=cur.A.vmax||1,step=Math.max(1,Math.floor(F.length/W/2));
       for(let i=0;i<F.length;i+=step)ctx.lineTo(X(F[i].t),H-4-(H-10)*F[i].kmh/vm);
-      ctx.lineTo(W,H);ctx.closePath();ctx.fillStyle='rgba(255,74,43,.75)';ctx.fill();
+      ctx.lineTo(W,H);ctx.closePath();ctx.fillStyle='rgba(243,244,246,.42)';ctx.fill();
     }
     ctx.fillStyle='rgba(10,11,14,.62)';for(const s of cur.A.stops)ctx.fillRect(X(F[s.i0].t),0,Math.max(1,X(F[s.i1].t)-X(F[s.i0].t)),H);
     ctx.fillStyle='#000';for(const p of cur.R.pauses){const a=F[p.i],b=F[Math.min(F.length-1,p.i+1)];if(a)ctx.fillRect(X(a.t),0,Math.max(2,X(b.t)-X(a.t)),H);}
+    if(cur.A.imu){ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--blue');for(const J of cur.A.imu.jumps){const x=X(J.t0);ctx.fillRect(x,H-5,Math.max(2,X(J.t1)-x),5);}}
     ctx.fillStyle='#ff9f0a';for(const m of cur.R.markers){const f=F[m.i];if(!f)continue;const x=X(f.t);ctx.beginPath();ctx.moveTo(x-5,0);ctx.lineTo(x+5,0);ctx.lineTo(x,9);ctx.closePath();ctx.fill();}
     const s=F[scrub];if(s){const x=Math.max(1.5,Math.min(W-1.5,X(s.t)));ctx.fillStyle='#fff';ctx.fillRect(x-1.5,0,3,H);}
   }
@@ -495,24 +623,53 @@ function setScrub(i,follow){
   MAP.req();TL.draw();renderPoint();
   const l=lapAt(scrub);document.querySelectorAll('#laps tr').forEach(tr=>tr.classList.toggle('cur',!!l&&+tr.dataset.n===l.n));
 }
+// Compare two laps: first picked = white, second = blue. Gap = how far the blue lap is behind the white one
+// at the same point round the track (matched by distance into the lap).
+const cmp={on:false,sel:[]};
+function cmpLaps(){return cmp.on?cmp.sel.map(n=>cur.laps&&cur.laps.find(l=>l.n===n)).filter(Boolean):[];}
+function gapBetween(i,a,b){const F=cur.R.fixes;if(!a||!b||a.dist<=0||i<a.i0||i>a.i1)return null;
+  const target=F[b.i0].d+(F[i].d-F[a.i0].d)*b.dist/a.dist;let lo=b.i0,hi=b.i1;
+  while(lo<hi){const m=(lo+hi)>>1;if(F[m].d<target)lo=m+1;else hi=m;}
+  return(F[lo].t-b.t0)-(F[i].t-a.t0);}
+function renderCmp(){
+  $('cmpBtn').textContent=cmp.on?'Done':'Compare 2 laps';$('cmpBtn').className='btn'+(cmp.on?' pri':'');
+  const ls=cmpLaps(),ci=$('cmpInfo');ci.hidden=!cmp.on;
+  $('lapsNote').textContent=cmp.on?'Tap two laps. White is the first you pick, blue the second.':'Tap a lap to jump to it. Remove a lap you cut and it stops counting.';
+  if(!cmp.on)return;
+  if(ls.length<2){ci.textContent=ls.length?'Pick one more lap.':'Pick two laps to compare.';return;}
+  const d=ls[1].time-ls[0].time;
+  ci.innerHTML=`<b style="color:#f3f4f6">Lap ${ls[0].n} ${fmtLap(ls[0].time)}</b> vs <b class="blue">Lap ${ls[1].n} ${fmtLap(ls[1].time)}</b> · blue is ${Math.abs(d).toFixed(2)} s ${d>=0?'slower':'faster'}. Move the scrub bar to see where.`;
+}
+$('cmpBtn').onclick=()=>{cmp.on=!cmp.on;if(!cmp.on)cmp.sel=[];renderRide();MAP.req();};
 function cell(v,k,cls){return`<div class="cell"><b class="${cls||''}">${v}</b><span>${k}</span></div>`;}
+// Point readout: the essentials always, the rest behind "More".
 function renderPoint(){
   const F=cur.R.fixes,f=F[scrub];if(!f){$('point').innerHTML='';return;}
-  const h=[];h.push(cell(f.kmh.toFixed(0)+' km/h','Speed'));
+  const h=[],more=[],showMore=LS.get('mxMore','0')==='1';
+  h.push(cell(f.kmh.toFixed(0)+' km/h','Speed'));
   if(cur.mode===0&&cur.laps&&cur.laps.length){const l=lapAt(scrub);
     h.push(cell(l?fmtLap(f.t-l.t0):fmtDur(f.t),l?'Lap '+l.n+' time':(scrub<cur.laps[0].i0?'Out lap':'In lap')));
-    const g=l?gapToBest(scrub,l):null;h.push(cell(g===null?'–':fmtGap(g),'To best lap',g===null?'':g<=0?'green':'yellow'));
-  }else h.push(cell(fmtDur(f.t),'Ride time'));
-  h.push(cell(fmtDist(f.d),'Distance'));
-  h.push(cell(Math.round(f.alt)+' m','Elevation'));
-  h.push(cell(f.course===null||f.kmh<3?'–':COMPASS[Math.round(f.course/45)%8]+' '+Math.round(f.course)+'°','Heading'));
+    const cl=cmpLaps();
+    if(cl.length===2){const g=gapBetween(scrub,cl[0],cl[1]);h.push(cell(g===null?'–':fmtGap(g),'Blue vs white',g===null?'':g<=0?'green':'yellow'));}
+    else{const g=l?gapToBest(scrub,l):null;h.push(cell(g===null?'–':fmtGap(g),'To best lap',g===null?'':g<=0?'green':'yellow'));}
+  }else{h.push(cell(fmtDur(f.t),'Ride time'));h.push(cell(fmtDist(f.d),'Distance'));}
+  if(cur.A.imu){
+    const ln=Math.round(Math.abs(f.lean||0));h.push(cell(ln<3?'Upright':ln+'° '+(f.lean>0?'L':'R'),'Lean'));
+    const g=f.lg||0;h.push(cell(Math.abs(g)<0.05?'–':Math.abs(g).toFixed(2)+' g',g<-0.05?'Braking':g>0.05?'Driving':'Brake / drive',g<-0.05?'red':g>0.05?'green':''));
+    h.push(cell(f.air?'In the air':(f.load||0).toFixed(1)+' g',f.air?'Jump':'Load',f.air?'blue':''));
+  }
+  if(cur.mode===0&&cur.laps&&cur.laps.length)more.push(cell(fmtDist(f.d),'Distance'));
+  more.push(cell(Math.round(f.alt)+' m','Elevation'));
+  more.push(cell(f.course===null||f.kmh<3?'–':COMPASS[Math.round(f.course/45)%8]+' '+Math.round(f.course)+'°','Heading'));
   const gq=f.sats>=8&&f.hdop<=1.5?'Good':f.sats>=6&&f.hdop<=2.5?'OK':'Poor';
-  h.push(cell(gq+(f.q===2?' +':''),'GPS · '+f.sats+' sats',gq==='Good'?'':gq==='OK'?'yellow':'red'));
-  const d=rideDate(f.date,f.utc);h.push(cell(d?d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit',second:'2-digit'}):'–','Clock'));
-  if(cur.mode===1){const st=cur.A.stops.find(s=>scrub>=s.i0&&scrub<=s.i1);h.push(cell(st?'Stopped':'Riding','State'));}
-  // v5 (IMU): lean, braking / acceleration g, jumps go here
-  $('point').innerHTML=h.join('');
+  more.push(cell(gq+(f.q===2?' +':''),'GPS · '+f.sats+' sats',gq==='Good'?'':gq==='OK'?'yellow':'red'));
+  const d=rideDate(f.date,f.utc);more.push(cell(d?d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit',second:'2-digit'}):'–','Clock'));
+  if(cur.mode===1){const st=cur.A.stops.find(s=>scrub>=s.i0&&scrub<=s.i1);more.push(cell(st?'Stopped':'Riding','State'));}
+  const all=showMore?h.concat(more):h;
+  while(all.length%3)all.push('<div class="cell"></div>');
+  $('point').innerHTML=all.join('');$('moreBtn').textContent=showMore?'Less':'More';
 }
+$('moreBtn').onclick=()=>{LS.set('mxMore',LS.get('mxMore','0')==='1'?'0':'1');renderPoint();};
 
 /* ---------- ride view ---------- */
 function rideName(e,trackName){
@@ -530,24 +687,105 @@ function rideSub(e){
 function entry(no){return RIDES.find(r=>r.n===no);}
 async function saveMeta(no){const e=entry(no);if(!e)return;cacheRides();try{await BLE.upload('meta',no,enc.encode(JSON.stringify(e.meta||{})));}catch(x){toast('Not saved on the unit - connect and try again');}}
 
-async function openRide(no){
-  show('ride');const e=entry(no);if(!e)return;
-  $('rideBody').hidden=true;$('rideEmpty').hidden=false;$('rideEmpty').textContent='Loading ride…';setup=null;$('setupPanel').hidden=true;
+// ctx 'live' = the ride being recorded (shown on the Live tab, follows the newest fix); 'history' = any ride.
+async function openRide(no,ctx){
+  const live=ctx==='live';const e=entry(no);if(!e)return;
+  if(live)liveOpening=true;
+  show(live?'live':'ride');
+  $('rideBody').hidden=true;$('rideEmpty').hidden=false;$('rideEmpty').textContent=live?'Loading the ride so far…':'Loading ride…';setup=null;$('setupPanel').hidden=true;
   try{
     const bytes=await getRideBytes(no,e.size),R=parseRide(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.length)),A=analyse(R);
     e.meta=e.meta||{};
-    cur={no,R,A,e,mode:e.meta.mode!==undefined?e.meta.mode:R.head.mode,track:null,laps:null};scrub=0;
-    if(!R.fixes.length){$('rideEmpty').textContent='This ride has no GPS fixes in it yet.';return;}
+    cmp.on=false;cmp.sel=[];
+    cur={no,R,A,e,live,mode:e.meta.mode!==undefined?e.meta.mode:R.head.mode,track:null,laps:null};scrub=live?Math.max(0,R.fixes.length-1):0;
+    if(!R.fixes.length){$('rideEmpty').textContent=live?'Recording - waiting for the first fixes…':'This ride has no GPS fixes in it yet.';return;}
     $('rideEmpty').hidden=true;$('rideBody').hidden=false;
+    show(live?'live':'ride');
     MAP.resize();TL.resize();
     recompute();MAP.fit(R.fixes);
     if(cur.mode===1&&!e.meta.area&&!e.meta.name)lookupArea(no,R.fixes[0]);
   }catch(x){$('rideEmpty').textContent='Could not open this ride: '+x.message;}
+  finally{if(live)liveOpening=false;}
 }
+// Live tab: pulls only the new part of the ride being recorded, every few seconds, and redraws.
+async function liveGrow(){
+  const key=LS.get('mxUnit','?')+'/'+cur.no,have=await DB.get(key);let buf=have?have.buf:new Uint8Array(0);
+  let part;try{part=await BLE.req('file',cur.no+' '+buf.length,{wait:8000});}catch(x){return;}
+  if(!part.length||!cur||!cur.live)return;
+  buf=cat(buf,part);await DB.put(key,{buf,size:buf.length});
+  const atEnd=scrub>=cur.R.fixes.length-2,R=parseRide(buf.buffer.slice(buf.byteOffset,buf.byteOffset+buf.length));
+  const first=!cur.R.fixes.length;cur.R=R;cur.A=analyse(R);cur.e.size=buf.length;
+  if(!R.fixes.length)return;
+  if(atEnd)scrub=R.fixes.length-1;
+  $('rideEmpty').hidden=true;$('rideBody').hidden=false;
+  if(first){MAP.resize();TL.resize();}
+  recompute();if(first)MAP.fit(R.fixes);
+}
+async function liveTick(){
+  renderLive();
+  if(view!=='live'||!BLE.ok||!S||liveBusy||liveOpening)return;
+  if(!S.ride.active){if(cur&&cur.live)cur=null;$('v-ride').hidden=true;return;}
+  liveBusy=true;
+  try{
+    if(!cur||!cur.live||cur.no!==S.ride.n){if(!entry(S.ride.n))await loadRides();if(entry(S.ride.n))await openRide(S.ride.n,'live');}
+    else await liveGrow();
+  }finally{liveBusy=false;renderLive();}
+}
+// Live card. Speed + ride numbers come from the unit's status (every 4 s); the current lap clock ticks
+// every second on the phone between updates, from the last finish-line crossing in the data so far.
+let lapClock=null;      // {start: phone time the current lap began, n: lap number}
+function liveLapInfo(){
+  if(!cur||!cur.live||cur.mode!==0||!cur.laps||!cur.laps.cross||!cur.laps.cross.length)return null;
+  const F=cur.R.fixes,lastT=F[F.length-1].t,cr=cur.laps.cross,lc=cr[cr.length-1].t,L=cur.laps.filter(l=>!l.del&&!l.paused),last=cur.laps[cur.laps.length-1];
+  return{running:lastT-lc,n:cur.laps.length+1,last,best:cur.laps.best,gap:last&&cur.laps.best&&last!==cur.laps.best?last.time-cur.laps.best.time:null,count:L.length};
+}
+function renderLive(){
+  const c=$('liveCard'),em=$('liveEmpty');
+  if(!BLE.ok||!S){
+    c.innerHTML='<div class="wide"><i class="dot"></i><div><div class="head">Unit not connected</div><div class="note">Rides already on this phone are in History.</div></div></div>';
+    em.hidden=true;lapClock=null;wake();return;}
+  const g=S.gps,q=g.quality,rec=S.ride.active&&!S.ride.paused;
+  const head=S.ride.stopped?'Not recording':S.ride.paused?'Paused · Ride '+S.ride.n:S.ride.active?'Recording · Ride '+S.ride.n:!g.alive?'No GPS found':q?'GPS ready':'Finding GPS…';
+  const L=cur&&cur.live&&cur.R.fixes.length?cur.A:null;
+  const dur=L?fmtDur(L.dur):S.ride.active?fmtDur(S.ride.fixes/10):'–';
+  const gpsTxt=S.ride.stopped?'Stopped: '+S.ride.stopped:g.fix?(q===2?'Strong':'Weak')+' GPS · '+g.sats+' sats':'Recording starts by itself at the first GPS fix';
+  const extra=[S.imu&&S.imu.ok?'sensor '+S.imu.rate+'/s':null,(S.flash.free/1048576).toFixed(1)+' MB free'].filter(Boolean).join(' · ');
+  let h=`<div class="wide"><i class="dot ${S.ride.stopped?'r':rec?'rec':q===2?'g':q===1?'y':'r'}"></i><div><div class="head">${esc(head)}</div><div class="note">${esc(gpsTxt+' · '+extra)}</div></div></div>`;
+  if(S.ride.active){
+    h+=`<div class="speedBig"><b>${g.fix&&g.kmh!==undefined?Math.round(g.kmh):'–'}</b><span>km/h</span></div>`;
+    const li=liveLapInfo();
+    if(li){lapClock={start:Date.now()-li.running*1000,n:li.n};
+      h+=`<div class="lapRow"><div class="stat"><b id="lapRun">${fmtLap(li.running)}</b><span>Lap ${li.n}</span></div>`+
+         stat(li.last?fmtLap(li.last.time):'–','Last lap',li.last?li.last.col:'')+
+         stat(li.gap===null?(li.last&&li.last===li.best?'Best':'–'):fmtGap(li.gap),'To best',li.gap===null?'purple':li.gap<=0?'green':'yellow')+'</div>';}
+    else if(cur&&cur.live&&cur.mode===0){lapClock=null;h+=`<div class="lapRow" style="grid-template-columns:1fr"><div class="note">${cur.track?'Out lap - timing starts at the finish line':'Track mode: after '+SUG_MIN_LAPS+' laps the finish line gets placed by itself'}</div></div>`;}
+    else lapClock=null;
+    h+=stat(dur,'Ride time')+stat(L?fmtDist(L.dist):'–','Distance')+stat(L?L.vmax.toFixed(0):'–','Top km/h');
+    h+=`<div class="toggleRow"><span>Keep screen on</span><button class="sw${LS.get('mxAwake','0')==='1'?' on':''}" id="awakeSw" aria-label="Keep screen on"></button></div>`;
+  }else lapClock=null;
+  c.innerHTML=h;
+  const sw=$('awakeSw');if(sw)sw.onclick=()=>{LS.set('mxAwake',LS.get('mxAwake','0')==='1'?'0':'1');renderLive();};
+  em.hidden=S.ride.active;
+  if(!S.ride.active){const last=RIDES.find(r=>!r.rec);em.innerHTML='Nothing recording right now.'+(last?'<br><button class="btn" id="lastBtn" style="margin-top:12px">Open last ride</button>':'');
+    const lb=$('lastBtn');if(lb)lb.onclick=()=>openRide(last.n,'history');}
+  wake();
+}
+setInterval(()=>{if(lapClock&&view==='live'){const e=$('lapRun');if(e)e.textContent=fmtLap((Date.now()-lapClock.start)/1000);}},500);
+// Keep screen on (Live tab, recording, toggle on). Phones drop the lock when the page is hidden, so re-ask.
+let wakeLock=null;
+async function wake(){
+  const want=LS.get('mxAwake','0')==='1'&&view==='live'&&S&&S.ride&&S.ride.active&&document.visibilityState==='visible';
+  try{if(want&&!wakeLock&&navigator.wakeLock){wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null;});}
+    else if(!want&&wakeLock){await wakeLock.release();wakeLock=null;}}catch(e){wakeLock=null;}
+}
+document.addEventListener('visibilitychange',wake);
 // Works out laps (track mode) and redraws everything. Called after any change.
 function recompute(){
   const e=cur.e;cur.track=null;cur.laps=null;
   if(cur.mode===0){cur.track=nearestTrack(cur.R);if(cur.track)cur.laps=computeLaps(cur.R,cur.A,cur.track,e.meta.del||[]);}
+  if(cur.mode!==0||cur.track){cur.sug=null;delete cur.sugN;}
+  else if(cur.sugN===undefined||cur.R.fixes.length-cur.sugN>=300){cur.sug=suggestLine(cur.R,cur.A);cur.sugN=cur.R.fixes.length;
+    if(cur.sug&&!e.meta.noAuto&&!setup){autoTrack(cur.sug);return;}}
   const best=cur.laps&&cur.laps.best?+cur.laps.best.time.toFixed(2):null,tn=cur.track?cur.track.name:null;
   if(cur.mode===0&&((e.meta.best||null)!==best||(e.meta.track||null)!==tn)){if(best)e.meta.best=best;else delete e.meta.best;if(tn)e.meta.track=tn;else delete e.meta.track;saveMeta(cur.no);}
   renderRide();
@@ -575,15 +813,24 @@ function renderRide(){
     h.push(stat(fmtDur(A.dur),'Total time'));
   }
   $('summary').innerHTML=h.join('');
+  const M=A.imu;$('imuCard').hidden=!M;
+  if(M){const st=[];
+    st.push(stat(Math.round(M.maxL)+'°','Max lean left'));st.push(stat(Math.round(M.maxR)+'°','Max lean right'));
+    st.push(stat(M.jumps.length,'Jumps'));
+    st.push(stat(M.longest.air?M.longest.air.toFixed(2)+' s':'–','Longest air'));st.push(stat(M.hardest?M.hardest.toFixed(1)+' g':'–','Hardest landing'));
+    st.push(stat(M.maxB?M.maxB.toFixed(2)+' g':'–','Hardest braking'));
+    $('imuStats').innerHTML=st.join('');}
   // track banner
   const bn=$('trackBanner');
   if(cur.mode===0&&!setup){bn.hidden=false;
-    if(!cur.track){$('trackBannerText').innerHTML='<b>No track set up here yet.</b><br><span class="note">Place a finish line to get lap times.</span>';$('trackBannerBtn').textContent='Set up track';}
+    if(!cur.track&&cur.sug){$('trackBannerText').innerHTML='<b>Looks like a track</b><br><span class="note">'+cur.sug.laps+' laps of about '+fmtLap(cur.sug.med)+'. Tap to put the line on the fastest straight.</span>';$('trackBannerBtn').textContent='Use it';}
+    else if(!cur.track){$('trackBannerText').innerHTML='<b>No track set up here yet.</b><br><span class="note">Place a finish line to get lap times, or ride '+SUG_MIN_LAPS+' laps and one gets made for you.</span>';$('trackBannerBtn').textContent='Set up track';}
     else{$('trackBannerText').innerHTML='<b>'+esc(cur.track.name)+'</b><br><span class="note">'+(cur.laps.length?cur.laps.length+' laps found':'No laps crossed the finish line')+'</span>';$('trackBannerBtn').textContent='Edit track';}
   }else bn.hidden=true;
   // laps
   const L=cur.mode===0&&cur.laps?cur.laps:[];$('lapsCard').hidden=!L.length;
-  $('laps').innerHTML=L.map(l=>`<tr data-n="${l.n}" class="${l.del?'del':''}"><td><i class="chip ${l.col}"></i>${l.n}${l.paused?' <span class="tag">paused</span>':''}</td><td class="num">${fmtLap(l.time)}</td><td class="num">${L.best&&!l.del&&!l.paused?(l===L.best?'best':'+'+(l.time-L.best.time).toFixed(2)):''}</td><td class="num">${l.vmax.toFixed(0)}</td><td class="num"><button class="x" data-del="${l.n}">${l.del?'Put back':'Remove'}</button></td></tr>`).join('');
+  $('laps').innerHTML=L.map(l=>`<tr data-n="${l.n}" class="${l.del?'del':''}${cmp.sel[0]===l.n?' selA':cmp.sel[1]===l.n?' selB':''}"><td><i class="chip ${l.col}"></i>${l.n}${l.paused?' <span class="tag">paused</span>':''}</td><td class="num">${fmtLap(l.time)}</td><td class="num">${L.best&&!l.del&&!l.paused?(l===L.best?'best':'+'+(l.time-L.best.time).toFixed(2)):''}</td><td class="num">${cmp.on?'':`<button class="x" data-del="${l.n}">${l.del?'Put back':'Remove'}</button>`}</td></tr>`).join('');
+  renderCmp();
   $('colourBtn').textContent=traceColour==='speed'?'Speed':'Plain';$('layerBtn').textContent=MAP.LAYERS[MAP.v.layer].name;
   setScrub(scrub,false);
 }
@@ -603,48 +850,68 @@ $('modeSeg').onclick=e=>{const b=e.target.closest('button');if(!b||!cur)return;c
 $('layerBtn').onclick=()=>{$('layerBtn').textContent=MAP.nextLayer();};
 $('colourBtn').onclick=()=>{traceColour=traceColour==='speed'?'plain':'speed';LS.set('mxColour',traceColour);$('colourBtn').textContent=traceColour==='speed'?'Speed':'Plain';MAP.req();};
 $('fitBtn').onclick=()=>{if(!cur)return;const l=cur.mode===0?lapAt(scrub):null;MAP.fit(l?cur.R.fixes.slice(l.i0,l.i1+1):cur.R.fixes);};
-$('laps').onclick=e=>{const d=e.target.closest('[data-del]');
+$('laps').onclick=e=>{
+  if(cmp.on){const tr=e.target.closest('tr');if(!tr)return;const n=+tr.dataset.n,k=cmp.sel.indexOf(n);
+    if(k>=0)cmp.sel.splice(k,1);else{cmp.sel.push(n);if(cmp.sel.length>2)cmp.sel.shift();}
+    const ls=cmp.sel.map(x=>cur.laps.find(l=>l.n===x)).filter(Boolean);
+    if(ls.length){const a=Math.min(...ls.map(l=>l.i0)),b=Math.max(...ls.map(l=>l.i1));MAP.fit(cur.R.fixes.slice(a,b+1));setScrub(ls[0].i0,false);}
+    renderRide();return;}
+  const d=e.target.closest('[data-del]');
   if(d){const n=+d.dataset.del,m=cur.e.meta;m.del=m.del||[];const k=m.del.indexOf(n);if(k>=0)m.del.splice(k,1);else m.del.push(n);if(!m.del.length)delete m.del;saveMeta(cur.no);recompute();return;}
   const tr=e.target.closest('tr');if(tr){const l=cur.laps.find(x=>x.n===+tr.dataset.n);if(l){setScrub(l.i0,true);MAP.fit(cur.R.fixes.slice(l.i0,l.i1+1));}}};
 let delArm=0;
 $('delRideBtn').onclick=async()=>{const b=$('delRideBtn');if(Date.now()-delArm>4000){delArm=Date.now();b.textContent='Tap again to delete';setTimeout(()=>{b.textContent='Delete ride';},4000);return;}
-  try{await BLE.text('delride',String(cur.no));}catch(x){toast(x.message);return;}DB.del(LS.get('mxUnit','?')+'/'+cur.no);toast('Ride deleted');cur=null;delArm=0;b.textContent='Delete ride';await loadRides();show('rides');};
+  try{await BLE.text('delride',String(cur.no));}catch(x){toast(x.message);return;}DB.del(LS.get('mxUnit','?')+'/'+cur.no);toast('Ride deleted');cur=null;delArm=0;b.textContent='Delete ride';await loadRides();show('history');};
 
 /* ---------- track setup ---------- */
 function startSetup(){
   const F=cur.R.fixes,t=cur.track;
   if(t)setup={id:t.id,name:t.name,fin:t.fin.slice(),dir:t.dir,zones:(t.zones||[]).map(z=>z.slice()),finI:-1,placingZone:false,minLap:t.minLap||20};
+  else if(cur.sug){const i0=cur.sug.i;setup={id:null,name:'',fin:cur.sug.g.fin,dir:cur.sug.g.dir,zones:[],finI:i0,placingZone:false,minLap:20};setScrub(i0,true);}
   else{let i0=0;for(let i=0;i+20<F.length;i++){let ok=true;for(let k=i;k<i+20;k++)if(F[k].kmh<=15){ok=false;break;}if(ok){i0=i+10;break;}}
     const g=gateAt(i0,4.5);setup={id:null,name:'',fin:g.fin,dir:g.dir,zones:[],finI:i0,placingZone:false,minLap:20};setScrub(i0,true);}
   $('suName').value=setup.name;$('suDelete').hidden=!setup.id;
-  const len=Math.round(Math.hypot((setup.fin[0]-setup.fin[2])*111320,(setup.fin[1]-setup.fin[3])*cur.A.kx));$('suLen').value=Math.max(6,Math.min(20,len||9));
+  const len=Math.round(Math.hypot((setup.fin[0]-setup.fin[2])*111320,(setup.fin[1]-setup.fin[3])*cur.A.kx));$('suLen').value=Math.max(6,Math.min(30,len||gateW()));
+  if(!t&&cur.sug)toast('Suggested line on the fastest straight - tap the map to move it');
   $('setupPanel').hidden=false;$('trackBanner').hidden=true;renderSetup();MAP.req();
   $('setupPanel').scrollIntoView({block:'nearest'});
 }
-function renderSetup(){$('suLenV').textContent=$('suLen').value;$('suZoneV').textContent=$('suZone').value;$('suZoneN').textContent=setup.zones.length;$('suZoneSizeRow').hidden=!setup.placingZone;$('suZoneAdd').textContent=setup.placingZone?'Tap the map…':'Add tree zone';}
+function renderSetup(){$('suWarn').hidden=!(setup&&cur&&gateOverlaps(cur.R,cur.A,setup));$('suLenV').textContent=$('suLen').value;$('suZoneV').textContent=$('suZone').value;$('suZoneN').textContent=setup.zones.length;$('suZoneSizeRow').hidden=!setup.placingZone;$('suZoneAdd').textContent=setup.placingZone?'Tap the map…':'Add tree zone';}
 $('trackBannerBtn').onclick=startSetup;
-$('suLen').oninput=()=>{renderSetup();if(setup.finI>=0){const g=gateAt(setup.finI,+$('suLen').value/2);setup.fin=g.fin;setup.dir=g.dir;}
+$('suLen').oninput=()=>{if(setup.finI>=0){const g=gateAt(setup.finI,+$('suLen').value/2);setup.fin=g.fin;setup.dir=g.dir;}
   else{const ml=(setup.fin[0]+setup.fin[2])/2,mo=(setup.fin[1]+setup.fin[3])/2,h=+$('suLen').value/2,a=setup.dir*Math.PI/180,px=-Math.cos(a),py=Math.sin(a),A=cur.A;setup.fin=[+(ml+py*h/A.ky).toFixed(7),+(mo+px*h/A.kx).toFixed(7),+(ml-py*h/A.ky).toFixed(7),+(mo-px*h/A.kx).toFixed(7)];}
-  MAP.req();};
+  renderSetup();MAP.req();};
 $('suZone').oninput=renderSetup;
 $('suZoneAdd').onclick=()=>{setup.placingZone=!setup.placingZone;renderSetup();};
 $('suZoneUndo').onclick=()=>{setup.zones.pop();setup.placingZone=false;renderSetup();MAP.req();};
 $('suCancel').onclick=()=>{setup=null;$('setupPanel').hidden=true;renderRide();};
-async function saveTracks(){LS.set('mxTracks',JSON.stringify(TR));await BLE.upload('tracks',0,enc.encode(JSON.stringify(TR)));}
+// Saved on the phone first; if the unit isn't connected it gets sent next time it is.
+async function saveTracks(){LS.set('mxTracks',JSON.stringify(TR));LS.set('mxTrPending','1');await BLE.upload('tracks',0,enc.encode(JSON.stringify(TR)));LS.set('mxTrPending','0');}
+// Keep the best lap's line with the track (used later for cut checks and live timing)
+function trackLine(t){const laps=computeLaps(cur.R,cur.A,t,cur.e.meta.del||[]),line=[];
+  if(laps.best){const F=cur.R.fixes;let lx=1e9,ly=1e9;for(let i=laps.best.i0;i<=laps.best.i1;i++){const f=F[i];if(Math.hypot(f.x-lx,f.y-ly)>=3){line.push([+f.lat.toFixed(6),+f.lon.toFixed(6)]);lx=f.x;ly=f.y;}}}
+  return line;}
+async function autoTrack(sg){
+  let k=TR.tracks.length+1;while(TR.tracks.some(x=>x.name==='Track '+k))k++;
+  const t={id:Date.now().toString(36),name:'Track '+k,fin:sg.g.fin,dir:sg.g.dir,minLap:20,zones:[],line:[],auto:1};
+  t.line=trackLine(t);TR.tracks.push(t);
+  try{await saveTracks();}catch(x){}
+  toast('New track found and saved as '+t.name+'. Tap Edit track to rename it or move the line.');
+  recompute();
+}
 $('suSave').onclick=async()=>{
   const name=($('suName').value.trim().replace(/["\\<>&]/g,''))||'My track';
   const t={id:setup.id||Date.now().toString(36),name,fin:setup.fin,dir:setup.dir,minLap:setup.minLap,zones:setup.zones,line:[]};
-  // keep the best lap's line with the track (used later for cut checks and live timing)
-  const laps=computeLaps(cur.R,cur.A,t,cur.e.meta.del||[]);
-  if(laps.best){const F=cur.R.fixes;let lx=1e9,ly=1e9;for(let i=laps.best.i0;i<=laps.best.i1;i++){const f=F[i];if(Math.hypot(f.x-lx,f.y-ly)>=3){t.line.push([+f.lat.toFixed(6),+f.lon.toFixed(6)]);lx=f.x;ly=f.y;}}}
-  else{const old=TR.tracks.find(x=>x.id===t.id);if(old&&old.line)t.line=old.line;}
+  t.line=trackLine(t);
+  if(!t.line.length){const old=TR.tracks.find(x=>x.id===t.id);if(old&&old.line)t.line=old.line;}
   const k=TR.tracks.findIndex(x=>x.id===t.id);if(k>=0)TR.tracks[k]=t;else TR.tracks.push(t);
-  try{await saveTracks();toast('Track saved');}catch(x){toast('Could not save the track');return;}
+  try{await saveTracks();toast('Track saved');}catch(x){toast('Saved on this phone - goes to the unit when it connects');}
   setup=null;$('setupPanel').hidden=true;recompute();
 };
 let delTrackArm=0;
 $('suDelete').onclick=async()=>{const b=$('suDelete');if(Date.now()-delTrackArm>4000){delTrackArm=Date.now();b.textContent='Tap again to delete';setTimeout(()=>{b.textContent='Delete track';},4000);return;}
-  TR.tracks=TR.tracks.filter(x=>x.id!==setup.id);try{await saveTracks();toast('Track deleted');}catch(x){toast('Could not delete');return;}
+  TR.tracks=TR.tracks.filter(x=>x.id!==setup.id);cur.e.meta.noAuto=1;saveMeta(cur.no);
+  try{await saveTracks();toast('Track deleted');}catch(x){toast('Deleted on this phone - the unit updates when it connects');}
   b.textContent='Delete track';setup=null;$('setupPanel').hidden=true;recompute();};
 
 /* ---------- rides list ---------- */
@@ -660,11 +927,21 @@ function renderRides(){
     return`<div class="rideItem" data-n="${e.n}"><span class="star${m.fav?' on':''}" style="font-size:18px">${m.fav?'&#9733;':'&#9734;'}</span><div class="main"><div class="t">${esc(rideName(e))}${e.rec?'<span class="tag rec">REC</span>':''}<span class="tag">${mode===0?'TRACK':'ADV'}</span></div><div class="sub">${esc(rideSub(e))}</div></div><div class="r ${mode===0?'purple':''}">${right}</div></div>`;}).join(''):'<div class="empty">No rides yet. Go for a ride and they will show up here.</div>';
   if(S)$('ridesNote').textContent=RIDES.length+' ride'+(RIDES.length===1?'':'s')+' on the unit · '+(S.flash.free/1048576).toFixed(1)+' MB free (about '+Math.floor(S.flash.free/1150000)+' more hours)';
 }
-$('ridesList').onclick=e=>{const it=e.target.closest('.rideItem');if(it)openRide(+it.dataset.n);};
+$('ridesList').onclick=e=>{const it=e.target.closest('.rideItem');if(!it)return;const r=entry(+it.dataset.n);if(r&&r.rec&&BLE.ok)show('live');else openRide(+it.dataset.n,'history');};
+$('backBtn').onclick=()=>show('history');
 
 /* ---------- settings + status ---------- */
-function show(v){view=v;document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));['ride','rides','settings'].forEach(x=>{$('v-'+x).hidden=x!==v;});
-  if(v==='ride'){MAP.resize();TL.resize();}if(v==='rides')loadRides();if(v==='settings')renderSettings();}
+function show(v){
+  view=v;const tab=v==='ride'?'history':v;
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===tab));
+  $('v-live').hidden=v!=='live';$('v-rides').hidden=v!=='history';$('v-settings').hidden=v!=='settings';
+  $('v-ride').hidden=!(v==='ride'||(v==='live'&&(liveOpening||(cur&&cur.live))));
+  $('backBar').hidden=v!=='ride';
+  if(!$('v-ride').hidden){MAP.resize();TL.resize();}
+  if(v==='history')loadRides();if(v==='settings')renderSettings();
+  if(v==='live')liveTick();
+  window.scrollTo(0,0);
+}
 $('nav').onclick=e=>{const b=e.target.closest('button');if(b)show(b.dataset.v);};
 async function refreshState(){
   if(!BLE.ok)return;
@@ -673,12 +950,18 @@ async function refreshState(){
   const q=S.gps.quality,p=$('pill');p.className='pill '+(S.ride.stopped?'r':q===2?'g':q===1?'y':'r');
   p.innerHTML='<i></i>'+(S.ride.stopped?'Not recording':S.ride.paused?'Paused':!S.gps.alive?'No GPS found':q===2?'GPS ready':q===1?'GPS weak':'Finding GPS…')+(S.ride.active&&!S.ride.paused?' · REC':'');
   if(view==='settings')renderSettings(true);
+  if(view==='live')liveTick();
 }
 function renderSettings(live){
   if(!S)return;
   document.querySelectorAll('#setMode button').forEach(b=>b.classList.toggle('on',+b.dataset.m===S.mode));
   if(!live){$('setRider').value=S.rider;$('setBike').value=S.bike;}
   $('setSbas').textContent='SouthPAN: '+(S.southpan?'on':'off');
+  const rs=S.rateSet||10,rn=S.rateNow||10;
+  document.querySelectorAll('#setRate button').forEach(b=>b.classList.toggle('on',+b.dataset.r===rs));
+  $('rateNote').textContent=rs!==rn?'Set to '+rs+' Hz - switch the unit off and on to use it (running '+rn+' Hz now).':
+    rn>10?'Testing '+rn+' Hz with GPS satellites only. Check the fixes/s below to see what it really delivers.':
+    '10 Hz uses every satellite system. The test rates use GPS satellites only (fewer satellites, so a bit less accurate). Applies after switching off and on.';
   $('actPause').textContent=S.ride.paused?'Resume':'Pause';
   const g=S.gps,kv=[['GPS',g.alive?g.kind+(g.baud?' · '+g.baud+' baud':''):'Nothing heard - check the wiring'],
     ['Fix',g.fix?(g.q===2?'DGPS (corrections in use)':'GPS')+' · '+g.sats+' sats · HDOP '+g.hdop.toFixed(1)+' · '+g.rate+'/s':'No fix yet'],
@@ -695,10 +978,31 @@ async function setSetting(body){try{S=await BLE.json('settings',body);renderSett
 $('setMode').onclick=e=>{const b=e.target.closest('button');if(b)setSetting('mode='+b.dataset.m);};
 $('setRider').onchange=()=>setSetting('rider='+encodeURIComponent($('setRider').value));
 $('setBike').onchange=()=>setSetting('bike='+encodeURIComponent($('setBike').value));
+$('gwIn').value=gateW();$('gwV').textContent=gateW();
+$('gwIn').oninput=()=>{LS.set('mxGateW',$('gwIn').value);$('gwV').textContent=$('gwIn').value;if(cur){delete cur.sugN;}};
+document.querySelectorAll('#setRate button').forEach(b=>b.onclick=()=>{setSetting('rate='+b.dataset.r);toast('Applies after switching off and on');});
 $('setSbas').onclick=()=>{setSetting('southpan='+(S.southpan?0:1));toast('Applies after switching off and on');};
 document.querySelectorAll('[data-act]').forEach(b=>b.onclick=async()=>{try{S=await BLE.json('action',b.dataset.act);renderSettings(true);toast({marker:'Marker dropped',pause:S.ride.paused?'Paused':'Resumed',end:'Ride ended - a new one starts at the next fix'}[b.dataset.act]);}catch(x){toast(x.message);}});
 $('oldDel').onclick=async()=>{try{S=await BLE.json('delold','',{wait:20000});renderSettings(true);toast('Old test files deleted');}catch(x){toast(x.message);}};
 $('reportBtn').onclick=async()=>{try{toast('Getting the report…');const t=await BLE.text('report','',{wait:20000});saveFile('mx_report_boot'+(S?S.boot:'')+'.txt',t);}catch(x){toast('Could not get the report: '+x.message);}};
+// CSV: one row per GPS fix (10 a second) with the worked-out values next to the raw ones.
+const CSV_HEAD='ride,time_s,utc,lat,lon,speed_kmh,heading_deg,elevation_m,sats,hdop,fix_type,distance_m,lap,lean_deg,brake_drive_g,load_g,in_air\n';
+function csvRows(no,R,A,laps){
+  const out=[];const lapOf=i=>{if(!laps)return'';for(const l of laps)if(i>=l.i0&&i<=l.i1)return l.n;return'';};
+  R.fixes.forEach((f,i)=>{const d=rideDate(f.date,f.utc);
+    out.push([no,f.t.toFixed(2),d?d.toISOString():'',f.lat.toFixed(7),f.lon.toFixed(7),f.kmh.toFixed(1),f.course===null?'':f.course.toFixed(1),f.altRaw.toFixed(1),f.sats,f.hdop.toFixed(1),f.q,
+      (f.d||0).toFixed(1),lapOf(i),A.imu?(f.lean||0).toFixed(1):'',A.imu?(f.lg||0).toFixed(3):'',A.imu?(f.load||0).toFixed(2):'',A.imu?(f.air?1:0):''].join(','));});
+  return out.join('\n')+'\n';
+}
+$('csvBtn').onclick=()=>{if(!cur){toast('Open a ride first');return;}saveFile('ride_'+String(cur.no).padStart(4,'0')+'.csv',CSV_HEAD+csvRows(cur.no,cur.R,cur.A,cur.laps),'text/csv');};
+$('csvAllBtn').onclick=async()=>{
+  const list=RIDES.slice().reverse();if(!list.length){toast('No rides');return;}
+  const b=$('csvAllBtn'),msg=$('csvAllMsg');b.disabled=true;let txt=CSV_HEAD,n=0;
+  for(const e of list){msg.textContent='Ride '+(++n)+' of '+list.length+'…';
+    try{const bytes=await getRideBytes(e.n,e.size),R=parseRide(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.length)),A=analyse(R);
+      let laps=null;const t=nearestTrack(R);if(t)laps=computeLaps(R,A,t,(e.meta&&e.meta.del)||[]);
+      txt+=csvRows(e.n,R,A,laps);}catch(x){msg.textContent='Skipped ride '+e.n+' ('+x.message+')';}}
+  saveFile('all_rides.csv',txt,'text/csv');msg.textContent='Done - '+list.length+' rides';b.disabled=false;};
 $('gpxBtn').onclick=()=>{if(!cur)return;const F=cur.R.fixes;let g='<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="MX Logger" xmlns="http://www.topografix.com/GPX/1/1">\n<trk><name>'+esc(rideName(cur.e))+'</name><trkseg>\n';
   for(const f of F){const d=rideDate(f.date,f.utc);g+='<trkpt lat="'+f.lat.toFixed(7)+'" lon="'+f.lon.toFixed(7)+'"><ele>'+f.altRaw.toFixed(1)+'</ele>'+(d?'<time>'+d.toISOString()+'</time>':'')+'<sat>'+f.sats+'</sat><hdop>'+f.hdop.toFixed(1)+'</hdop></trkpt>\n';}
   g+='</trkseg></trk>\n</gpx>\n';saveFile('ride_'+String(cur.no).padStart(4,'0')+'.gpx',g,'application/gpx+xml');};
@@ -717,21 +1021,18 @@ $('fwGo').onclick=async()=>{
 // Everything loads from the phone first (works with the unit off), then refreshes from the unit once connected.
 async function startData(){
   await refreshState();
-  if(BLE.ok){try{const t=await BLE.json('tracks','',{wait:10000});if(t&&Array.isArray(t.tracks)){TR=t;LS.set('mxTracks',JSON.stringify(TR));}}catch(x){}}
+  if(BLE.ok){try{if(LS.get('mxTrPending','0')==='1')await saveTracks();
+    else{const t=await BLE.json('tracks','',{wait:10000});if(t&&Array.isArray(t.tracks)){TR=t;LS.set('mxTracks',JSON.stringify(TR));}}}catch(x){}}
   await loadRides();
-  if(cur&&RIDES.length)return;
-  const pick=RIDES.find(r=>r.sum&&(r.sum.dist>200||r.sum.dur>120))||RIDES[0];
-  if(pick)openRide(pick.n);
+  if(view==='live'||!cur)show('live');      // Live first: the ride being recorded, building up as you ride
 }
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 (async()=>{
   try{TR=JSON.parse(LS.get('mxTracks','{"tracks":[]}'));if(!Array.isArray(TR.tracks))TR={tracks:[]};}catch(x){TR={tracks:[]};}
   connChanged();
+  show('live');
   if(BLE.supported()&&await BLE.remembered()){await startData();setInterval(refreshState,4000);return;}
-  await loadRides();
-  // results first: the newest ride worth looking at
-  const pick=RIDES.find(r=>r.sum&&(r.sum.dist>200||r.sum.dur>120))||RIDES[0];
-  if(pick)openRide(pick.n);else $('rideEmpty').innerHTML='No rides on this phone yet.<br><span class="note">Switch the unit on and tap Connect. Recording starts by itself at the first GPS fix.</span>';
+  await loadRides();renderLive();
   setInterval(refreshState,4000);
 })();
 })();
