@@ -50,10 +50,14 @@ main{max-width:760px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-rig
 .help table{width:100%;border-collapse:collapse;font-size:13px;color:var(--muted)}.help th{text-align:left;font-weight:600;color:var(--fg);padding:0 6px 6px 0}.help td{vertical-align:top;padding:8px 6px 8px 0;border-top:1px solid var(--line);line-height:1.45}
 .help td:first-child{color:var(--fg);font-weight:600;white-space:nowrap}.help .bl{color:var(--blue)!important}.help .rd{color:var(--red)!important}
 .keys{list-style:none;margin:0;padding:0;display:grid;gap:7px;color:var(--muted);font-size:14px}.keys li{display:flex;align-items:center;gap:10px}.keys i{flex:none;width:14px;height:14px;border-radius:50%}
+.lights{display:grid;gap:12px}.lights>div{display:flex;gap:12px;align-items:flex-start}.lights i{flex:none;width:14px;height:14px;border-radius:50%;margin-top:3px}.lights i.blink{animation:bk 1s steps(1) infinite}.lights b{display:block}.lights span{display:block;color:var(--muted);font-size:14px;margin-top:2px}
 .keys i.blink{background:var(--fg);animation:bk 1s steps(1) infinite}@keyframes bk{50%{opacity:.15}}
 .lapsHead{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:2px 0;text-align:left;color:var(--fg)}
 .lapsHead .lbl{flex:none}#lapsSum{flex:1;min-width:0;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #lapsChev{font-style:normal;color:var(--muted);transition:transform .15s}.lapsShut #lapsChev{transform:rotate(-90deg)}#lapsBody{margin-top:8px}
+#ptBox{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px 14px;margin-bottom:12px}#ptBox .grid{margin:10px 0 0;border-radius:12px}
+#ptSum{flex:1;min-width:0;font-size:14px;font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}#ptSum i{font-style:normal;font-weight:500;color:var(--muted);font-size:12px;margin:0 8px 0 3px}
+#ptChev{font-style:normal;color:var(--muted);transition:transform .15s}.ptShut #ptChev{transform:rotate(-90deg)}.ptShut .grid{display:none}
 .modeBox{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:12px}.modeBox .seg{border:0;margin:0;background:none}
 .tbRow{display:flex;align-items:center;gap:10px;padding:4px 8px 8px 14px;font-size:13px;color:var(--muted)}.tbRow div{flex:1;min-width:0}.tbRow b{color:var(--fg);font-weight:650}
 .tbRow .btn{padding:6px 12px;font-size:13px}.tbRow .btn.pri{background:var(--accent);color:var(--onaccent)}
@@ -88,6 +92,10 @@ tr.selA td:first-child{box-shadow:inset 3px 0 0 #f3f4f6}tr.selB td:first-child{b
 .x{background:none;border:1px solid var(--line);border-radius:6px;padding:3px 8px;font-size:12px;color:var(--muted)}
 .rideItem{display:flex;align-items:center;gap:10px;padding:14px 6px;border-bottom:1px solid var(--line)}
 .rideItem .main{flex:1;min-width:0}
+#trList .rideItem:last-child,#trRides .rideItem:last-child{border-bottom:0}
+.trThumb{width:56px;height:56px;flex:none;background:var(--panel2);border-radius:12px;display:flex}.trThumb svg,.trMap svg{width:100%;height:100%}
+.trMap.big{margin:12px 0;height:min(62vw,300px);background:var(--panel2);border-radius:14px;display:flex;align-items:center;justify-content:center}
+#trName{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:16px;font-weight:650}#trName[readonly]{background:none;border-color:transparent;padding-left:0}
 .rideItem .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rideItem .r{font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
 .tag{font-size:10px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:6px;background:var(--panel2);color:var(--muted);margin-left:6px}
@@ -101,8 +109,12 @@ details>summary{cursor:pointer;font-weight:700;padding:4px 0;list-style:none}det
 details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:after{content:" \25BE"}
 .prog{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-top:8px}.prog i{display:block;height:100%;width:0;background:var(--accent)}
 [hidden]{display:none!important}
-#conn{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:12px}
-#conn .t{flex:1;min-width:160px;font-size:13px}#conn .t b{display:block;font-size:14px}
+/* connect island: floats at the bottom in thumb reach, gone once connected */
+#conn{position:fixed;z-index:8;left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));bottom:calc(12px + env(safe-area-inset-bottom));max-width:520px;margin:0 auto;display:flex;align-items:center;gap:12px;background:var(--panel3);border:1px solid var(--line);border-radius:22px;padding:10px 10px 10px 16px;box-shadow:0 10px 30px rgba(0,0,0,.55)}
+#conn .t{flex:1;min-width:0;font-size:12px}#conn .t b{display:block;font-size:14px}#conn .t .note{display:block;margin:1px 0 0}
+#conn .btn{flex:none;padding:11px 18px}
+body.island main{padding-bottom:96px}body.island #toast{bottom:calc(92px + env(safe-area-inset-bottom))}
+.pill.tap{cursor:pointer}
 .prog2{height:4px;background:var(--panel2);border-radius:2px;overflow:hidden;margin-top:6px}.prog2 i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
 #liveCard{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 8px}
 #liveCard .wide{grid-column:1/-1;display:flex;align-items:center;gap:10px}
@@ -125,10 +137,22 @@ details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:
 .backBtn{background:none;border:0;color:var(--fg);font-weight:600;font-size:15px;padding:6px 0}
 .exp{font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--panel2);color:var(--muted);margin-left:8px;vertical-align:middle}
 #toast{position:fixed;left:50%;bottom:max(22px,env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--fg);color:var(--onaccent);padding:10px 16px;border-radius:99px;font-size:13px;font-weight:600;z-index:9;max-width:90vw}
+
+/* small phones (base-model sizes, ~360 px): keep the key numbers readable without sideways squeeze */
+@media (max-width:400px){
+  #rideTitle{white-space:normal;font-size:19px;line-height:1.2;text-wrap:balance;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  #renameBtn{padding:7px 11px;font-size:13px}
+  .card{padding:14px}
+  #summary{gap:10px 8px}#summary .stat b{font-size:19px}#summary .stat.big b{font-size:38px}#summary .stat span{font-size:11px}
+  #map{height:44vh;min-height:240px}
+  #ptHead{flex-wrap:wrap;row-gap:4px}#ptHead .lbl{flex:1}#ptSum{flex-basis:100%;order:3;text-align:left}
+  #laps td{padding:8px 3px}#laps td:first-child{white-space:nowrap}#laps .tag{margin-left:4px;padding:2px 5px;letter-spacing:.02em;font-size:9px}
+  #laps button.x{padding:5px 8px;font-size:12px}
+}
 </style></head><body>
 <header>
   <div class="hrow"><div class="brand"><img src="icon.svg" alt="">RideTracker<span id="hdrName"></span></div><div id="pill" class="pill"><i></i>Connecting</div></div>
-  <nav id="nav"><button data-v="live" class="on">Live</button><button data-v="history">History</button><button data-v="settings">Settings</button><button data-v="help">Help</button></nav>
+  <nav id="nav"><button data-v="help">Help</button><button data-v="history">History</button><button data-v="live" class="on">Live</button><button data-v="tracks">Tracks</button><button data-v="settings">Settings</button></nav>
 </header>
 <main>
 <div id="conn" hidden><div class="t"><b id="connTitle">Not connected</b><span id="connSub" class="note"></span><div class="prog2" id="dlBarBox" hidden><i id="dlBar"></i></div></div><button class="btn pri" id="connBtn">Connect</button></div>
@@ -170,16 +194,15 @@ details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:
     <canvas id="timeline"></canvas>
     <div id="gapWrap" hidden><canvas id="gapline"></canvas><div class="gapKey"><span>Gap to best lap</span><span><b class="g">below = gaining</b> · <b class="r">above = losing</b></span></div></div>
     <div class="tlBar"><span id="tlLbl">Whole ride</span><button class="btn txt" id="tlLap" hidden>This lap</button><button class="btn txt" id="tlAll" hidden>All</button><button class="btn" id="tlOut" aria-label="Zoom out">&minus;</button><button class="btn" id="tlIn" aria-label="Zoom in">+</button></div>
+    <div id="ptBox" class="ptShut"><button class="lapsHead" id="ptHead"><span class="lbl">At this point</span><span id="ptSum"></span><i id="ptChev">&#9662;</i></button>
+      <div id="point" class="grid"></div></div>
     <div id="lapsCard" class="card" hidden>
       <button class="lapsHead" id="lapsHead"><span class="lbl">Laps</span><span id="lapsSum"></span><i id="lapsChev">&#9662;</i></button>
       <div id="lapsBody">
       <table><thead><tr><th>Lap</th><th class="num">Time</th><th class="num">To best</th><th></th></tr></thead><tbody id="laps"></tbody></table>
       <p class="note" style="margin:10px 0 0" id="lapsNote">Tap a lap to jump to it. Red laps (stopped, or 10%+ shorter so maybe cut) don't count for best or average - tap Count it if one was fine. Remove takes a lap out completely.</p></div>
     </div>
-    <div id="point" class="grid"></div>
-    <div class="card"><div class="lbl" style="margin-bottom:8px">Export this ride</div>
-      <div class="row"><button class="btn pri" id="rCsv">Data for Claude (CSV)</button><button class="btn" id="rGpx">GPX</button></div>
-      <p class="note" style="margin:8px 0 0">One file for Claude: notes on top (summary, laps, corner speeds, brake points, sector times), then every GPS point. Opens in Excel too. GPX opens in Google Earth.</p></div>
+    <div class="row" style="margin-bottom:12px"><button class="btn pri" id="rCsv">Download review file</button></div>
     <div class="row" style="justify-content:flex-end"><button id="delRideBtn" class="btn danger">Delete ride</button></div>
   </div>
 </section>
@@ -191,43 +214,43 @@ details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:
 
 <section id="v-help" hidden>
   <div class="card help"><h3>Quick start</h3>
-    <ol><li><b>Switch on.</b> Every LED on the bar lights up in turn - that's the power-on check.</li>
-      <li><b>Wait for the status light (first LED) to go green</b> (strong GPS). Outside with a clear view of the sky it takes under a minute.</li>
-      <li><b>Hold the Ride button for 1 second.</b> The whole strip flashes green 3 times and the status light starts blinking - you're recording.</li>
-      <li><b>Ride.</b> Lap and sector colours show on the bar as you go.</li>
-      <li><b>Finish:</b> hold the Ride button until the bar is all red (4 s), then let go. The strip flashes red 3 times - the ride is saved.</li>
-      <li><b>Open this page, tap Connect.</b> Rides copy to the phone by themselves - open them in History.</li></ol></div>
+    <ol><li>Switch on and wait for the <b>GPS light to go green</b>.</li>
+      <li><b>Hold the Ride button 1 s</b> to start. The lights flash green.</li>
+      <li>Ride.</li>
+      <li><b>Hold the Ride button 4 s</b> (until all red) to finish. Connect the phone and the ride copies over.</li></ol></div>
   <div class="card help"><h3>Buttons</h3>
-    <table><tr><th></th><th>Ride button</th><th>Marker button</th></tr>
-      <tr><td>Not recording</td><td>Hold 1 s: start <b style="color:var(--green)">(3 green flashes)</b></td><td>-</td></tr>
-      <tr><td>Recording</td><td>Hold, let go while <b class="bl">blue</b>: pause <b>(white 1 s)</b> / resume <b style="color:var(--green)">(green 1 s)</b><br>Hold until all <b class="rd">red</b> (4 s): end ride <b class="rd">(3 red flashes)</b><br>Keep holding until dark (6 s): cancel</td><td>Tap: drop a marker <b style="color:var(--yellow)">(strip goes yellow)</b> - mark a crash, a line to try, anything</td></tr></table>
-    <p><b>Pause is not end.</b> A short hold (let go while blue) only pauses - the strip breathes blue until you resume. To finish, keep holding until the bar is all red. Switching off while stopped also ends it; if the power goes while you're riding, it carries on recording when the power comes back.</p>
-    <p>When a press works, the whole strip shows it, so you know without looking at the phone. If a press can't do anything - a quick tap, a marker when you're not recording, or still waiting for GPS - the strip does a <b class="rd">"no" shake</b>: red on every other LED, swapping back and forth. The phone can do all of these too: Settings, Details.</p></div>
-  <div class="card help"><h3>Status light</h3><p style="margin:0 0 10px">The first LED on the bar (the one on its own at the end).</p>
-    <ul class="keys"><li><i style="background:var(--green)"></i><b>Green</b> strong GPS</li><li><i style="background:#ff9f0a"></i><b>Orange</b> weak GPS</li><li><i style="background:var(--red)"></i><b>Red</b> no GPS yet</li>
-      <li><i class="blink"></i><b>Blinking</b> recording (blue blink = phone connected)</li><li><i style="background:var(--blue);opacity:.6"></i><b>Whole strip breathing blue</b> paused - still a ride, not ended</li><li><i style="background:var(--red)"></i><b>Fast red flash</b> storage full or a storage problem - connect the phone</li></ul></div>
-  <div class="card help"><h3>LED bar</h3>
-    <ul class="keys"><li><i style="background:var(--purple)"></i><b>Purple</b> best lap (or sector) of the day</li><li><i style="background:var(--green)"></i><b>Green</b> faster than your last one</li><li><i style="background:var(--yellow)"></i><b>Yellow</b> slower than your last one</li><li><i style="background:var(--red)"></i><b>Red</b> you stopped in it - doesn't count</li></ul>
-    <p>The other 5 LEDs. <b>Over the finish line:</b> they all flash the lap colour for 3 s. <b>During the lap:</b> they're split into the 3 sectors - 2 LEDs, the middle one, then 2 LEDs - and each part lights up as you finish that sector.</p>
-    <p><b>Amber blinks</b> = a warning: once = GPS weak, twice = storage low, three times = battery low. Shown at power-on, when you start recording, and every 5 minutes.</p></div>
-  <div class="card help"><h3>Tracks and laps</h3>
-    <p><b>New track:</b> just ride. After 3 laps the finish line goes on the fastest straight by itself, with 2 sector lines (3 sectors). Change it with <b>Edit track</b> on any ride there.</p>
-    <p><b>The unit times laps itself</b> once it knows the track - open one ride from that track with the unit connected and it gets the lines.</p>
-    <p><b>Red laps</b> had a stop in them, or were 10%+ short (a cut?). They don't count for best or average - tap <b>Count it</b> if it was fine.</p>
-    <p><b>Track / Adventure</b> is just how a ride is shown. Rides with laps switch to Track by themselves; flick any ride either way. Track shows only the laps; Adventure shows the whole ride.</p></div>
-  <div class="card help"><h3>Reading a ride</h3>
-    <p><b>Timeline:</b> drag to move through the ride - the map and the numbers below follow. Pinch or tap <b>+</b> to zoom, <b>This lap</b> to fill it with one lap.</p>
-    <p><b>Gap to best lap</b> (under the timeline): where you lost time (red, above the line) or gained it (green, below) against your best lap, at the same point round the track.</p>
-    <p><b>Data for Claude:</b> one file with the summary, corners, brake points and sector times, plus every GPS point. Drop it into a chat with Claude and ask where you're losing time.</p></div>
-  <div class="card help"><h3>Storage and backup</h3>
-    <p>The unit holds about 4 hours of riding. Rides copy to this phone whenever you connect; when the unit gets low it deletes its oldest rides that the phone already has (they stay in History, marked <b>phone</b>).</p>
-    <p>The phone copy is the only copy of old rides, so use <b>Settings, Back up everything</b> now and then and keep the file in Google Drive. <b>Import backup</b> puts it back on any phone.</p></div>
+    <p><b>Ride button:</b> hold 1 s = start. While riding, a short hold (let go on blue) = pause / resume; hold until red (4 s) = end.</p>
+    <p style="margin:0"><b>Marker button:</b> tap to mark a spot (crash, a line to try). A press that can't do anything flicks red.</p></div>
+  <div class="card help"><h3>Lights</h3>
+    <div class="lights">
+      <div><i style="background:var(--green)"></i><div><b>GPS</b><span>Green strong · orange weak · red none. Amber blinks = a warning (connect the phone to see it).</span></div></div>
+      <div><i class="blink" style="background:#f3f4f6"></i><div><b>Recording</b><span>Blinking white = recording · fast = waiting for GPS · slow glow = paused.</span></div></div>
+      <div><i style="background:var(--blue)"></i><div><b>Phone</b><span>Blinks blue while connected.</span></div></div></div></div>
+  <div class="card help"><h3>Tracks</h3>
+    <p style="margin:0">Ride 3 laps somewhere new and the track sets itself up. Change the lines from the Tracks tab. Red laps (a stop, or a possible cut) don't count - tap <b>Count it</b> if one was fine.</p></div>
   <div class="card help"><h3>Something not working?</h3>
-    <p><b>Can't connect:</b> Android - use Chrome. iPhone - use the free Bluefy browser. Bluetooth on, unit switched on, only one phone connected at a time. Still stuck: switch the unit off and on.</p>
-    <p><b>No GPS:</b> it needs open sky - not in a shed or under a roof. Give it a minute after switching on.</p>
-    <p><b>No lap times:</b> make sure the ride is on Track, and that the track has been set up (3 laps, or Edit track). For the unit's own timing, open a ride from that track once with the unit connected.</p>
-    <p><b>Firmware update:</b> Settings, Firmware update, pick the .bin file. Leave it on for 30 s after it restarts.</p></div>
-  <p class="note" style="text-align:center;margin:4px 0 20px">RideTracker v3.0</p>
+    <p><b>Can't connect:</b> Android - use Chrome. iPhone - use the Bluefy app. Still stuck: switch the unit off and on.</p>
+    <p><b>No GPS:</b> it needs open sky, not a shed. Give it a minute.</p>
+    <p style="margin:0"><b>No lap times:</b> check the ride is on Track, not Adventure.</p></div>
+  <p class="note" style="text-align:center;margin:4px 0 20px">RideTracker v3.1</p>
+</section>
+<section id="v-tracks" hidden>
+  <div id="trList"></div>
+  <div id="trDetail" hidden>
+    <div class="row" style="justify-content:space-between;margin-bottom:10px"><button class="backBtn" id="trBack">&#8249; Tracks</button></div>
+    <div class="card">
+      <div class="row" style="gap:8px;flex-wrap:nowrap"><input id="trName" type="text" maxlength="24" style="flex:1;min-width:0"><button class="btn" id="trRename">Rename</button></div>
+      <div id="trMap" class="trMap big"></div>
+      <div class="summary" id="trStats"></div>
+      <div class="row" style="margin-top:12px"><button class="btn" id="trEdit">Edit lines</button><button class="btn" id="trDel">Delete track</button></div>
+      <p class="note" style="margin:8px 0 0">Edit lines opens your latest session here so you can move the finish or sector lines on the map.</p>
+    </div>
+    <div class="card"><div class="lbl" style="margin-bottom:4px">Sessions</div><div id="trRides"></div></div>
+  </div>
+  <div class="card" id="trSetCard">
+    <div class="field"><label class="note">Finish line width for new tracks: <b id="gwV"></b> m</label><input id="gwIn" type="range" min="6" max="30" step="1"></div>
+    <p class="note" style="margin:0">After 3 laps somewhere new, a finish line goes on the fastest straight by itself, as long as no other part of the track comes within reach of it. Wider catches every pass even with GPS wobble; narrower fits tight tracks.</p>
+  </div>
 </section>
 <section id="v-settings" hidden>
   <div class="card">
@@ -236,8 +259,7 @@ details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:
     <p class="note" style="margin:0">Track times laps. Adventure records the ride and its stats. New rides use this; you can also switch any ride afterwards.</p>
   </div>
   <div class="card">
-    <div class="field"><label class="lbl" for="setRider">Rider</label><input id="setRider" type="text" maxlength="24" placeholder="Your name"></div>
-    <div class="field" style="margin:0"><label class="lbl" for="setBike">Bike</label><input id="setBike" type="text" maxlength="24" placeholder="e.g. CRF250R"></div>
+    <div class="field" style="margin:0"><label class="lbl" for="setName">Unit name</label><input id="setName" type="text" maxlength="20" placeholder="MX-…"><p class="note" style="margin:6px 0 0">The name the unit shows in Bluetooth. Leave it empty to go back to its MX-… name.</p></div>
   </div>
   <div class="card">
     <div id="details"><div class="lbl" style="font-size:13px;color:var(--fg)">Details</div>
@@ -248,13 +270,8 @@ details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:
       <div class="lbl" style="margin:16px 0 6px">GPS</div>
       <div class="row" style="margin-bottom:6px"><button class="btn" id="setSbas"></button></div>
       <p class="note" style="margin:0">SouthPAN is the free NZ correction service (u-blox only, applies after a power cycle).</p>
-      <div class="seg" id="setRate" style="margin:12px 0 6px"><button data-r="10">10 Hz</button><button data-r="18">18 Hz test</button><button data-r="25">25 Hz test</button></div>
-      <p class="note" style="margin:0" id="rateNote">10 Hz uses every satellite system. The test rates use GPS satellites only (fewer satellites, so a bit less accurate). Applies after switching off and on.</p>
-      <div class="lbl" style="margin:16px 0 6px">Tracks</div>
-      <div class="field"><label class="note">Finish line width for new tracks: <b id="gwV"></b> m</label><input id="gwIn" type="range" min="6" max="30" step="1"></div>
-      <p class="note" style="margin:0">After 3 laps somewhere new, a finish line goes on the fastest straight by itself, as long as no other part of the track comes within reach of it. Wider catches every pass even with GPS wobble; narrower fits tight tracks. Change one track's line with Edit track.</p>
       <div class="lbl" style="margin:16px 0 6px">This ride</div>
-      <div class="row"><button class="btn" id="csvBtn">Data for Claude (CSV)</button><button class="btn" id="gpxBtn">Export GPX</button><button class="btn" id="reportBtn">Report for Claude</button></div>
+      <div class="row"><button class="btn" id="csvBtn">Download review file</button><button class="btn" id="reportBtn">Report for Claude</button></div>
       <div class="lbl" style="margin:16px 0 6px">All rides</div>
       <div class="row"><button class="btn" id="csvAllBtn">Export all rides (CSV)</button><span class="note" id="csvAllMsg"></span></div>
       <div class="lbl" style="margin:16px 0 6px">Backup</div>
@@ -291,7 +308,7 @@ const BLE={dev:null,cmd:null,up:null,data:null,id:1,pend:new Map(),ok:false,lock
   async pick(){this.dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'MX-'},{services:[SVC]}],optionalServices:[SVC]});this.watch();await this.open();},
   async remembered(){                            // Chrome can reconnect to a unit picked before, without asking again
     if(!navigator.bluetooth.getDevices)return false;
-    try{const want=LS.get('mxUnit','');const ds=await navigator.bluetooth.getDevices();const d=ds.find(x=>x.name===want)||ds.find(x=>(x.name||'').startsWith('MX-'));
+    try{const want=LS.get('mxUnit',''),wid=LS.get('mxDevId','');const ds=await navigator.bluetooth.getDevices();const d=ds.find(x=>wid&&x.id===wid)||ds.find(x=>x.name===want)||ds.find(x=>(x.name||'').startsWith('MX-'))||(ds.length===1?ds[0]:null);
       if(!d)return false;this.dev=d;this.watch();await this.open();return true;}catch(e){return false;}},
   watch(){if(this.dev._w)return;this.dev._w=1;this.dev.addEventListener('gattserverdisconnected',()=>this.dropped());},
   async open(){
@@ -299,7 +316,7 @@ const BLE={dev:null,cmd:null,up:null,data:null,id:1,pend:new Map(),ok:false,lock
     this.cmd=await sv.getCharacteristic(C_CMD);this.up=await sv.getCharacteristic(C_UP);this.data=await sv.getCharacteristic(C_DATA);
     if(!this.data._l){this.data._l=1;this.data.addEventListener('characteristicvaluechanged',e=>this.onData(e.target.value));}
     await this.data.startNotifications();
-    this.ok=true;LS.set('mxUnit',this.dev.name||'');connChanged();
+    this.ok=true;LS.set('mxDevId',this.dev.id||'');if(!LS.get('mxUnit','')&&/^MX-/.test(this.dev.name||''))LS.set('mxUnit',this.dev.name);connChanged();
   },
   dropped(){this.ok=false;lastRecKey=null;for(const p of this.pend.values()){clearTimeout(p.tm);const e=new Error('Connection lost');e.partial=p.buf?p.buf.subarray(0,p.got):null;p.rej(e);}this.pend.clear();connChanged();this.retry(0);},
   async retry(n){if(this.ok||!this.dev||n>30)return;await new Promise(r=>setTimeout(r,n<10?1500:5000));if(this.ok)return;try{await this.open();startData();}catch(e){this.retry(n+1);}},
@@ -330,7 +347,10 @@ const BLE={dev:null,cmd:null,up:null,data:null,id:1,pend:new Map(),ok:false,lock
   async text(op,args,o){return dec.decode(await this.req(op,args,o));},
   async json(op,args,o){return JSON.parse(await this.text(op,args,o));},
   // Upload: announce, send the bytes (each write is confirmed), then the checksum.
-  async upload(kind,arg,bytes,onProg){
+  // One upload at a time: the unit has a single upload buffer, so two at once (track + ride notes) would scramble each other.
+  upChain:Promise.resolve(),
+  upload(kind,arg,bytes,onProg){const run=()=>this.upload1(kind,arg,bytes,onProg);const p=this.upChain.then(run,run);this.upChain=p.catch(()=>{});return p;},
+  async upload1(kind,arg,bytes,onProg){
     await this.text('up',kind+' '+arg+' '+bytes.length);
     const step=500;
     for(let i=0;i<bytes.length;i+=step){if(!this.ok)throw new Error('Connection lost');await this.up.writeValueWithResponse(bytes.subarray(i,Math.min(bytes.length,i+step)));if(onProg)onProg(Math.min(bytes.length,i+step),bytes.length);}
@@ -367,17 +387,19 @@ async function getRideBytes(no,size){
   return buf;
 }
 const cat=(a,b)=>{const c=new Uint8Array(a.length+b.length);c.set(a);c.set(b,a.length);return c;};
-function bar(f){$('dlBarBox').hidden=f<0;$('dlBar').style.width=(Math.max(0,Math.min(1,f))*100)+'%';if(f>=0)$('conn').hidden=false;if(f<0)connChanged();}
+function bar(f){$('dlBarBox').hidden=f<0;$('dlBar').style.width=(Math.max(0,Math.min(1,f))*100)+'%';if(f>=0)island(true);if(f<0)connChanged();}
+function island(on){$('conn').hidden=!on;document.body.classList.toggle('island',on);}
 function saveFile(name,text,type){const b=new Blob([text],{type:type||'text/plain'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);}
 function connChanged(){
-  const c=$('conn');
-  if(!BLE.supported()){c.hidden=false;$('connTitle').textContent='This browser can\'t do Bluetooth';$('connSub').textContent='Android: open this page in Chrome. iPhone: open it in the free "Bluefy" browser app.';$('connBtn').hidden=true;return;}
-  if(BLE.ok){c.hidden=$('dlBarBox').hidden;$('connTitle').textContent='Downloading…';$('connSub').textContent='';$('connBtn').hidden=true;refreshState();return;}
-  c.hidden=false;$('connBtn').hidden=false;
-  $('connTitle').textContent=BLE.dev?'Unit out of range or switched off':'Not connected';
-  $('connSub').textContent=BLE.dev?'Trying again… Rides already on this phone still open.':'Switch the unit on, then tap Connect and pick MX-…';
+  $('pill').classList.toggle('tap',!BLE.ok&&BLE.supported());
+  if(!BLE.supported()){island(true);$('connTitle').textContent='This browser can\'t do Bluetooth';$('connSub').textContent='Android: open this page in Chrome. iPhone: open it in the free "Bluefy" browser app.';$('connBtn').hidden=true;return;}
+  if(BLE.ok){island(!$('dlBarBox').hidden);$('connTitle').textContent='Downloading…';$('connSub').textContent='';$('connBtn').hidden=true;refreshState();return;}
+  island(true);$('connBtn').hidden=false;
+  $('connTitle').textContent=BLE.dev?'Unit out of range':'Not connected';
+  $('connSub').textContent=BLE.dev?'Trying again… saved rides still open':'Switch the unit on, then tap Connect';
   $('pill').className='pill r';$('pill').innerHTML='<i></i>'+(BLE.dev?'Reconnecting':'Not connected');
 }
+$('pill').onclick=()=>{if(!BLE.ok&&BLE.supported()&&!$('connBtn').disabled)$('connBtn').click();};
 $('connBtn').onclick=async()=>{try{$('connBtn').disabled=true;await BLE.pick();await startData();}catch(e){if(e.name!=='NotFoundError')toast('Could not connect: '+e.message);}finally{$('connBtn').disabled=false;}};
 const fmtLap=s=>{if(!isFinite(s))return'–';const m=Math.floor(s/60);return m+':'+(s-m*60).toFixed(2).padStart(5,'0');};
 const fmtDur=s=>{s=Math.max(0,Math.round(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return h?h+':'+String(m).padStart(2,'0')+':'+String(x).padStart(2,'0'):m+':'+String(x).padStart(2,'0');};
@@ -899,9 +921,12 @@ function renderCmp(){       // lap compare is switched off for now (cmp.on stays
 }
 $('lapsHead').onclick=()=>{LS.set('mxLapsOpen',LS.get('mxLapsOpen','1')==='1'?'0':'1');renderCmp();};
 function cell(v,k,cls){return`<div class="cell"><b class="${cls||''}">${v}</b><span>${k}</span></div>`;}
+// The readout for wherever the timeline is: shut by default, but the header always shows the key numbers so you can drag and read at once.
+$('ptHead').onclick=()=>{const open=$('ptBox').classList.toggle('ptShut')===false;LS.set('mxPtOpen',open?'1':'0');};
+if(LS.get('mxPtOpen','0')==='1')$('ptBox').classList.remove('ptShut');
 // Point readout: the essentials always, the rest behind "More".
 function renderPoint(){
-  const F=cur.R.fixes,f=F[scrub];if(!f){$('point').innerHTML='';return;}
+  const F=cur.R.fixes,f=F[scrub];if(!f){$('point').innerHTML='';$('ptSum').innerHTML='';return;}
   const h=[],more=h;
   h.push(cell(f.kmh.toFixed(0)+' km/h','Speed'));
   if(cur.mode===0&&cur.laps&&cur.laps.length){const l=lapAt(scrub);
@@ -922,6 +947,7 @@ function renderPoint(){
   more.push(cell(gq+(f.q===2?' +':''),f.sats+' sats',gq==='Good'?'':gq==='OK'?'yellow':'red'));
   const d=rideDate(f.date,f.utc);more.push(cell(d?((d.getHours()%12||12)+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0')):'–','Clock'));
   if(cur.mode===1){const st=cur.A.stops.find(s=>scrub>=s.i0&&scrub<=s.i1);more.push(cell(st?'Stopped':'Riding','State',st?'yellow':''));}
+  $('ptSum').innerHTML=h.slice(0,3).map(c=>{const m=c.match(/<b class="([^"]*)">(.*?)<\/b><span>(.*?)<\/span>/);return m?`<b class="${m[1]}">${m[2]}</b><i>${m[3].replace(/^Lap \d+ time$/,'lap').replace('To best lap','to best').replace('Blue vs white','vs').replace('Ride time','').replace('Distance','').replace('Speed','')}</i>`:'';}).join('');
   const all=h;
   while(all.length%4)all.push('<div class="cell"></div>');
   $('point').innerHTML=all.join('');
@@ -935,7 +961,10 @@ function rideName(e,trackName){
 }
 function rideSub(e){
   const m=e.meta||{},s=e.sum||{},d=rideDate(s.date,s.t0),mode=m.mode!==undefined?m.mode:s.mode,bits=[];
-  if(m.name)bits.push(fmtDay(d));if(d)bits.push(fmtClock(d));
+  if(m.name)bits.push(fmtDay(d));
+  if(mode===0){if(d)bits.push(d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}).replace(/\s?([AP])M/i,(x,a)=>a.toLowerCase()+'m'));
+    if(m.laps)bits.push(m.laps+' lap'+(m.laps>1?'s':''));else if(s.moving!==undefined)bits.push(fmtDur(s.moving)+' riding');return bits.join(' · ');}
+  if(d)bits.push(fmtClock(d));
   if(mode===0&&m.best)bits.push('best '+fmtLap(m.best));else if(s.dist!==undefined)bits.push(fmtDist(s.dist));
   if(s.moving!==undefined)bits.push(fmtDur(s.moving)+' riding');
   return bits.join(' · ');
@@ -1056,18 +1085,19 @@ function recompute(){
     else if(e.meta.loopN!==n&&(!e.rec||n-(cur.loopN||0)>=300)){cur.loopN=n;if(suggestLine(cur.R,cur.A))laps=true;else if(!e.rec){e.meta.loopN=n;saveMeta(cur.no);}}
     if(laps){cur.mode=0;e.meta.mode=0;saveMeta(cur.no);toast('Laps found - switched this ride to Track');}}
   if(cur.mode===0){cur.track=nearestTrack(cur.R);if(cur.track)cur.laps=computeLaps(cur.R,cur.A,cur.track,e.meta.del||[],e.meta.keep||[]);
-    if(cur.track&&(!cur.track.sec||cur.track.sec.length!==2)&&cur.laps.best&&!e.rec){cur.track.sec=makeSectors(cur.R,cur.A,cur.track,cur.laps.best);saveTracks().catch(()=>{});}}   // older tracks get sectors once
+    if(cur.track&&cur.laps.best&&!e.rec){const t=cur.track;let ch=0;if(!t.sec||t.sec.length!==2){t.sec=makeSectors(cur.R,cur.A,t,cur.laps.best);ch=1;}
+      if(!t.line||t.line.length<3){const sec=t.sec;t.line=trackLine(t);t.sec=sec;ch=1;}if(ch)saveTracks().catch(()=>{});}}   // older tracks get sectors and an outline once
   if(cur.mode!==0||cur.track){cur.sug=null;delete cur.sugN;}
   else if(cur.sugN===undefined||cur.R.fixes.length-cur.sugN>=300){cur.sug=suggestLine(cur.R,cur.A);cur.sugN=cur.R.fixes.length;
     if(cur.sug&&!e.meta.noAuto&&!setup){autoTrack(cur.sug);return;}}
-  const best=cur.laps&&cur.laps.best?+cur.laps.best.time.toFixed(2):null,tn=cur.track?cur.track.name:null;
-  if(cur.mode===0&&((e.meta.best||null)!==best||(e.meta.track||null)!==tn)){if(best)e.meta.best=best;else delete e.meta.best;if(tn)e.meta.track=tn;else delete e.meta.track;saveMeta(cur.no);}
+  const best=cur.laps&&cur.laps.best?+cur.laps.best.time.toFixed(2):null,tn=cur.track?cur.track.name:null,nl=cur.laps?cur.laps.filter(l=>!l.del).length:0;   // every lap, red ones too (not ones you removed)
+  if(cur.mode===0&&((e.meta.best||null)!==best||(e.meta.track||null)!==tn||(e.meta.laps||0)!==nl)){if(best)e.meta.best=best;else delete e.meta.best;if(tn)e.meta.track=tn;else delete e.meta.track;if(nl)e.meta.laps=nl;else delete e.meta.laps;saveMeta(cur.no);}
   renderRide();
 }
 function stat(v,k,cls,big){return`<div class="stat${big?' big':''}"><b class="${cls||''}">${v}</b><span>${k}</span></div>`;}
 function renderRide(){
   const e=cur.e,A=cur.A,m=e.meta;
-  $('rideTitle').textContent=rideName(e,cur.track&&cur.track.name);$('rideSub').textContent=[fmtClock(rideDate(cur.R.fixes[0].date,cur.R.fixes[0].utc)),S&&S.rider,S&&S.bike].filter(Boolean).join(' · ')+(e.rec?' · recording now':'');
+  $('rideTitle').textContent=rideName(e,cur.track&&cur.track.name);$('rideSub').textContent=fmtClock(rideDate(cur.R.fixes[0].date,cur.R.fixes[0].utc))+(e.rec?' · recording now':'');hdrName();
   $('favBtn').classList.toggle('on',!!m.fav);$('favBtn').innerHTML=m.fav?'&#9733;':'&#9734;';
   document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('on',+b.dataset.m===cur.mode));
   const h=[];
@@ -1285,22 +1315,88 @@ function renderRides(){
   $('ridesNote').textContent=(un+' on the unit'+(ph?' · '+ph+' only on this phone':''))+(S?' · '+(S.flash.free/1048576).toFixed(1)+' MB free':'')+
     '. Rides copy to this phone by themselves; when the unit runs low it deletes its oldest copied rides, and they stay here.';
 }
-$('ridesList').onclick=e=>{const it=e.target.closest('.rideItem');if(!it)return;const r=entry(+it.dataset.n);if(r&&r.rec&&BLE.ok)show('live');else openRide(+it.dataset.n,'history');};
-$('backBtn').onclick=()=>show('history');
+$('ridesList').onclick=e=>{const it=e.target.closest('.rideItem');if(!it)return;const r=entry(+it.dataset.n);rideFrom='history';if(r&&r.rec&&BLE.ok)show('live');else openRide(+it.dataset.n,'history');};
+$('backBtn').onclick=()=>show(rideFrom);
+
+
+/* ---------- tracks tab ---------- */
+// Sessions belong to a track by name (saved on each ride when it is opened on Track).
+let trOpen=null,rideFrom='history';
+function trRides(t){return RIDES.filter(r=>r.meta&&r.meta.track===t.name).sort((a,b)=>b.n-a.n);}
+function trSvg(t,big){
+  const L=t.line||[];if(L.length<3)return big?'<span class="note">No outline yet - it appears after a clean lap.</span>':'';
+  const k=Math.cos(L[0][0]*Math.PI/180),P=([la,lo])=>[lo*k,-la];
+  const pts=L.map(P),gates=[t.fin].concat(t.sec||[]).filter(Boolean).map(g=>[P([g[0],g[1]]),P([g[2],g[3]])]);
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;pts.concat(...gates).forEach(([x,y])=>{x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);});
+  const W=big?400:100,H=big?300:100,pad=big?18:10,sc=Math.min((W-2*pad)/(x1-x0||1e-9),(H-2*pad)/(y1-y0||1e-9)),ox=(W-(x1-x0)*sc)/2,oy=(H-(y1-y0)*sc)/2;
+  const T=([x,y])=>((x-x0)*sc+ox).toFixed(1)+','+((y-y0)*sc+oy).toFixed(1),sw=big?3:4;
+  let o=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"><polyline points="${pts.map(T).join(' ')} ${T(pts[0])}" fill="none" stroke="var(--muted)" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round"/>`;
+  gates.forEach((g,i)=>{const[a,b]=g.map(T).map(v=>v.split(','));o+=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${i?'var(--yellow)':'var(--fg)'}" stroke-width="${i?sw*.8:sw*1.4}" stroke-linecap="round"/>`;
+    if(big)o+=`<text x="${(+a[0]+ +b[0])/2+8}" y="${(+a[1]+ +b[1])/2-8}" fill="${i?'var(--yellow)':'var(--fg)'}" font-size="12" font-weight="700">${i?'S'+i:'Finish'}</text>`;});
+  return o+'</svg>';}
+function trInfo(t){const rs=trRides(t),bests=rs.map(r=>r.meta.best).filter(Boolean),last=rs[0];
+  return{rs,best:bests.length?Math.min(...bests):null,last:last?rideDate((last.sum||{}).date,(last.sum||{}).t0):null};}
+function renderTracks(){
+  $('trDetail').hidden=!trOpen;$('trList').hidden=!!trOpen;$('trSetCard').hidden=!!trOpen;hdrName();
+  if(trOpen){const t=TR.tracks.find(x=>x.id===trOpen);if(!t){trOpen=null;return renderTracks();}renderTrack(t);return;}
+  const list=TR.tracks.map(t=>({t,i:trInfo(t)})).sort((a,b)=>(b.i.last||0)-(a.i.last||0));
+  $('trList').innerHTML=list.length?'<div class="card" style="padding-top:4px;padding-bottom:4px">'+list.map(({t,i})=>`<div class="rideItem" data-id="${esc(t.id||'')}" data-name="${esc(t.name)}"><div class="trThumb">${trSvg(t)}</div><div class="main"><div class="t">${esc(t.name)}</div><div class="note" style="margin:2px 0 0">${i.rs.length?i.rs.length+' session'+(i.rs.length>1?'s':'')+' · last '+fmtDay(i.last):'No sessions on this phone yet'}</div></div><div class="r">${i.best?fmtLap(i.best):''}</div></div>`).join('')+'</div>'
+    :'<div class="empty">No tracks yet. Ride 3 laps somewhere new on Track mode and one gets set up by itself.</div>';
+}
+function renderTrack(t){
+  const i=trInfo(t);
+  if(document.activeElement!==$('trName')){$('trName').value=t.name;$('trName').readOnly=true;$('trRename').textContent='Rename';}
+  $('trMap').innerHTML=trSvg(t,true);
+  $('trStats').innerHTML=stat(i.best?fmtLap(i.best):'–','Best lap','purple')+stat(i.rs.length,'Sessions')+stat(i.last?i.last.toLocaleDateString(undefined,{day:'numeric',month:'short'}):'–','Last ridden');
+  $('trEdit').disabled=!i.rs.length;
+  $('trRides').innerHTML=i.rs.length?i.rs.map(e=>`<div class="rideItem" data-n="${e.n}"><div class="main"><div class="t">${esc(rideName(e))}</div><div class="note" style="margin:2px 0 0">${esc(rideSub(e))}</div></div><div class="r">${e.meta.best?fmtLap(e.meta.best):''}</div></div>`).join('')
+    :'<p class="note" style="margin:6px 0 0">Sessions show here once a ride from this track has been opened.</p>';
+}
+// Older tracks may have no id: give them one so they can be opened here.
+$('trList').onclick=e=>{const it=e.target.closest('.rideItem');if(!it)return;let t=TR.tracks.find(x=>x.id&&x.id===it.dataset.id)||TR.tracks.find(x=>x.name===it.dataset.name);if(!t)return;
+  if(!t.id){t.id=Date.now().toString(36);LS.set('mxTracks',JSON.stringify(TR));}trOpen=t.id;renderTracks();window.scrollTo(0,0);};
+$('trBack').onclick=()=>{trOpen=null;renderTracks();};
+$('trRides').onclick=e=>{const it=e.target.closest('.rideItem');if(!it)return;rideFrom='tracks';openRide(+it.dataset.n,'history');};
+function metaQuiet(list,fn){list.forEach(e=>{fn(e.meta);if(!e.phone&&BLE.ok)BLE.upload('meta',e.n,enc.encode(JSON.stringify(e.meta))).catch(()=>{});});cacheRides();}
+$('trRename').onclick=async()=>{const inp=$('trName'),t=TR.tracks.find(x=>x.id===trOpen);if(!t)return;
+  if(inp.readOnly){inp.readOnly=false;$('trRename').textContent='Save';inp.focus();inp.select();return;}
+  const v=inp.value.trim().replace(/["\\<>&]/g,'');inp.readOnly=true;$('trRename').textContent='Rename';inp.blur();
+  if(!v||v===t.name){renderTrack(t);return;}
+  if(TR.tracks.some(x=>x!==t&&x.name===v)){toast('Another track already has that name');renderTrack(t);return;}
+  const rs=trRides(t);t.name=v;metaQuiet(rs,m=>{m.track=v;});
+  try{await saveTracks();toast('Renamed');}catch(x){toast('Renamed on this phone - goes to the unit when it connects');}renderTrack(t);};
+$('trName').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('trRename').click();}};
+$('trEdit').onclick=async()=>{const t=TR.tracks.find(x=>x.id===trOpen);if(!t)return;const r=trRides(t)[0];if(!r)return;
+  rideFrom='tracks';await openRide(r.n,'history');if(cur&&cur.no===r.n&&cur.track){startSetup();}else toast('Open a lap on the map to edit lines');};
+let trDelArm=0;
+$('trDel').onclick=async()=>{const b=$('trDel'),t=TR.tracks.find(x=>x.id===trOpen);if(!t)return;
+  if(Date.now()-trDelArm>4000){trDelArm=Date.now();b.textContent='Tap again to delete';setTimeout(()=>{b.textContent='Delete track';},4000);return;}
+  trDelArm=0;b.textContent='Delete track';
+  metaQuiet(trRides(t),m=>{delete m.track;delete m.best;m.noAuto=1;});   // stop its rides making the same track again by themselves
+  TR.tracks=TR.tracks.filter(x=>x!==t);trOpen=null;
+  try{await saveTracks();toast('Track deleted');}catch(x){toast('Deleted on this phone - the unit updates when it connects');}renderTracks();};
 
 /* ---------- settings + status ---------- */
+// Top bar next to RideTracker: the track you're looking at or riding, otherwise the unit's name.
+function hdrName(){let n='';
+  if(cur&&(view==='ride'||view==='live')&&cur.mode===0&&cur.track)n=cur.track.name;
+  else if(view==='tracks'&&trOpen){const t=TR.tracks.find(x=>x.id===trOpen);if(t)n=t.name;}
+  if(!n&&S&&S.lap&&S.lap.track&&S.ride&&S.ride.active)n=S.lap.track;
+  if(!n&&S)n=S.unit||'';
+  $('hdrName').textContent=n;}
 function show(v){
-  view=v;const tab=v==='ride'?'history':v;
+  view=v;const tab=v==='ride'?rideFrom:v;
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===tab));
-  $('v-live').hidden=v!=='live';$('v-rides').hidden=v!=='history';$('v-settings').hidden=v!=='settings';$('v-help').hidden=v!=='help';
+  $('v-live').hidden=v!=='live';$('v-rides').hidden=v!=='history';$('v-settings').hidden=v!=='settings';$('v-help').hidden=v!=='help';$('v-tracks').hidden=v!=='tracks';
   $('v-ride').hidden=!(v==='ride'||(v==='live'&&(liveOpening||(cur&&cur.live))));
-  $('backBar').hidden=v!=='ride';
+  $('backBar').hidden=v!=='ride';if(v==='ride')$('backBtn').innerHTML='&#8249; '+(rideFrom==='tracks'?'Tracks':'History');
   if(!$('v-ride').hidden){MAP.resize();TL.resize();}
-  if(v==='history')loadRides();if(v==='settings')renderSettings();
+  if(v==='history')loadRides();if(v==='settings')renderSettings();if(v==='tracks')renderTracks();
   if(v==='live')liveTick();
+  hdrName();
   window.scrollTo(0,0);
 }
-$('nav').onclick=e=>{const b=e.target.closest('button');if(b)show(b.dataset.v);};
+$('nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.v==='tracks'&&view==='tracks')trOpen=null;show(b.dataset.v);};
 // Keep the phone's ride list in step with the unit: when a ride starts or ends (button, phone, power cut),
 // fetch the list again so the REC tag, sizes and summaries are right, and the finished ride gets copied over.
 let lastRecKey=null;
@@ -1312,8 +1408,9 @@ function onState(){if(!S)return;const key=S.ride.active?S.ride.n:0;
 async function refreshState(){
   if(!BLE.ok)return;
   try{S=await BLE.json('state');}catch(x){return;}
+  if(S.id)LS.set('mxUnit',S.id);   // rides are filed under the unit's fixed id (MX-xxxx), so renaming the unit changes nothing
   onState();
-  $('hdrName').textContent=[S.rider,S.bike].filter(Boolean).join(' · ')||S.unit;
+  hdrName();
   const q=S.gps.quality,p=$('pill');p.className='pill '+(S.ride.stopped?'r':q===2?'g':q===1?'y':'r');
   p.innerHTML='<i></i>'+(S.ride.stopped?'Not recording':S.ride.paused?'Paused':S.ride.armed&&!S.ride.active?'Starting…':!S.gps.alive?'No GPS found':q===2?'GPS ready':q===1?'GPS weak':'Finding GPS…')+(S.ride.active&&!S.ride.paused?' · REC':'');
   if(view==='settings')renderSettings(true);
@@ -1322,13 +1419,8 @@ async function refreshState(){
 function renderSettings(live){
   if(!S)return;
   document.querySelectorAll('#setMode button').forEach(b=>b.classList.toggle('on',+b.dataset.m===S.mode));
-  if(!live){$('setRider').value=S.rider;$('setBike').value=S.bike;}
+  if(!live){$('setName').value=S.id&&S.unit===S.id?'':S.unit;$('setName').placeholder=S.id||'MX-…';}
   $('setSbas').textContent='SouthPAN: '+(S.southpan?'on':'off');
-  const rs=S.rateSet||10,rn=S.rateNow||10;
-  document.querySelectorAll('#setRate button').forEach(b=>b.classList.toggle('on',+b.dataset.r===rs));
-  $('rateNote').textContent=rs!==rn?'Set to '+rs+' Hz - switch the unit off and on to use it (running '+rn+' Hz now).':
-    rn>10?'Testing '+rn+' Hz with GPS satellites only. Check the fixes/s below to see what it really delivers.':
-    '10 Hz uses every satellite system. The test rates use GPS satellites only (fewer satellites, so a bit less accurate). Applies after switching off and on.';
   $('actPause').textContent=S.ride.paused?'Resume':'Pause';$('actStart').hidden=!!(S.ride.armed||S.ride.active);
   const g=S.gps,kv=[['GPS',g.alive?g.kind+(g.baud?' · '+g.baud+' baud':''):'Nothing heard - check the wiring'],
     ['Fix',g.fix?(g.q===2?'DGPS (corrections in use)':'GPS')+' · '+g.sats+' sats · HDOP '+g.hdop.toFixed(1)+' · '+g.rate+'/s':'No fix yet'],
@@ -1343,11 +1435,9 @@ function renderSettings(live){
 }
 async function setSetting(body){try{S=await BLE.json('settings',body);renderSettings(true);refreshState();}catch(x){toast('Could not save - connect to the unit first');}}
 $('setMode').onclick=e=>{const b=e.target.closest('button');if(b)setSetting('mode='+b.dataset.m);};
-$('setRider').onchange=()=>setSetting('rider='+encodeURIComponent($('setRider').value));
-$('setBike').onchange=()=>setSetting('bike='+encodeURIComponent($('setBike').value));
+$('setName').onchange=()=>{const v=$('setName').value.replace(/[^\x20-\x7e]/g,'').replace(/["\\<>&]/g,'').trim().slice(0,20);$('setName').value=v;setSetting('name='+encodeURIComponent(v));toast('Renamed - Bluetooth shows the new name next time you connect');};
 $('gwIn').value=gateW();$('gwV').textContent=gateW();
 $('gwIn').oninput=()=>{LS.set('mxGateW',$('gwIn').value);$('gwV').textContent=$('gwIn').value;if(cur){delete cur.sugN;}};
-document.querySelectorAll('#setRate button').forEach(b=>b.onclick=()=>{setSetting('rate='+b.dataset.r);toast('Applies after switching off and on');});
 $('setSbas').onclick=()=>{setSetting('southpan='+(S.southpan?0:1));toast('Applies after switching off and on');};
 document.querySelectorAll('[data-act]').forEach(b=>b.onclick=async()=>{try{S=await BLE.json('action',b.dataset.act);onState();renderSettings(true);toast({marker:'Marker dropped',pause:S.ride.paused?'Paused':'Resumed',end:'Ride ended - recording off',start:'Recording on'}[b.dataset.act]);}catch(x){toast(x.message);}});
 $('oldDel').onclick=async()=>{try{S=await BLE.json('delold','',{wait:20000});renderSettings(true);toast('Old test files deleted');}catch(x){toast(x.message);}};
@@ -1403,10 +1493,7 @@ $('csvAllBtn').onclick=async()=>{
       let laps=null;const t=nearestTrack(R);if(t)laps=computeLaps(R,A,t,(e.meta&&e.meta.del)||[],(e.meta&&e.meta.keep)||[]);
       txt+=csvRows(e.n,R,A,laps);}catch(x){msg.textContent='Skipped ride '+e.n+' ('+x.message+')';}}
   saveFile('all_rides.csv',txt,'text/csv');msg.textContent='Done - '+list.length+' rides';b.disabled=false;};
-const exportGpx=()=>{if(!cur){toast('Open a ride first');return;}const F=cur.R.fixes;let g='<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="RideTracker" xmlns="http://www.topografix.com/GPX/1/1">\n<trk><name>'+esc(rideName(cur.e))+'</name><trkseg>\n';
-  for(const f of F){const d=rideDate(f.date,f.utc);g+='<trkpt lat="'+f.lat.toFixed(7)+'" lon="'+f.lon.toFixed(7)+'"><ele>'+f.altRaw.toFixed(1)+'</ele>'+(d?'<time>'+d.toISOString()+'</time>':'')+'<sat>'+f.sats+'</sat><hdop>'+f.hdop.toFixed(1)+'</hdop></trkpt>\n';}
-  g+='</trkseg></trk>\n</gpx>\n';saveFile('ride_'+String(cur.no).padStart(4,'0')+'.gpx',g,'application/gpx+xml');};
-$('csvBtn').onclick=exportCsv;$('gpxBtn').onclick=exportGpx;$('rCsv').onclick=exportCsv;$('rGpx').onclick=exportGpx;
+$('csvBtn').onclick=exportCsv;$('rCsv').onclick=exportCsv;
 // ---------- Ride file for Claude: notes on top (lines starting with #), then every GPS point as CSV ----------
 // Corners come from the best lap: dips in speed of 8 km/h or more. Every other lap is lined up against it by
 // distance from the finish line, so each corner and sector can be compared lap by lap.
@@ -1447,7 +1534,7 @@ function rideNotes(no,R,A,laps,track,e){
   const pad=(x,w)=>String(x).padStart(w),d0=F.length?rideDate(F[0].date,F[0].utc):null,mode=e&&e.meta&&e.meta.mode!==undefined?e.meta.mode:h.mode;
   p('RIDETRACKER RIDE ',no,' - ',e?rideName(e,track&&track.name):'');
   p('Lines starting with # are notes. The rest is every GPS fix as CSV (pandas: read_csv(f, comment="#")).');
-  p('Start ',d0?d0.toISOString():'?',' · rider ',S&&S.rider||'?',' · bike ',S&&S.bike||'?',' · firmware ',h.fw||'?',' · ',mode===0?'track':'adventure',' · SouthPAN ',h.flags&1?'on':'off');
+  p('Start ',d0?d0.toISOString():'?',' · firmware ',h.fw||'?',' · ',mode===0?'track':'adventure',' · SouthPAN ',h.flags&1?'on':'off');
   p('');p('SUMMARY');
   p('Time ',fmtDur(A.dur),' · riding ',fmtDur(A.moving),' · stopped ',fmtDur(Math.max(0,A.dur-A.moving)),' · distance ',fmtDist(A.dist),' · top ',A.vmax.toFixed(1),' km/h · avg ',A.moving>0?(A.dist/A.moving*3.6).toFixed(1):'-',' km/h · climb ',Math.round(A.climb),' m');
   p('GPS: ',F.length,' fixes (',(F.length/Math.max(1,A.dur)).toFixed(1),'/s) · gaps over 0.5 s: ',F.filter((f,i)=>i&&f.t-F[i-1].t>0.5).length,' · sats min/median/max ',st(F,f=>f.sats),' · HDOP ',st(F,f=>f.hdop),' · DGPS ',F.filter(f=>f.q===2).length);
