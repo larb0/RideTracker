@@ -201,10 +201,11 @@ details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:
     <table><tr><th></th><th>Ride button</th><th>Marker button</th></tr>
       <tr><td>Not recording</td><td>Hold 1 s: start <b style="color:var(--green)">(3 green flashes)</b></td><td>-</td></tr>
       <tr><td>Recording</td><td>Hold, let go while <b class="bl">blue</b>: pause <b>(white 1 s)</b> / resume <b style="color:var(--green)">(green 1 s)</b><br>Hold until all <b class="rd">red</b> (4 s): end ride <b class="rd">(3 red flashes)</b><br>Keep holding until dark (6 s): cancel</td><td>Tap: drop a marker <b style="color:var(--yellow)">(strip goes yellow)</b> - mark a crash, a line to try, anything</td></tr></table>
+    <p><b>Pause is not end.</b> A short hold (let go while blue) only pauses - the strip breathes blue until you resume. To finish, keep holding until the bar is all red. Switching off while stopped also ends it; if the power goes while you're riding, it carries on recording when the power comes back.</p>
     <p>When a press works, the whole strip shows it, so you know without looking at the phone. If a press can't do anything - a quick tap, a marker when you're not recording, or still waiting for GPS - the strip does a <b class="rd">"no" shake</b>: red on every other LED, swapping back and forth. The phone can do all of these too: Settings, Details.</p></div>
   <div class="card help"><h3>Status light</h3><p style="margin:0 0 10px">The first LED on the bar (the one on its own at the end).</p>
     <ul class="keys"><li><i style="background:var(--green)"></i><b>Green</b> strong GPS</li><li><i style="background:#ff9f0a"></i><b>Orange</b> weak GPS</li><li><i style="background:var(--red)"></i><b>Red</b> no GPS yet</li>
-      <li><i class="blink"></i><b>Blinking</b> recording (blue blink = phone connected)</li><li><i style="background:var(--blue);opacity:.6"></i><b>Slow blue pulse</b> paused</li><li><i style="background:var(--red)"></i><b>Fast red flash</b> storage full or a storage problem - connect the phone</li></ul></div>
+      <li><i class="blink"></i><b>Blinking</b> recording (blue blink = phone connected)</li><li><i style="background:var(--blue);opacity:.6"></i><b>Whole strip breathing blue</b> paused - still a ride, not ended</li><li><i style="background:var(--red)"></i><b>Fast red flash</b> storage full or a storage problem - connect the phone</li></ul></div>
   <div class="card help"><h3>LED bar</h3>
     <ul class="keys"><li><i style="background:var(--purple)"></i><b>Purple</b> best lap (or sector) of the day</li><li><i style="background:var(--green)"></i><b>Green</b> faster than your last one</li><li><i style="background:var(--yellow)"></i><b>Yellow</b> slower than your last one</li><li><i style="background:var(--red)"></i><b>Red</b> you stopped in it - doesn't count</li></ul>
     <p>The other 5 LEDs. <b>Over the finish line:</b> they all flash the lap colour for 3 s. <b>During the lap:</b> they're split into the 3 sectors - 2 LEDs, the middle one, then 2 LEDs - and each part lights up as you finish that sector.</p>
@@ -275,7 +276,7 @@ details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let S=null,RIDES=[],TR={tracks:[]},cur=null,scrub=0,setup=null,view='live',toastT=0,liveOpening=false,liveBusy=false;
+let pushT=0,S=null,RIDES=[],TR={tracks:[]},cur=null,scrub=0,setup=null,view='live',toastT=0,liveOpening=false,liveBusy=false;
 const LS={get:(k,d)=>{try{return localStorage.getItem(k)||d}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 
 /* ---------- helpers ---------- */
@@ -300,10 +301,12 @@ const BLE={dev:null,cmd:null,up:null,data:null,id:1,pend:new Map(),ok:false,lock
     await this.data.startNotifications();
     this.ok=true;LS.set('mxUnit',this.dev.name||'');connChanged();
   },
-  dropped(){this.ok=false;for(const p of this.pend.values()){clearTimeout(p.tm);const e=new Error('Connection lost');e.partial=p.buf?p.buf.subarray(0,p.got):null;p.rej(e);}this.pend.clear();connChanged();this.retry(0);},
-  async retry(n){if(this.ok||!this.dev||n>20)return;await new Promise(r=>setTimeout(r,n<5?1500:5000));if(this.ok)return;try{await this.open();}catch(e){this.retry(n+1);}},
+  dropped(){this.ok=false;lastRecKey=null;for(const p of this.pend.values()){clearTimeout(p.tm);const e=new Error('Connection lost');e.partial=p.buf?p.buf.subarray(0,p.got):null;p.rej(e);}this.pend.clear();connChanged();this.retry(0);},
+  async retry(n){if(this.ok||!this.dev||n>30)return;await new Promise(r=>setTimeout(r,n<10?1500:5000));if(this.ok)return;try{await this.open();startData();}catch(e){this.retry(n+1);}},
   onData(dv){
-    const k=dv.getUint8(0),id=dv.getUint16(1,true),p=this.pend.get(id);if(!p)return;
+    const k=dv.getUint8(0);
+    if(k===69){if(!pushT)pushT=setTimeout(()=>{pushT=0;refreshState();},60);return;}   // 'E': the unit says something changed - check now, don't wait for the 4 s poll
+    const id=dv.getUint16(1,true),p=this.pend.get(id);if(!p)return;
     let o=3;if(k===72){p.total=dv.getUint32(3,true);p.status=dv.getUint8(7);p.buf=new Uint8Array(p.total);p.got=0;o=8;}
     if(!p.buf)return;
     const n=Math.min(dv.byteLength-o,p.total-p.got);if(n>0){p.buf.set(new Uint8Array(dv.buffer,dv.byteOffset+o,n),p.got);p.got+=n;}
@@ -1034,7 +1037,7 @@ function renderLive(){
     const cb=$('stopBtn');if(cb)cb.onclick=()=>liveAct('end','Recording off');}
   wake();
 }
-async function liveAct(a,msg){try{S=await BLE.json('action',a);toast(msg);renderLive();}catch(x){toast(x.message);}}
+async function liveAct(a,msg){try{S=await BLE.json('action',a);onState();toast(msg);renderLive();}catch(x){toast(x.message);}}
 setInterval(()=>{if(lapClock&&view==='live'){const e=$('lapRun');if(e)e.textContent=fmtLap((Date.now()-lapClock.start)/1000);}},500);
 // Keep screen on (Live tab, recording, toggle on). Phones drop the lock when the page is hidden, so re-ask.
 let wakeLock=null;
@@ -1246,12 +1249,23 @@ async function mergeRides(unit,old){
 }
 // Copy every finished ride to the phone, then tell the unit it may delete it when space runs low.
 let syncing=false;
+// Background copy in 48 KB pieces, with no progress bar over the screen. Between pieces the app's other
+// requests (the 4-second status check, a ride you open) get their turn, so the screen never shows old news.
+async function copyQuietly(r){
+  const key=keyOf(r.n),e=entry(r.n);let have=await DB.get(key);if(have&&have.id&&t0Of(e)&&have.id!==t0Of(e))have=null;
+  let buf=have?have.buf:new Uint8Array(0);
+  for(let tries=0;buf.length<r.size&&tries<8&&BLE.ok;){
+    try{const part=await BLE.req('file',r.n+' '+buf.length+' 49152',{wait:8000});if(!part.length)break;buf=cat(buf,part);await DB.put(key,{buf,size:buf.length,id:t0Of(e)});}
+    catch(x){tries++;if(x.partial&&x.partial.length){buf=cat(buf,x.partial);await DB.put(key,{buf,size:buf.length,id:t0Of(e)});}}
+    await new Promise(res=>setTimeout(res,30));
+  }
+  return buf;}
 async function syncRides(){
   if(syncing)return;syncing=true;
   try{for(const r of RIDES.slice()){
     if(!BLE.ok)break;
     if(r.phone||r.rec||r.synced||!r.sum||!r.sum.closed)continue;
-    try{const b=await getRideBytes(r.n,r.size);if(b.length>=r.size){await BLE.text('synced',String(r.n));r.synced=true;cacheRides();}}catch(x){}
+    try{const b=await copyQuietly(r);if(b.length>=r.size){await BLE.text('synced',String(r.n));r.synced=true;cacheRides();}}catch(x){}
   }}finally{syncing=false;}
 }
 // Rides under 20 s (a button bump, a quick power blip) get deleted from the unit and the phone by themselves.
@@ -1287,9 +1301,18 @@ function show(v){
   window.scrollTo(0,0);
 }
 $('nav').onclick=e=>{const b=e.target.closest('button');if(b)show(b.dataset.v);};
+// Keep the phone's ride list in step with the unit: when a ride starts or ends (button, phone, power cut),
+// fetch the list again so the REC tag, sizes and summaries are right, and the finished ride gets copied over.
+let lastRecKey=null;
+function onState(){if(!S)return;const key=S.ride.active?S.ride.n:0;
+  if(lastRecKey!==null&&key!==lastRecKey){RIDES.forEach(r=>{r.rec=!!S.ride.active&&r.n===S.ride.n;});cacheRides();
+    const ended=lastRecKey;loadRides().then(()=>{if(view==='history')renderRides();
+      if(ended&&cur&&cur.no===ended&&!cur.live&&view==='ride'){const e=entry(ended);if(e)openRide(ended,'history');}});}   // looking at the ride that just finished: load the rest of it
+  lastRecKey=key;}
 async function refreshState(){
   if(!BLE.ok)return;
   try{S=await BLE.json('state');}catch(x){return;}
+  onState();
   $('hdrName').textContent=[S.rider,S.bike].filter(Boolean).join(' · ')||S.unit;
   const q=S.gps.quality,p=$('pill');p.className='pill '+(S.ride.stopped?'r':q===2?'g':q===1?'y':'r');
   p.innerHTML='<i></i>'+(S.ride.stopped?'Not recording':S.ride.paused?'Paused':S.ride.armed&&!S.ride.active?'Starting…':!S.gps.alive?'No GPS found':q===2?'GPS ready':q===1?'GPS weak':'Finding GPS…')+(S.ride.active&&!S.ride.paused?' · REC':'');
@@ -1326,7 +1349,7 @@ $('gwIn').value=gateW();$('gwV').textContent=gateW();
 $('gwIn').oninput=()=>{LS.set('mxGateW',$('gwIn').value);$('gwV').textContent=$('gwIn').value;if(cur){delete cur.sugN;}};
 document.querySelectorAll('#setRate button').forEach(b=>b.onclick=()=>{setSetting('rate='+b.dataset.r);toast('Applies after switching off and on');});
 $('setSbas').onclick=()=>{setSetting('southpan='+(S.southpan?0:1));toast('Applies after switching off and on');};
-document.querySelectorAll('[data-act]').forEach(b=>b.onclick=async()=>{try{S=await BLE.json('action',b.dataset.act);renderSettings(true);toast({marker:'Marker dropped',pause:S.ride.paused?'Paused':'Resumed',end:'Ride ended - recording off',start:'Recording on'}[b.dataset.act]);}catch(x){toast(x.message);}});
+document.querySelectorAll('[data-act]').forEach(b=>b.onclick=async()=>{try{S=await BLE.json('action',b.dataset.act);onState();renderSettings(true);toast({marker:'Marker dropped',pause:S.ride.paused?'Paused':'Resumed',end:'Ride ended - recording off',start:'Recording on'}[b.dataset.act]);}catch(x){toast(x.message);}});
 $('oldDel').onclick=async()=>{try{S=await BLE.json('delold','',{wait:20000});renderSettings(true);toast('Old test files deleted');}catch(x){toast(x.message);}};
 $('reportBtn').onclick=async()=>{try{toast('Getting the report…');const t=await BLE.text('report','',{wait:20000});saveFile('mx_report_boot'+(S?S.boot:'')+'.txt',t);}catch(x){toast('Could not get the report: '+x.message);}};
 // CSV: one row per GPS fix (10 a second) with the worked-out values next to the raw ones.
@@ -1483,7 +1506,11 @@ $('fwGo').onclick=async()=>{
   let lock=null;try{lock=await navigator.wakeLock.request('screen');}catch(x){}
   try{
     await BLE.upload('fw',0,bytes,(g,t)=>{$('fwBar').style.width=(g/t*100)+'%';$('fwMsg').textContent='Sending… '+Math.round(g/t*100)+'%';});
-    $('fwMsg').textContent='Installed. The unit is restarting - tap Connect again in a few seconds and check the version under Details.';}
+    $('fwMsg').textContent='Installed. The unit is restarting and this page will reconnect by itself…';
+    const was=S&&S.fw;show('live');toast('Firmware installed - reconnecting…');
+    const t0=Date.now();while(!BLE.ok&&Date.now()-t0<60000)await new Promise(r=>setTimeout(r,1000));   // the auto-reconnect does the work
+    if(BLE.ok){await refreshState();toast('Reconnected - unit now on v'+(S&&S.fw||'?')+(was&&S&&S.fw===was?' (same as before?)':''));$('fwMsg').textContent='Done - the unit is on v'+(S&&S.fw||'?')+'.';}
+    else{$('fwMsg').textContent='Installed, but the unit hasn\'t reconnected yet. Tap Connect.';toast('Tap Connect to reconnect');}}
   catch(x){$('fwMsg').textContent='Update failed: '+x.message+'. Still on the old version.';}
   try{if(lock)lock.release();}catch(x){}
   $('fwGo').disabled=false;
