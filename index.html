@@ -63,6 +63,10 @@ main{max-width:760px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-rig
 .mapBtns button{background:rgba(11,12,14,.78);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:7px 11px;font-size:12px;font-weight:600}
 .mapNote{position:absolute;left:8px;bottom:8px;font-size:11px;background:rgba(15,17,21,.82);padding:3px 7px;border-radius:6px;color:var(--muted)}
 .attrib{position:absolute;right:6px;bottom:4px;font-size:9px;color:rgba(255,255,255,.75);text-shadow:0 0 3px #000}
+.lapNav{display:flex;align-items:center;gap:6px;margin-bottom:6px}.lapNav .btn{padding:5px 0;width:40px;font-size:20px;line-height:1}.lapNav .btn.txt{width:auto;padding:7px 11px;font-size:13px}
+#lpLbl{flex:1;min-width:0;text-align:center;font-size:14px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#lpLbl small{font-weight:500;color:var(--muted)}
+.vsRow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px;font-size:13px;color:var(--muted)}.vsRow button{min-width:38px;padding:6px 10px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);font-weight:650}
+#timeline.lapmode{height:104px}
 #gapline{display:block;width:100%;height:56px;border-radius:12px;touch-action:none}
 .gapKey{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--muted);margin:3px 2px 6px}.gapKey .g{color:var(--green);font-weight:600}.gapKey .r{color:var(--red);font-weight:600}
 #timeline{display:block;width:100%;height:52px;border-radius:12px;touch-action:none;margin-bottom:6px}
@@ -161,6 +165,8 @@ details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:
         <div class="row" style="margin-top:8px"><span class="note" id="suSecNote" style="flex:1"></span><button id="suSecAuto" class="btn">Auto sectors</button></div></div>
       <div class="row"><button id="suSave" class="btn pri">Save track</button><button id="suCancel" class="btn">Cancel</button><button id="suDelete" class="btn danger" hidden>Delete track</button></div>
     </div>
+    <div class="lapNav" id="lapNav" hidden><button class="btn" id="lpPrev" aria-label="Previous lap">&lsaquo;</button><div id="lpLbl"></div><button class="btn txt" id="lpVs">Compare</button><button class="btn" id="lpNext" aria-label="Next lap">&rsaquo;</button></div>
+    <div class="vsRow" id="vsRow" hidden></div>
     <canvas id="timeline"></canvas>
     <div id="gapWrap" hidden><canvas id="gapline"></canvas><div class="gapKey"><span>Gap to best lap</span><span><b class="g">below = gaining</b> · <b class="r">above = losing</b></span></div></div>
     <div class="tlBar"><span id="tlLbl">Whole ride</span><button class="btn txt" id="tlLap" hidden>This lap</button><button class="btn txt" id="tlAll" hidden>All</button><button class="btn" id="tlOut" aria-label="Zoom out">&minus;</button><button class="btn" id="tlIn" aria-label="Zoom in">+</button></div>
@@ -186,22 +192,22 @@ details>summary:after{content:" \25B8";color:var(--muted)}details[open]>summary:
 <section id="v-help" hidden>
   <div class="card help"><h3>Quick start</h3>
     <ol><li><b>Switch on.</b> Every LED on the bar lights up in turn - that's the power-on check.</li>
-      <li><b>Wait for the status light to go green</b> (strong GPS). Outside with a clear view of the sky it takes under a minute.</li>
-      <li><b>Hold the Ride button for 1 second.</b> The bar flashes green and the status light starts blinking - you're recording.</li>
+      <li><b>Wait for the status light (first LED) to go green</b> (strong GPS). Outside with a clear view of the sky it takes under a minute.</li>
+      <li><b>Hold the Ride button for 1 second.</b> The whole strip flashes green 3 times and the status light starts blinking - you're recording.</li>
       <li><b>Ride.</b> Lap and sector colours show on the bar as you go.</li>
-      <li><b>Finish:</b> hold the Ride button until the bar is all red (4 s), then let go. The ride is saved.</li>
+      <li><b>Finish:</b> hold the Ride button until the bar is all red (4 s), then let go. The strip flashes red 3 times - the ride is saved.</li>
       <li><b>Open this page, tap Connect.</b> Rides copy to the phone by themselves - open them in History.</li></ol></div>
   <div class="card help"><h3>Buttons</h3>
     <table><tr><th></th><th>Ride button</th><th>Marker button</th></tr>
-      <tr><td>Not recording</td><td>Hold 1 s: start</td><td>-</td></tr>
-      <tr><td>Recording</td><td>Hold, let go while <b class="bl">blue</b>: pause / resume<br>Hold until all <b class="rd">red</b> (4 s): end ride<br>Keep holding until dark (6 s): cancel</td><td>Tap: drop a marker (white flash) - mark a crash, a line to try, anything</td></tr></table>
-    <p>The phone can do all of these too: Settings, Details.</p></div>
-  <div class="card help"><h3>Status light</h3>
+      <tr><td>Not recording</td><td>Hold 1 s: start <b style="color:var(--green)">(3 green flashes)</b></td><td>-</td></tr>
+      <tr><td>Recording</td><td>Hold, let go while <b class="bl">blue</b>: pause <b>(white 1 s)</b> / resume <b style="color:var(--green)">(green 1 s)</b><br>Hold until all <b class="rd">red</b> (4 s): end ride <b class="rd">(3 red flashes)</b><br>Keep holding until dark (6 s): cancel</td><td>Tap: drop a marker <b style="color:var(--yellow)">(strip goes yellow)</b> - mark a crash, a line to try, anything</td></tr></table>
+    <p>When a press works, the whole strip shows it, so you know without looking at the phone. The phone can do all of these too: Settings, Details.</p></div>
+  <div class="card help"><h3>Status light</h3><p style="margin:0 0 10px">The first LED on the bar (the one on its own at the end).</p>
     <ul class="keys"><li><i style="background:var(--green)"></i><b>Green</b> strong GPS</li><li><i style="background:#ff9f0a"></i><b>Orange</b> weak GPS</li><li><i style="background:var(--red)"></i><b>Red</b> no GPS yet</li>
       <li><i class="blink"></i><b>Blinking</b> recording (blue blink = phone connected)</li><li><i style="background:var(--blue);opacity:.6"></i><b>Slow blue pulse</b> paused</li><li><i style="background:var(--red)"></i><b>Fast red flash</b> storage full or a storage problem - connect the phone</li></ul></div>
   <div class="card help"><h3>LED bar</h3>
     <ul class="keys"><li><i style="background:var(--purple)"></i><b>Purple</b> best lap (or sector) of the day</li><li><i style="background:var(--green)"></i><b>Green</b> faster than your last one</li><li><i style="background:var(--yellow)"></i><b>Yellow</b> slower than your last one</li><li><i style="background:var(--red)"></i><b>Red</b> you stopped in it - doesn't count</li></ul>
-    <p><b>Over the finish line:</b> the whole bar flashes the lap colour for 3 s. <b>During the lap:</b> each pair of LEDs is a sector and lights up as you finish it.</p>
+    <p>The other 5 LEDs. <b>Over the finish line:</b> they all flash the lap colour for 3 s. <b>During the lap:</b> they're split into the 3 sectors - 2 LEDs, the middle one, then 2 LEDs - and each part lights up as you finish that sector.</p>
     <p><b>Amber blinks</b> = a warning: once = GPS weak, twice = storage low, three times = battery low. Shown at power-on, when you start recording, and every 5 minutes.</p></div>
   <div class="card help"><h3>Tracks and laps</h3>
     <p><b>New track:</b> just ride. After 3 laps the finish line goes on the fastest straight by itself, with 2 sector lines (3 sectors). Change it with <b>Edit track</b> on any ride there.</p>
@@ -632,7 +638,7 @@ const MAP=(()=>{
   cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',e=>P.delete(e.pointerId));
   cv.addEventListener('wheel',e=>{e.preventDefault();const q=pos(e),before=fromS(q.x,q.y);v.z=Math.max(3,Math.min(21,v.z-e.deltaY*0.002));const after=fromS(q.x,q.y);v.cx+=before[0]-after[0];v.cy+=before[1]-after[1];req();},{passive:false});
   window.addEventListener('resize',resize);
-  return{v,LAYERS,toS,fromS,resize,req,fit,scale,size:()=>[W,H],set onDraw(f){onDraw=f;},set onTap(f){onTap=f;},
+  return{v,LAYERS,toS,fromS,resize,req,drawNow:()=>draw(),fit,scale,size:()=>[W,H],set onDraw(f){onDraw=f;},set onTap(f){onTap=f;},
     nextLayer(){const o=['sat','street','none'];v.layer=o[(o.indexOf(v.layer)+1)%3];LS.set('mxLayer',v.layer);if(v.layer!=='none'&&online===false)online=null;note();req();return LAYERS[v.layer].name;},
     centreOn(mx,my){v.cx=mx;v.cy=my;req();}};
 })();
@@ -647,7 +653,9 @@ MAP.onDraw=(ctx,W,H)=>{
   const lap=cur.mode===0&&cur.laps&&cur.laps.length?lapAt(scrub):null,under=new Path2D(),dim=new Path2D(),bright=SPEED_COLS.map(()=>new Path2D()),plain=new Path2D();
   let lx=0,ly=0,have=false,vmax=A.vmax||1;const cl=cmpLaps(),blue=new Path2D();
   const rg=rng();
+  const gone=cur.mode===0&&cur.laps?cur.laps.filter(l=>l.del&&l!==lap):[];   // removed laps don't show on the map (unless you're looking at one)
   for(let i=rg.i0;i<=rg.i1;i++){const f=F[i],x=(f.mx-MAP.v.cx)*sc+W/2,y=(f.my-MAP.v.cy)*sc+H/2;
+    if(gone.length&&gone.some(l=>i>l.i0&&i<=l.i1)){have=false;continue;}
     if(f.brk||!have){lx=x;ly=y;have=true;continue;}
     if(Math.abs(x-lx)+Math.abs(y-ly)<1.5)continue;
     if((lx<-50&&x<-50)||(lx>W+50&&x>W+50)||(ly<-50&&y<-50)||(ly>H+50&&y>H+50)){lx=x;ly=y;continue;}
@@ -666,6 +674,8 @@ MAP.onDraw=(ctx,W,H)=>{
   if(cur.mode===1){dot(F[0],'#2bd35a',5);dot(F[F.length-1],'#ff4545',5);}
   for(const m of cur.R.markers){const f=F[m.i];if(!f)continue;const[x,y]=MAP.toS(f.mx,f.my);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-7,y-16);ctx.lineTo(x+7,y-16);ctx.closePath();ctx.fillStyle='#ff9f0a';ctx.fill();ctx.lineWidth=1.5;ctx.strokeStyle='#000';ctx.stroke();}
   // where the scrub bar is
+  {const sl=shownLap(),vl=vsLap(),sf=F[scrub];if(sl&&vl&&sf){const t=vl.t0+(sf.t-sl.t0);if(t<=vl.t1){let i=vl.i0;while(i<vl.i1&&F[i].t<t)i++;const[x,y]=MAP.toS(F[i].mx,F[i].my);
+    ctx.beginPath();ctx.arc(x,y,7,0,7);ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--blue');ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#0b0c0e';ctx.stroke();}}}
   const s=F[scrub];if(s){const[x,y]=MAP.toS(s.mx,s.my);ctx.beginPath();ctx.arc(x,y,setup?5:8,0,7);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#0b0c0e';ctx.stroke();}
   // finish line
   if(trk&&trk.fin&&cur.mode===0){const a=MAP.toS(mercX(trk.fin[1]),mercY(trk.fin[0])),b=MAP.toS(mercX(trk.fin[3]),mercY(trk.fin[2]));
@@ -693,21 +703,30 @@ const TL=(()=>{
   const cv=$('timeline'),ctx=cv.getContext('2d');let W=0,H=0,dpr=1,dragging=false;
   // Zoom: the bar shows v0..v1 seconds of the ride (v1 null = the whole ride). Pinch, +/-, or the mouse wheel.
   let v0=0,v1=null,zNo=null;const pts=new Map();let pinch=null;
-  const lo=()=>cur&&cur.R.fixes.length?cur.R.fixes[rng().i0].t:0,hi=()=>cur&&cur.R.fixes.length?cur.R.fixes[rng().i1].t:1;
+  const lo=()=>{if(!cur||!cur.R.fixes.length)return 0;const s=shownLap();return s?s.t0:cur.R.fixes[rng().i0].t;};
+  const hi=()=>{if(!cur||!cur.R.fixes.length)return 1;const s=shownLap();if(s){const v=vsLap();return s.t0+Math.max(s.t1-s.t0,v?v.t1-v.t0:0);}return cur.R.fixes[rng().i1].t;};
   const total=()=>Math.max(1,hi()-lo()),span=()=>(v1===null?hi():v1)-v0;
   function setView(a,b){const T=total(),L=lo();let w=Math.max(Math.min(10,T),Math.min(T,b-a));if(w>=T*0.98){v0=L;v1=null;}else{a=Math.max(L,Math.min(L+T-w,a));v0=a;v1=a+w;}label();draw();}
   function zoom(f,ct){const w=span()/f;if(ct===undefined){const s=cur.R.fixes[scrub];ct=s?s.t:v0+span()/2;}const k=(ct-v0)/span();setView(ct-k*w,ct-k*w+w);}
-  function label(){const z=v1!==null;$('tlLbl').textContent=z?'Showing '+fmtDur(span())+' of '+fmtDur(total()):(cur&&rng().trim?'Laps only':'Whole ride')+' · pinch or + to zoom';$('tlAll').hidden=!z;
-    $('tlLap').hidden=!(cur&&cur.mode===0&&cur.laps&&cur.laps.length&&lapAt(scrub));}
-  function follow(t){if(v1===null)return;const w=span();if(t<v0+w*0.04)setView(t-w*0.04,t-w*0.04+w);else if(t>v1-w*0.04)setView(t+w*0.04-w,t+w*0.04);}
+  function label(){const z=v1!==null,lv=lapView();$('tlLbl').textContent=z?'Showing '+fmtDur(span())+' of '+(lv?'the lap':fmtDur(total())):(lv?'Pinch or + to zoom':'Whole ride · pinch or + to zoom');$('tlAll').hidden=!z;
+    $('tlLap').hidden=true;}
+  function follow(){}   // replaced by the edge glide below
+  let glideX=null,glideRaf=0,glideLast=0;
+  function glide(ts){glideRaf=0;if(glideX===null||v1===null||!dragging)return;const r=cv.getBoundingClientRect(),f=(glideX-r.left)/r.width,edge=0.12;
+    let v=0;if(f<edge)v=-(edge-f)/edge;else if(f>1-edge)v=(f-(1-edge))/edge;
+    const dt=glideLast?Math.min(0.05,(ts-glideLast)/1000):0.016;glideLast=ts;
+    if(v){const w=span();setView(v0+v*w*0.9*dt,v0+v*w*0.9*dt+w);const F=cur.R.fixes,t=Math.max(lo(),Math.min(hi(),tAt(glideX)));let a=0,b=F.length-1;while(a<b){const m=(a+b)>>1;if(F[m].t<t)a=m+1;else b=m;}setScrub(a,true);}
+    glideRaf=requestAnimationFrame(glide);}
   function resize(){const r=cv.getBoundingClientRect();if(!r.width)return;dpr=window.devicePixelRatio||1;W=r.width;H=r.height;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);draw();}
   function draw(){
     if(!W)return;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#141518';ctx.fillRect(0,0,W,H);
     if(!cur)return;const F=cur.R.fixes;if(!F.length)return;
-    if(zNo!==cur.no){zNo=cur.no;v1=null;label();}
+    const sl=shownLap(),key=cur.no+'/'+(sl?sl.n+'/'+(cur.vs||0):'all');
+    if(zNo!==key){zNo=key;v1=null;label();}
     if(v1===null)v0=lo();
     const T0=v0,TS=span(),X=t=>(t-T0)/TS*W;
     const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n);
+    if(sl){drawLap(sl,T0,TS,X,css);return;}
     if(cur.mode===0&&cur.laps&&cur.laps.length){
       for(const l of cur.laps){ctx.fillStyle=l.del?'#3a3e48':css('--'+(l.col||'green'));ctx.globalAlpha=l.del?.5:.9;ctx.fillRect(X(l.t0)+.5,6,Math.max(1,X(l.t1)-X(l.t0)-1),H-12);}
       ctx.globalAlpha=1;
@@ -737,19 +756,57 @@ const TL=(()=>{
     drawGap(T0,TS);
     const s=F[scrub];if(s){const x=Math.max(1.5,Math.min(W-1.5,X(s.t)));ctx.fillStyle='#fff';ctx.fillRect(x-1.5,0,3,H);}
   }
+  // One lap: speed on top (white = this lap, blue = the one you're comparing with, lined up by time from the
+  // line), sector lines as dashed ticks, and along the bottom the gap - how far behind (red, up) or ahead
+  // (green, down) of the other lap you are at the same point round the track. No compare = against your best.
+  function drawLap(s,T0,TS,X,css){
+    const F=cur.R.fixes,v=vsLap(),best=cur.laps.best,ref=v||(best&&best!==s?best:null),topH=Math.round(H*(ref?0.6:0.92)),bTop=topH+3,bH=H-bTop-3;
+    const vm=Math.max(10,s.vmax||0,v?v.vmax:0),Y=k=>topH-3-(topH-10)*Math.min(1,k/vm);
+    // sector lines
+    const trk=cur.track;if(trk&&trk.sec){ctx.setLineDash([3,3]);ctx.strokeStyle='rgba(243,244,246,.35)';ctx.lineWidth=1;ctx.font='600 9px Inter,system-ui,sans-serif';ctx.fillStyle='rgba(243,244,246,.6)';
+      trk.sec.forEach((g,k)=>{const i=firstCross(F,cur.A,{fin:g.slice(0,4),dir:g[4]},s.i0,s.i1);if(i<0)return;const x=X(F[i].t);ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();ctx.fillText('S'+(k+2),x+3,10);});
+      ctx.setLineDash([]);}
+    const line=(l,off,col,w,fill)=>{let st=-1;ctx.beginPath();for(let i=l.i0;i<=l.i1;i++){const t=F[i].t+off;if(t<T0-1)continue;const x=X(t),y=Y(F[i].kmh);if(st<0){ctx.moveTo(x,y);st=x;}else ctx.lineTo(x,y);if(t>T0+TS+1)break;}
+      if(st<0)return;if(fill){const ex=Math.min(W,X(Math.min(l.t1+off,T0+TS)));ctx.lineTo(ex,topH);ctx.lineTo(st,topH);ctx.closePath();ctx.globalAlpha=.22;ctx.fillStyle=fill;ctx.fill();ctx.globalAlpha=1;}
+      else{ctx.strokeStyle=col;ctx.lineWidth=w;ctx.stroke();}};
+    const lc=s.del?'#6b6f78':s.col?css('--'+s.col):'#9aa0a6';
+    line(s,0,null,0,lc);
+    if(v)line(v,s.t0-v.t0,css('--blue'),2,null);
+    line(s,0,'#f3f4f6',2,null);
+    ctx.font='600 10px Inter,system-ui,sans-serif';ctx.fillStyle='rgba(243,244,246,.55)';ctx.textAlign='right';ctx.fillText(Math.round(vm)+' km/h',W-6,topH-6);ctx.textAlign='left';
+    // the other lap's point at the same moment (ghost)
+    const sf=F[scrub];if(v&&sf){const t=v.t0+(sf.t-s.t0);if(t<=v.t1){let i=v.i0;while(i<v.i1&&F[i].t<t)i++;ctx.beginPath();ctx.arc(X(F[i].t+s.t0-v.t0),Y(F[i].kmh),4,0,7);ctx.fillStyle=css('--blue');ctx.fill();}}
+    // gap along the bottom
+    if(ref){ctx.fillStyle='rgba(255,255,255,.04)';ctx.fillRect(0,bTop,W,bH);
+      const pts=[];let mx=0.3;for(let i=s.i0;i<=s.i1;i++){const g0=gapBetween(i,s,ref);if(g0===null)continue;const g=-g0;/* + = behind the other lap */const t=F[i].t;if(t<T0-1||t>T0+TS+1)continue;pts.push([X(t),g]);mx=Math.max(mx,Math.abs(g));}
+      mx=Math.min(mx,15);const mid=bTop+bH/2,GY=g=>mid-g/mx*(bH/2-3);
+      ctx.strokeStyle='rgba(243,244,246,.22)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,mid);ctx.lineTo(W,mid);ctx.stroke();
+      if(pts.length)for(const[col,up]of[[css('--red'),1],[css('--green'),0]]){ctx.save();ctx.beginPath();up?ctx.rect(0,bTop,W,mid-bTop):ctx.rect(0,mid,W,bTop+bH-mid);ctx.clip();
+        ctx.beginPath();ctx.moveTo(pts[0][0],mid);for(const[x,g]of pts)ctx.lineTo(x,GY(g));ctx.lineTo(pts[pts.length-1][0],mid);ctx.closePath();ctx.globalAlpha=.3;ctx.fillStyle=col;ctx.fill();ctx.globalAlpha=1;
+        ctx.beginPath();pts.forEach(([x,g],k)=>k?ctx.lineTo(x,GY(g)):ctx.moveTo(x,GY(g)));ctx.strokeStyle=col;ctx.lineWidth=1.6;ctx.stroke();ctx.restore();}
+      ctx.font='600 9px Inter,system-ui,sans-serif';ctx.fillStyle='rgba(243,244,246,.6)';ctx.fillText('gap vs '+(v?'lap '+v.n:'best')+' · ±'+mx.toFixed(1)+' s',5,bTop+10);}
+    // stops, markers, scrub
+    ctx.fillStyle='rgba(10,11,14,.55)';for(const st of cur.A.stops){if(st.i1<s.i0||st.i0>s.i1)continue;ctx.fillRect(X(F[st.i0].t),0,Math.max(1,X(F[st.i1].t)-X(F[st.i0].t)),topH);}
+    ctx.fillStyle='#ff9f0a';for(const m of cur.R.markers){if(m.i<s.i0||m.i>s.i1)continue;const x=X(F[m.i].t);ctx.beginPath();ctx.moveTo(x-5,0);ctx.lineTo(x+5,0);ctx.lineTo(x,9);ctx.closePath();ctx.fill();}
+    if(v1!==null){const T=total();ctx.fillStyle='rgba(243,244,246,.18)';ctx.fillRect(0,H-2,W,2);ctx.fillStyle='#f3f4f6';ctx.fillRect((v0-lo())/T*W,H-2,Math.max(3,TS/T*W),2);}
+    if(sf){const x=Math.max(1.5,Math.min(W-1.5,X(sf.t)));ctx.fillStyle='#fff';ctx.fillRect(x-1.5,0,3,H);}
+  }
   // Gap to best lap, on the same time scale as the bar above: for every point of every lap, how far behind
   // (above the line, red) or ahead (below, green) of your best lap you were at that point round the track.
   const gc=$('gapline'),gx=gc.getContext('2d');
-  const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n);
+  const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n);let gapCache={laps:null,segs:[]};
   function drawGap(T0,TS){
-    const show=cur&&cur.mode===0&&cur.laps&&cur.laps.best&&cur.laps.length>1&&!setup;$('gapWrap').hidden=!show;if(!show)return;
+    $('gapWrap').hidden=true;return;
     const r=gc.getBoundingClientRect();if(!r.width)return;const gw=r.width,gh=r.height;
     if(gc.width!==Math.round(gw*dpr)){gc.width=Math.round(gw*dpr);gc.height=Math.round(gh*dpr);}
     gx.setTransform(dpr,0,0,dpr,0,0);gx.clearRect(0,0,gw,gh);gx.fillStyle=cssv('--panel2');gx.fillRect(0,0,gw,gh);
     const F=cur.R.fixes,X=t=>(t-T0)/TS*gw,pts=[];let mx=0.3;
-    for(const l of cur.laps){if(l.del||l.bad||l.t1<T0||l.t0>T0+TS)continue;/* red laps (stops) would swamp the scale */const step=Math.max(1,Math.floor((l.i1-l.i0)/Math.max(20,(X(l.t1)-X(l.t0))/2)));
-      const seg=[];for(let i=l.i0;i<=l.i1;i+=step){const g=gapToBest(i,l);if(g===null)continue;seg.push([X(F[i].t),g]);if(F[i].t>=T0&&F[i].t<=T0+TS)mx=Math.max(mx,Math.abs(g));}
-      if(seg.length)pts.push(seg);}
+    if(gapCache.laps!==cur.laps){gapCache={laps:cur.laps,segs:[]};      // every lap's gap at every fix, worked out once
+      for(const l of cur.laps){if(l.del||l.bad)continue;const seg=[];for(let i=l.i0;i<=l.i1;i++){const g=gapToBest(i,l);if(g!==null)seg.push([F[i].t,g]);}if(seg.length)gapCache.segs.push(seg);}}   // red laps (stops) would swamp the scale
+    for(const full of gapCache.segs){if(full[full.length-1][0]<T0||full[0][0]>T0+TS)continue;
+      const step=Math.max(1,Math.floor(full.length/Math.max(20,(X(full[full.length-1][0])-X(full[0][0]))/2))),seg=[];
+      for(let k=0;k<full.length;k+=step){const[t,g]=full[k];seg.push([X(t),g]);if(t>=T0&&t<=T0+TS)mx=Math.max(mx,Math.abs(g));}
+      pts.push(seg);}
     mx=Math.min(mx,15);const mid=gh/2;   // losing (+) goes up, gaining (-) goes down
     gx.strokeStyle='rgba(243,244,246,.25)';gx.lineWidth=1;gx.beginPath();gx.moveTo(0,mid);gx.lineTo(gw,mid);gx.stroke();
     for(const seg of pts){
@@ -761,15 +818,15 @@ const TL=(()=>{
   }
   gc.addEventListener('pointerdown',e=>{if(!cur)return;const r=gc.getBoundingClientRect(),t=v0+(e.clientX-r.left)/r.width*span(),F=cur.R.fixes;let lo=0,hi=F.length-1;while(lo<hi){const m=(lo+hi)>>1;if(F[m].t<t)lo=m+1;else hi=m;}setScrub(lo,true);});
   const tAt=x=>{const r=cv.getBoundingClientRect();return v0+(x-r.left)/r.width*span();};
-  function at(e){const F=cur.R.fixes,t=Math.max(lo(),Math.min(hi(),tAt(e.clientX)));follow(t);
-    let lo=0,hi=F.length-1;while(lo<hi){const m=(lo+hi)>>1;if(F[m].t<t)lo=m+1;else hi=m;}setScrub(lo,true);}
+  function at(e){const F=cur.R.fixes,sl=shownLap(),t=Math.max(lo(),Math.min(sl?sl.t1-0.01:hi(),tAt(e.clientX)));glideX=e.clientX;if(!glideRaf&&v1!==null){glideLast=0;glideRaf=requestAnimationFrame(glide);}
+    let a=sl?sl.i0:0,b=sl?sl.i1:F.length-1;while(a<b){const m=(a+b)>>1;if(F[m].t<t)a=m+1;else b=m;}setScrub(a,true);}
   cv.addEventListener('pointerdown',e=>{if(!cur||!cur.R.fixes.length)return;pts.set(e.pointerId,e.clientX);try{cv.setPointerCapture(e.pointerId);}catch(x){}
     if(pts.size===2){dragging=false;const[a,b]=[...pts.values()];pinch={d:Math.abs(a-b)||1,a0:v0,w0:span(),ct:tAt((a+b)/2)};}
     else{dragging=true;at(e);}});
   cv.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,e.clientX);
     if(pinch&&pts.size===2){const[a,b]=[...pts.values()],r=cv.getBoundingClientRect(),w=pinch.w0*pinch.d/(Math.abs(a-b)||1),k=((a+b)/2-r.left)/r.width;setView(pinch.ct-k*w,pinch.ct-k*w+w);}
     else if(dragging)at(e);});
-  const end=e=>{pts.delete(e.pointerId);if(pts.size<2)pinch=null;if(!pts.size)dragging=false;};cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
+  const end=e=>{pts.delete(e.pointerId);if(pts.size<2)pinch=null;if(!pts.size){dragging=false;glideX=null;}};cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
   cv.addEventListener('wheel',e=>{if(!cur)return;e.preventDefault();zoom(e.deltaY<0?1.4:1/1.4,tAt(e.clientX));},{passive:false});
   $('tlIn').onclick=()=>{if(cur)zoom(2);};$('tlOut').onclick=()=>{if(cur)zoom(0.5);};$('tlAll').onclick=()=>{if(cur)setView(lo(),hi());};
   $('tlLap').onclick=()=>{const l=cur&&lapAt(scrub);if(!l)return;const p=(l.t1-l.t0)*0.04;setView(l.t0-p,l.t1+p);};
@@ -788,13 +845,40 @@ function setScrub(i,follow){
   if(!cur)return;const F=cur.R.fixes,rg=rng();scrub=Math.max(rg.i0,Math.min(rg.i1,i));
   const f=F[scrub];
   if(follow&&f){const[x,y]=MAP.toS(f.mx,f.my),[W,H]=MAP.size();if(x<30||y<30||x>W-30||y>H-30)MAP.centreOn(f.mx,f.my);}
-  MAP.req();TL.draw();TL.label();renderPoint();
-  const l=lapAt(scrub);document.querySelectorAll('#laps tr').forEach(tr=>tr.classList.toggle('cur',!!l&&+tr.dataset.n===l.n));
+  MAP.req();
+  if(!scrubRaf)scrubRaf=requestAnimationFrame(()=>{scrubRaf=0;if(!cur)return;renderLapNav();TL.draw();TL.label();renderPoint();   // at most once per screen frame, however fast the finger moves
+    const l=lapAt(scrub);if(l!==lastLapHi){lastLapHi=l;document.querySelectorAll('#laps tr').forEach(tr=>tr.classList.toggle('cur',!!l&&+tr.dataset.n===l.n));}});
 }
+let scrubRaf=0,lastLapHi=null;
 // Compare two laps: first picked = white, second = blue. Gap = how far the blue lap is behind the white one
 // at the same point round the track (matched by distance into the lap).
 const cmp={on:false,sel:[]};
-function cmpLaps(){return cmp.on?cmp.sel.map(n=>cur.laps&&cur.laps.find(l=>l.n===n)).filter(Boolean):[];}
+// Track mode: the timeline shows one lap at a time - the one the scrub marker is in. While recording, the lap
+// you're on now counts as a lap too. cur.vs = the lap number it's being compared with (or none).
+function lapView(){return!!(cur&&cur.mode===0&&cur.laps&&cur.laps.length&&!setup);}
+function runningLap(){const L=cur.laps,cr=L&&L.cross,F=cur.R.fixes;if(!cr||!cr.length||!(cur.e.rec||cur.live))return null;const a=cr[cr.length-1].i;if(F.length-1-a<5)return null;
+  let vm=0;for(let i=a;i<F.length;i++)vm=Math.max(vm,F[i].kmh);
+  return{n:L.length+1,i0:a,i1:F.length-1,t0:cr[cr.length-1].t||F[a].t,t1:F[F.length-1].t,time:F[F.length-1].t-(cr[cr.length-1].t||F[a].t),dist:F[F.length-1].d-F[a].d,vmax:vm,col:'',running:true};}
+function shownLap(){if(!lapView())return null;const l=lapAt(scrub);if(l)return l;const r=runningLap();if(r&&scrub>=r.i0)return r;
+  return cur.laps.find(x=>!x.del)||cur.laps[0];}
+function vsLap(){const s=shownLap();if(!s||!cur.vs||cur.vs===s.n)return null;return cur.laps.find(l=>l.n===cur.vs)||null;}
+function lapList(){const L=cur.laps.filter(l=>!l.del),r=runningLap();if(r)L.push(r);return L;}
+function cmpLaps(){if(cmp.on)return cmp.sel.map(n=>cur.laps&&cur.laps.find(l=>l.n===n)).filter(Boolean);const s=shownLap(),v=vsLap();return s&&v?[s,v]:[];}
+function goLap(d){const L=lapList(),s=shownLap();if(!s)return;const k=L.findIndex(l=>l.n===s.n),nx=L[Math.max(0,Math.min(L.length-1,k+d))];if(!nx||nx===s)return;
+  const F=cur.R.fixes,te=Math.min(F[scrub].t-s.t0,nx.time||0),t=nx.t0+Math.max(0,te);let i=nx.i0;while(i<nx.i1&&F[i].t<t)i++;   // same point in time into the next lap
+  if(cur.vs===nx.n)cur.vs=null;setScrub(i,true);}
+function renderLapNav(){const on=lapView();$('lapNav').hidden=!on;if(!on){$('vsRow').hidden=true;cur&&(cur.vs=null);}
+  const cv=$('timeline');if(cv.classList.contains('lapmode')!==on){cv.classList.toggle('lapmode',on);TL.resize();}
+  if(!on)return;const s=shownLap(),v=vsLap(),best=cur.laps.best;
+  const tag=s.running?'<small> · now</small>':s===best?'<small> · best</small>':s.bad?'<small> · '+s.flag+'</small>':best&&!s.del?'<small> · '+fmtGap(s.time-best.time)+'</small>':'';
+  $('lpLbl').innerHTML=v?'Lap '+s.n+' <small>vs</small> Lap '+v.n:'Lap '+s.n+' · '+fmtLap(s.time)+tag;
+  $('lpVs').textContent=v?'Stop':'Compare';$('lpVs').classList.toggle('pri',!!v);
+  const L=lapList(),k=L.findIndex(l=>l.n===s.n);$('lpPrev').disabled=k<=0;$('lpNext').disabled=k<0||k>=L.length-1;}
+$('lpPrev').onclick=()=>goLap(-1);$('lpNext').onclick=()=>goLap(1);
+$('lpVs').onclick=()=>{if(!cur)return;if(vsLap()){cur.vs=null;$('vsRow').hidden=true;renderLapNav();TL.draw();MAP.req();return;}
+  const r=$('vsRow');if(!r.hidden){r.hidden=true;return;}const s=shownLap();
+  r.innerHTML='Compare with lap '+cur.laps.filter(l=>!l.del&&l.n!==s.n).map(l=>`<button data-vs="${l.n}" style="${l===cur.laps.best?'border-color:var(--purple)':''}">${l.n}</button>`).join('');r.hidden=false;};
+$('vsRow').onclick=e=>{const b=e.target.closest('[data-vs]');if(!b)return;cur.vs=+b.dataset.vs;$('vsRow').hidden=true;renderLapNav();TL.reset();MAP.req();};
 function gapBetween(i,a,b){const F=cur.R.fixes;if(!a||!b||a.dist<=0||i<a.i0||i>a.i1)return null;
   const target=F[b.i0].d+(F[i].d-F[a.i0].d)*b.dist/a.dist;let lo=b.i0,hi=b.i1;
   while(lo<hi){const m=(lo+hi)>>1;if(F[m].d<target)lo=m+1;else hi=m;}
