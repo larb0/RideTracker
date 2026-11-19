@@ -269,7 +269,7 @@ body.island main{padding-bottom:96px}body.island #toast{bottom:calc(92px + env(s
       <p class="note" style="margin:0 0 6px">These do what the buttons will do once they're fitted.</p>
       <div class="row"><button class="btn" data-act="start" id="actStart">Start recording</button><button class="btn" data-act="marker">Drop marker</button><button class="btn" data-act="pause" id="actPause">Pause</button><button class="btn" data-act="end">End ride</button></div>
       <div class="lbl" style="margin:16px 0 6px">GPS</div>
-      <div class="row" style="margin-bottom:6px"><button class="btn" id="setSbas"></button></div>
+      <div class="row" style="margin-bottom:6px"><button class="btn" id="setSbas"></button><button class="btn" id="sbasScan">Search all correction satellites</button></div>
       <p class="note" style="margin:0" id="sbasNote">SouthPAN is the free NZ/Australia correction service from a satellite in the north-west sky. It sharpens the GPS position once it's locked on.</p>
       <div class="row" style="margin-top:12px"><button class="btn" id="reportBtn">Unit report for Claude</button></div>
       <div class="lbl" style="margin:16px 0 6px">All rides</div>
@@ -1486,6 +1486,10 @@ function renderSettings(live){
   document.querySelectorAll('#setMode button').forEach(b=>b.classList.toggle('on',+b.dataset.m===S.mode));
   if(!live){$('setName').value=S.id&&S.unit===S.id?'':S.unit;$('setName').placeholder=S.id||'MX-…';}
   $('setSbas').textContent='SouthPAN: '+(S.southpan?'on':'off');
+  {const b0=S.sbas;$('sbasScan').textContent=b0&&b0.scan>=0?'Stop search':'Search all correction satellites';
+   if(b0&&b0.scan>=0){const L=(b0.heard?String(b0.heard).split(','):[]).map(x=>{const[p,d]=x.split(':');return p+(+d?' ('+d+' dB)':' (seen, no signal)');});
+     $('sbasNote').textContent='Searching every correction satellite - '+fmtDur(b0.scan)+' so far (corrections not used while searching). '+(L.length?'Heard: '+L.join(', ')+'.':'Nothing heard yet.')+' Give it 10 minutes in open sky, then tap Stop search and send a unit report.';}
+   else{
   {const b=S.sbas,g=S.gps,base='SouthPAN is the free NZ/Australia correction service from a satellite in the north-west sky. It sharpens the GPS position once it\'s locked on.';let t=base;
     if(S.southpan&&b){
       if(b.ok===0)t='The GPS module refused the SouthPAN settings. Send a unit report.';
@@ -1495,7 +1499,7 @@ function renderSettings(live){
       else if(b.gsv===0)t='The GPS isn\'t sending its satellite list, so SouthPAN can\'t be checked. Send a unit report.';
       else if(b.heard&&!String(b.heard).split(',').includes('122'))t='Hearing correction satellite '+b.heard+' but not SouthPAN (122) yet. Keep the unit in open sky towards the north-west.';
       else t='Looking for the SouthPAN satellite. It needs open sky towards the north-west - not under trees or a roof.';}
-    $('sbasNote').textContent=t;}
+    $('sbasNote').textContent=t;}}}
   $('actPause').textContent=S.ride.paused?'Resume':'Pause';$('actStart').hidden=!!(S.ride.armed||S.ride.active);
   const g=S.gps,kv=[['GPS',g.alive?g.kind+(g.baud?' · '+g.baud+' baud':''):'Nothing heard - check the wiring'],
     ['Fix',g.fix?(g.q===2?'DGPS (corrections in use)':'GPS')+' · '+g.sats+' sats · HDOP '+g.hdop.toFixed(1)+' · '+g.rate+'/s':'No fix yet'],
@@ -1513,6 +1517,7 @@ $('setMode').onclick=e=>{const b=e.target.closest('button');if(b)setSetting('mod
 $('setName').onchange=()=>{const v=$('setName').value.replace(/[^\x20-\x7e]/g,'').replace(/["\\<>&]/g,'').trim().slice(0,20);$('setName').value=v;setSetting('name='+encodeURIComponent(v));toast('Renamed - Bluetooth shows the new name next time you connect');};
 $('gwIn').value=gateW();$('gwV').textContent=gateW();
 $('gwIn').oninput=()=>{LS.set('mxGateW',$('gwIn').value);$('gwV').textContent=$('gwIn').value;if(cur){delete cur.sugN;}};
+$('sbasScan').onclick=()=>{const on=!(S.sbas&&S.sbas.scan>=0);setSetting('sbasscan='+(on?1:0));toast(on?'Searching - leave it 10 minutes in open sky':'Search stopped - send a unit report');};
 $('setSbas').onclick=()=>{const on=!S.southpan;setSetting('southpan='+(on?1:0));toast(on?'SouthPAN on - give it a few minutes outside':'SouthPAN off');};
 document.querySelectorAll('[data-act]').forEach(b=>b.onclick=async()=>{try{S=await BLE.json('action',b.dataset.act);onState();renderSettings(true);toast({marker:'Marker dropped',pause:S.ride.paused?'Paused':'Resumed',end:'Ride ended - recording off',start:'Recording on'}[b.dataset.act]);}catch(x){toast(x.message);}});
 $('oldDel').onclick=async()=>{try{S=await BLE.json('delold','',{wait:20000});renderSettings(true);toast('Old test files deleted');}catch(x){toast(x.message);}};
