@@ -94,6 +94,7 @@ tr.selA td:first-child{box-shadow:inset 3px 0 0 #f3f4f6}tr.selB td:first-child{b
 .rideItem .main{flex:1;min-width:0}
 #trList .rideItem:last-child,#trRides .rideItem:last-child{border-bottom:0}
 .trThumb{width:56px;height:56px;flex:none;background:var(--panel2);border-radius:12px;display:flex}.trThumb svg,.trMap svg{width:100%;height:100%}
+.trMap.big{position:relative;overflow:hidden;}.trAttr{position:absolute;right:8px;bottom:6px;font-size:10px;color:#fff;opacity:.75;text-shadow:0 0 3px #000}
 .trMap.big{margin:12px 0;height:min(62vw,300px);background:var(--panel2);border-radius:14px;display:flex;align-items:center;justify-content:center}
 #trName{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:16px;font-weight:650}#trName[readonly]{background:none;border-color:transparent;padding-left:0}
 .rideItem .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -152,7 +153,7 @@ body.island main{padding-bottom:96px}body.island #toast{bottom:calc(92px + env(s
 </style></head><body>
 <header>
   <div class="hrow"><div class="brand"><img src="icon.svg" alt="">RideTracker<span id="hdrName"></span></div><div id="pill" class="pill"><i></i>Connecting</div></div>
-  <nav id="nav"><button data-v="help">Help</button><button data-v="history">History</button><button data-v="live" class="on">Live</button><button data-v="tracks">Tracks</button><button data-v="settings">Settings</button></nav>
+  <nav id="nav"><button data-v="help">Help</button><button data-v="tracks">Tracks</button><button data-v="live" class="on">Live</button><button data-v="history">History</button><button data-v="settings">Settings</button></nav>
 </header>
 <main>
 <div id="conn" hidden><div class="t"><b id="connTitle">Not connected</b><span id="connSub" class="note"></span><div class="prog2" id="dlBarBox" hidden><i id="dlBar"></i></div></div><button class="btn pri" id="connBtn">Connect</button></div>
@@ -269,9 +270,8 @@ body.island main{padding-bottom:96px}body.island #toast{bottom:calc(92px + env(s
       <div class="row"><button class="btn" data-act="start" id="actStart">Start recording</button><button class="btn" data-act="marker">Drop marker</button><button class="btn" data-act="pause" id="actPause">Pause</button><button class="btn" data-act="end">End ride</button></div>
       <div class="lbl" style="margin:16px 0 6px">GPS</div>
       <div class="row" style="margin-bottom:6px"><button class="btn" id="setSbas"></button></div>
-      <p class="note" style="margin:0">SouthPAN is the free NZ correction service (u-blox only, applies after a power cycle).</p>
-      <div class="lbl" style="margin:16px 0 6px">This ride</div>
-      <div class="row"><button class="btn" id="csvBtn">Download review file</button><button class="btn" id="reportBtn">Report for Claude</button></div>
+      <p class="note" style="margin:0" id="sbasNote">SouthPAN is the free NZ/Australia correction service from a satellite in the north-west sky. It sharpens the GPS position once it's locked on.</p>
+      <div class="row" style="margin-top:12px"><button class="btn" id="reportBtn">Unit report for Claude</button></div>
       <div class="lbl" style="margin:16px 0 6px">All rides</div>
       <div class="row"><button class="btn" id="csvAllBtn">Export all rides (CSV)</button><span class="note" id="csvAllMsg"></span></div>
       <div class="lbl" style="margin:16px 0 6px">Backup</div>
@@ -1339,11 +1339,69 @@ function trSvg(t,big){
   const T=([x,y])=>((x-x0)*sc+ox).toFixed(1)+','+((y-y0)*sc+oy).toFixed(1),sw=big?3:4;
   let o=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"><polyline points="${pts.map(T).join(' ')} ${T(pts[0])}" fill="none" stroke="var(--muted)" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round"/>`;
   gates.forEach((g,i)=>{const[a,b]=g.map(T).map(v=>v.split(','));o+=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${i?'var(--yellow)':'var(--fg)'}" stroke-width="${i?sw*.8:sw*1.4}" stroke-linecap="round"/>`;
-    if(big)o+=`<text x="${(+a[0]+ +b[0])/2+8}" y="${(+a[1]+ +b[1])/2-8}" fill="${i?'var(--yellow)':'var(--fg)'}" font-size="12" font-weight="700">${i?'S'+i:'Finish'}</text>`;});
+    if(big)o+=`<text x="${(+a[0]+ +b[0])/2+8}" y="${(+a[1]+ +b[1])/2-8}" fill="${i?'var(--yellow)':'var(--fg)'}" font-size="12" font-weight="700">${i?'S'+(i+1):'Finish'}</text>`;});
   return o+'</svg>';}
+// Track page: the outline on satellite imagery (Esri, same as the ride map). Without mobile data the
+// pictures don't load and the outline still shows on a plain background.
+const trTiles=new Map();let trRedraw=null;
+function trSatMap(t){
+  const box=$('trMap'),L=t.line||[];
+  if(L.length<3){box.innerHTML=trSvg(t,true);return;}
+  box.innerHTML='<canvas style="width:100%;height:100%;display:block;border-radius:14px"></canvas><span class="trAttr">Imagery © Esri</span>';
+  const cv=box.firstChild,W=box.clientWidth||360,H=box.clientHeight||260,dpr=Math.min(3,window.devicePixelRatio||1);
+  cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.scale(dpr,dpr);
+  const wx=(lon,z)=>(lon+180)/360*256*2**z,wy=(lat,z)=>{const r=lat*Math.PI/180;return(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*256*2**z;};
+  const pts=L.map(([a,o])=>[a,o]),gates=[t.fin].concat(t.sec||[]).filter(Boolean);
+  gates.forEach(g=>{pts.push([g[0],g[1]]);pts.push([g[2],g[3]]);});
+  const la0=Math.min(...pts.map(p=>p[0])),la1=Math.max(...pts.map(p=>p[0])),lo0=Math.min(...pts.map(p=>p[1])),lo1=Math.max(...pts.map(p=>p[1]));
+  let z=18;while(z>3&&((wx(lo1,z)-wx(lo0,z))>W-40||(wy(la0,z)-wy(la1,z))>H-40))z--;
+  const k=Math.min(2,(W-40)/Math.max(1,wx(lo1,z)-wx(lo0,z)),(H-40)/Math.max(1,wy(la0,z)-wy(la1,z))),TS=256*k;   // fill the box (tiles stretched up to 2x)
+  const cx=(wx(lo0,z)+wx(lo1,z))/2*k,cy=(wy(la0,z)+wy(la1,z))/2*k,ox=cx-W/2,oy=cy-H/2,P=(a,o)=>[wx(o,z)*k-ox,wy(a,z)*k-oy];
+  function draw(){
+    c.fillStyle='#1c1d21';c.fillRect(0,0,W,H);
+    for(let tx=Math.floor(ox/TS);tx<=Math.floor((ox+W)/TS);tx++)for(let ty=Math.floor(oy/TS);ty<=Math.floor((oy+H)/TS);ty++){
+      const k=z+'/'+tx+'/'+ty;let tl=trTiles.get(k);
+      if(!tl){const img=new Image();tl={img,ok:false};img.onload=()=>{tl.ok=true;if(trRedraw)trRedraw();};img.src=`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`;trTiles.set(k,tl);}
+      if(tl.ok)c.drawImage(tl.img,tx*TS-ox,ty*TS-oy,TS+.5,TS+.5);}
+    c.lineJoin=c.lineCap='round';
+    const path=()=>{c.beginPath();L.forEach(([a,o],i)=>{const[x,y]=P(a,o);i?c.lineTo(x,y):c.moveTo(x,y);});c.closePath();};
+    path();c.strokeStyle='rgba(0,0,0,.55)';c.lineWidth=6;c.stroke();path();c.strokeStyle='#f3f4f6';c.lineWidth=2.5;c.stroke();
+    c.font='700 12px system-ui,sans-serif';
+    gates.forEach((g,i)=>{const[a1,b1]=P(g[0],g[1]),[a2,b2]=P(g[2],g[3]),col=i?'#f5c84a':'#ffffff';
+      c.beginPath();c.moveTo(a1,b1);c.lineTo(a2,b2);c.strokeStyle='rgba(0,0,0,.6)';c.lineWidth=i?6:8;c.stroke();c.strokeStyle=col;c.lineWidth=i?3:4.5;c.stroke();
+      const lx=(a1+a2)/2+8,ly=(b1+b2)/2-8,txt=i?'S'+(i+1):'Finish';c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.7)';c.strokeText(txt,lx,ly);c.fillStyle=col;c.fillText(txt,lx,ly);});
+  }
+  trRedraw=()=>{if(cv.isConnected)draw();};draw();
+}
 function trInfo(t){const rs=trRides(t),bests=rs.map(r=>r.meta.best).filter(Boolean),last=rs[0];
   return{rs,best:bests.length?Math.min(...bests):null,last:last?rideDate((last.sum||{}).date,(last.sum||{}).t0):null};}
-function renderTracks(){
+// Tracks made before outlines existed, or whose rides were never opened: look through the rides already on
+// this phone (newest first), find the ones at each track, and fill in the outline, best lap and sessions.
+let trScanning=false;
+async function scanTrackRides(){
+  if(trScanning||!TR.tracks.length)return;trScanning=true;let changed=0,saveTr=0;
+  try{
+    const todo=RIDES.filter(r=>r.meta&&!r.meta.track&&!r.meta.scanned&&!r.rec&&r.size>2000).sort((a,b)=>b.n-a.n).slice(0,25);
+    for(const e of todo){
+      const have=await DB.get(keyOf(e.n));if(!have||!have.buf||have.buf.length<e.size)continue;   // only rides fully on the phone
+      e.meta.scanned=1;changed=1;
+      let R;try{const b=have.buf;R=parseRide(b.buffer.slice(b.byteOffset,b.byteOffset+b.length));}catch(x){continue;}
+      if(!R.fixes.length)continue;const t=nearestTrack(R);if(!t)continue;
+      const A=analyse(R),L=computeLaps(R,A,t,e.meta.del||[],e.meta.keep||[]);if(!L.length)continue;
+      e.meta.track=t.name;e.meta.laps=L.filter(l=>!l.del).length;if(L.best)e.meta.best=+L.best.time.toFixed(2);
+      if((e.meta.mode===undefined?(e.sum||{}).mode:e.meta.mode)!==0)e.meta.mode=0;
+      if(!e.phone&&BLE.ok)BLE.upload('meta',e.n,enc.encode(JSON.stringify(e.meta))).catch(()=>{});
+      if(L.best&&(!t.line||t.line.length<3)){const F=R.fixes,line=[];let lx=1e9,ly=1e9;
+        for(let i=L.best.i0;i<=L.best.i1;i++){const f=F[i];if(Math.hypot(f.x-lx,f.y-ly)>=3){line.push([+f.lat.toFixed(6),+f.lon.toFixed(6)]);lx=f.x;ly=f.y;}}
+        t.line=line;saveTr=1;}
+      if(view==='tracks')renderTracks(true);
+      await new Promise(r=>setTimeout(r,20));
+    }
+  }finally{trScanning=false;}
+  if(changed)cacheRides();
+  if(saveTr)saveTracks().catch(()=>{});
+}
+function renderTracks(noScan){if(!noScan)scanTrackRides();
   $('trDetail').hidden=!trOpen;$('trList').hidden=!!trOpen;$('trSetCard').hidden=!!trOpen;hdrName();
   if(trOpen){const t=TR.tracks.find(x=>x.id===trOpen);if(!t){trOpen=null;return renderTracks();}renderTrack(t);return;}
   const list=TR.tracks.map(t=>({t,i:trInfo(t)})).sort((a,b)=>(b.i.last||0)-(a.i.last||0));
@@ -1353,7 +1411,7 @@ function renderTracks(){
 function renderTrack(t){
   const i=trInfo(t);
   if(document.activeElement!==$('trName')){$('trName').value=t.name;$('trName').readOnly=true;$('trRename').textContent='Rename';}
-  $('trMap').innerHTML=trSvg(t,true);
+  trSatMap(t);
   $('trStats').innerHTML=stat(i.best?fmtLap(i.best):'–','Best lap','purple')+stat(i.rs.length,'Sessions')+stat(i.last?i.last.toLocaleDateString(undefined,{day:'numeric',month:'short'}):'–','Last ridden');
   $('trEdit').disabled=!i.rs.length;
   $('trRides').innerHTML=i.rs.length?i.rs.map(e=>`<div class="rideItem" data-n="${e.n}"><div class="main"><div class="t">${esc(rideName(e))}</div><div class="note" style="margin:2px 0 0">${esc(rideSub(e))}</div></div><div class="r">${e.meta.best?fmtLap(e.meta.best):''}</div></div>`).join('')
@@ -1428,6 +1486,14 @@ function renderSettings(live){
   document.querySelectorAll('#setMode button').forEach(b=>b.classList.toggle('on',+b.dataset.m===S.mode));
   if(!live){$('setName').value=S.id&&S.unit===S.id?'':S.unit;$('setName').placeholder=S.id||'MX-…';}
   $('setSbas').textContent='SouthPAN: '+(S.southpan?'on':'off');
+  {const b=S.sbas,g=S.gps,base='SouthPAN is the free NZ/Australia correction service from a satellite in the north-west sky. It sharpens the GPS position once it\'s locked on.';let t=base;
+    if(S.southpan&&b){
+      if(b.ok===0)t='The GPS module refused the SouthPAN settings. Send a unit report.';
+      else if(b.dgps>0||g.q===2)t='Working - corrections in use on '+Math.min(100,Math.round((b.dgps||0)/Math.max(1,g.rate)*100))+'% of fixes'+(b.snr?' (signal '+b.snr+' dB)':'')+'.';
+      else if(b.seen>=0&&b.seen<10)t='Satellite found (signal '+b.snr+' dB) - waiting for the first corrections. Can take a few minutes.';
+      else if(!g.fix)t='Waiting for a GPS fix first.';
+      else t='Looking for the SouthPAN satellite. It needs open sky towards the north-west - not under trees or a roof.';}
+    $('sbasNote').textContent=t;}
   $('actPause').textContent=S.ride.paused?'Resume':'Pause';$('actStart').hidden=!!(S.ride.armed||S.ride.active);
   const g=S.gps,kv=[['GPS',g.alive?g.kind+(g.baud?' · '+g.baud+' baud':''):'Nothing heard - check the wiring'],
     ['Fix',g.fix?(g.q===2?'DGPS (corrections in use)':'GPS')+' · '+g.sats+' sats · HDOP '+g.hdop.toFixed(1)+' · '+g.rate+'/s':'No fix yet'],
@@ -1445,7 +1511,7 @@ $('setMode').onclick=e=>{const b=e.target.closest('button');if(b)setSetting('mod
 $('setName').onchange=()=>{const v=$('setName').value.replace(/[^\x20-\x7e]/g,'').replace(/["\\<>&]/g,'').trim().slice(0,20);$('setName').value=v;setSetting('name='+encodeURIComponent(v));toast('Renamed - Bluetooth shows the new name next time you connect');};
 $('gwIn').value=gateW();$('gwV').textContent=gateW();
 $('gwIn').oninput=()=>{LS.set('mxGateW',$('gwIn').value);$('gwV').textContent=$('gwIn').value;if(cur){delete cur.sugN;}};
-$('setSbas').onclick=()=>{setSetting('southpan='+(S.southpan?0:1));toast('Applies after switching off and on');};
+$('setSbas').onclick=()=>{const on=!S.southpan;setSetting('southpan='+(on?1:0));toast(on?'SouthPAN on - give it a few minutes outside':'SouthPAN off');};
 document.querySelectorAll('[data-act]').forEach(b=>b.onclick=async()=>{try{S=await BLE.json('action',b.dataset.act);onState();renderSettings(true);toast({marker:'Marker dropped',pause:S.ride.paused?'Paused':'Resumed',end:'Ride ended - recording off',start:'Recording on'}[b.dataset.act]);}catch(x){toast(x.message);}});
 $('oldDel').onclick=async()=>{try{S=await BLE.json('delold','',{wait:20000});renderSettings(true);toast('Old test files deleted');}catch(x){toast(x.message);}};
 $('reportBtn').onclick=async()=>{try{toast('Getting the report…');const t=await BLE.text('report','',{wait:20000});saveFile('mx_report_boot'+(S?S.boot:'')+'.txt',t);}catch(x){toast('Could not get the report: '+x.message);}};
@@ -1500,7 +1566,7 @@ $('csvAllBtn').onclick=async()=>{
       let laps=null;const t=nearestTrack(R);if(t)laps=computeLaps(R,A,t,(e.meta&&e.meta.del)||[],(e.meta&&e.meta.keep)||[]);
       txt+=csvRows(e.n,R,A,laps);}catch(x){msg.textContent='Skipped ride '+e.n+' ('+x.message+')';}}
   saveFile('all_rides.csv',txt,'text/csv');msg.textContent='Done - '+list.length+' rides';b.disabled=false;};
-$('csvBtn').onclick=exportCsv;$('rCsv').onclick=exportCsv;
+$('rCsv').onclick=exportCsv;
 // ---------- Ride file for Claude: notes on top (lines starting with #), then every GPS point as CSV ----------
 // Corners come from the best lap: dips in speed of 8 km/h or more. Every other lap is lined up against it by
 // distance from the finish line, so each corner and sector can be compared lap by lap.
