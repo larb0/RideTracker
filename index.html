@@ -340,10 +340,17 @@ const BLE={dev:null,cmd:null,up:null,data:null,id:1,pend:new Map(),ok:false,lock
       const pr=new Promise((res,rej)=>{const p={res,rej,onProg:o.onProg,wait:o.wait||6000,buf:null,got:0};
         p.fail=m=>{this.pend.delete(id);const e=new Error(m);e.partial=p.buf?p.buf.subarray(0,p.got):null;rej(e);};
         p.tm=setTimeout(()=>p.fail('No reply'),p.wait);this.pend.set(id,p);});
-      await this.cmd.writeValueWithResponse(enc.encode(id+' '+op+(args!==''?' '+args:'')));
+      await this.write(this.cmd,enc.encode(id+' '+op+(args!==''?' '+args:'')));
       return pr;};
     const next=this.lock.then(run,run);this.lock=next.catch(()=>{});return next;
   },
+  // Android Bluetooth does one GATT operation at a time: a command write landing while an upload chunk is
+  // still going out fails with "GATT operation failed for unknown reason". So every write queues here, and a
+  // failed one is tried again (up to 4 times) before giving up.
+  wq:Promise.resolve(),quiet:false,
+  write(ch,bytes){const run=async()=>{for(let t=0;;t++){if(!this.ok)throw new Error('Connection lost');
+      try{return await ch.writeValueWithResponse(bytes);}catch(e){if(t>=3||!this.ok)throw e;await new Promise(r=>setTimeout(r,250*(t+1)));}}};
+    const p=this.wq.then(run,run);this.wq=p.catch(()=>{});return p;},
   async text(op,args,o){return dec.decode(await this.req(op,args,o));},
   async json(op,args,o){return JSON.parse(await this.text(op,args,o));},
   // Upload: announce, send the bytes (each write is confirmed), then the checksum.
@@ -353,7 +360,7 @@ const BLE={dev:null,cmd:null,up:null,data:null,id:1,pend:new Map(),ok:false,lock
   async upload1(kind,arg,bytes,onProg){
     await this.text('up',kind+' '+arg+' '+bytes.length);
     const step=500;
-    for(let i=0;i<bytes.length;i+=step){if(!this.ok)throw new Error('Connection lost');await this.up.writeValueWithResponse(bytes.subarray(i,Math.min(bytes.length,i+step)));if(onProg)onProg(Math.min(bytes.length,i+step),bytes.length);}
+    for(let i=0;i<bytes.length;i+=step){if(!this.ok)throw new Error('Connection lost');await this.write(this.up,bytes.subarray(i,Math.min(bytes.length,i+step)));if(onProg)onProg(Math.min(bytes.length,i+step),bytes.length);}
     return this.text('upend',kind+' '+arg+' '+crc32(bytes),{wait:60000});
   }
 };
@@ -1284,14 +1291,14 @@ let syncing=false;
 async function copyQuietly(r){
   const key=keyOf(r.n),e=entry(r.n);let have=await DB.get(key);if(have&&have.id&&t0Of(e)&&have.id!==t0Of(e))have=null;
   let buf=have?have.buf:new Uint8Array(0);
-  for(let tries=0;buf.length<r.size&&tries<8&&BLE.ok;){
+  for(let tries=0;buf.length<r.size&&tries<8&&BLE.ok&&!BLE.quiet;){
     try{const part=await BLE.req('file',r.n+' '+buf.length+' 49152',{wait:8000});if(!part.length)break;buf=cat(buf,part);await DB.put(key,{buf,size:buf.length,id:t0Of(e)});}
     catch(x){tries++;if(x.partial&&x.partial.length){buf=cat(buf,x.partial);await DB.put(key,{buf,size:buf.length,id:t0Of(e)});}}
     await new Promise(res=>setTimeout(res,30));
   }
   return buf;}
 async function syncRides(){
-  if(syncing)return;syncing=true;
+  if(syncing||BLE.quiet)return;syncing=true;
   try{for(const r of RIDES.slice()){
     if(!BLE.ok)break;
     if(r.phone||r.rec||r.synced||!r.sum||!r.sum.closed)continue;
@@ -1406,7 +1413,7 @@ function onState(){if(!S)return;const key=S.ride.active?S.ride.n:0;
       if(ended&&cur&&cur.no===ended&&!cur.live&&view==='ride'){const e=entry(ended);if(e)openRide(ended,'history');}});}   // looking at the ride that just finished: load the rest of it
   lastRecKey=key;}
 async function refreshState(){
-  if(!BLE.ok)return;
+  if(!BLE.ok||BLE.quiet)return;
   try{S=await BLE.json('state');}catch(x){return;}
   if(S.id)LS.set('mxUnit',S.id);   // rides are filed under the unit's fixed id (MX-xxxx), so renaming the unit changes nothing
   onState();
@@ -1591,14 +1598,15 @@ $('fwGo').onclick=async()=>{
   const fwVer=dec.decode(bytes.subarray(0x30,0x50)).replace(/\0.*$/s,'');
   $('fwGo').disabled=true;$('fwMsg').textContent='Sending… keep this page open and the screen on';
   let lock=null;try{lock=await navigator.wakeLock.request('screen');}catch(x){}
+  BLE.quiet=true;await new Promise(r=>setTimeout(r,1500));   // let any copy or status check finish first
   try{
     await BLE.upload('fw',0,bytes,(g,t)=>{$('fwBar').style.width=(g/t*100)+'%';$('fwMsg').textContent='Sending… '+Math.round(g/t*100)+'%';});
-    $('fwMsg').textContent='Installed. The unit is restarting and this page will reconnect by itself…';
+    BLE.quiet=false;$('fwMsg').textContent='Installed. The unit is restarting and this page will reconnect by itself…';
     const was=S&&S.fw;show('live');toast('Firmware installed - reconnecting…');
     const t0=Date.now();while(!BLE.ok&&Date.now()-t0<60000)await new Promise(r=>setTimeout(r,1000));   // the auto-reconnect does the work
     if(BLE.ok){await refreshState();toast('Reconnected - unit now on v'+(S&&S.fw||'?')+(was&&S&&S.fw===was?' (same as before?)':''));$('fwMsg').textContent='Done - the unit is on v'+(S&&S.fw||'?')+'.';}
     else{$('fwMsg').textContent='Installed, but the unit hasn\'t reconnected yet. Tap Connect.';toast('Tap Connect to reconnect');}}
-  catch(x){$('fwMsg').textContent='Update failed: '+x.message+'. Still on the old version.';}
+  catch(x){BLE.quiet=false;$('fwMsg').textContent='Update failed: '+x.message+'. Still on the old version - tap Update to try again.';}
   try{if(lock)lock.release();}catch(x){}
   $('fwGo').disabled=false;
 };
