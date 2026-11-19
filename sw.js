@@ -1,5 +1,5 @@
 // Keeps the MX page working with no signal: the page itself, and every map tile you've already looked at.
-const APP = 'rt-app-v28', TILES = 'mx-tiles-v1', MAX_TILES = 4000;
+const APP = 'rt-app-v29', TILES = 'mx-tiles-v1', MAX_TILES = 4000;
 const SHELL = ['./', './index.html', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => { e.waitUntil(caches.open(APP).then(c => c.addAll(SHELL))); self.skipWaiting(); });
