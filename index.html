@@ -270,7 +270,7 @@ body.island main{padding-bottom:96px}body.island #toast{bottom:calc(92px + env(s
       <div class="row"><button class="btn" data-act="start" id="actStart">Start recording</button><button class="btn" data-act="marker">Drop marker</button><button class="btn" data-act="pause" id="actPause">Pause</button><button class="btn" data-act="end">End ride</button></div>
       <div class="lbl" style="margin:16px 0 6px">GPS</div>
       <div class="row" style="margin-bottom:6px"><button class="btn" id="setSbas"></button><button class="btn" id="sbasScan">Search all correction satellites</button></div>
-      <p class="note" style="margin:0" id="sbasNote">SouthPAN is the free NZ/Australia correction service from a satellite in the north-west sky. It sharpens the GPS position once it's locked on.</p>
+      <p class="note" style="margin:0" id="sbasNote">SouthPAN is the free NZ/Australia correction service from satellites in the northern sky. It sharpens the GPS position once it's locked on.</p>
       <div class="row" style="margin-top:12px"><button class="btn" id="reportBtn">Unit report for Claude</button></div>
       <div class="lbl" style="margin:16px 0 6px">All rides</div>
       <div class="row"><button class="btn" id="csvAllBtn">Export all rides (CSV)</button><span class="note" id="csvAllMsg"></span></div>
@@ -1490,15 +1490,15 @@ function renderSettings(live){
    if(b0&&b0.scan>=0){const L=(b0.heard?String(b0.heard).split(','):[]).map(x=>{const[p,d]=x.split(':');return p+(+d?' ('+d+' dB)':' (seen, no signal)');});
      $('sbasNote').textContent='Searching every correction satellite - '+fmtDur(b0.scan)+' so far (corrections not used while searching). '+(L.length?'Heard: '+L.join(', ')+'.':'Nothing heard yet.')+' Give it 10 minutes in open sky, then tap Stop search and send a unit report.';}
    else{
-  {const b=S.sbas,g=S.gps,base='SouthPAN is the free NZ/Australia correction service from a satellite in the north-west sky. It sharpens the GPS position once it\'s locked on.';let t=base;
+  {const b=S.sbas,g=S.gps,base='SouthPAN is the free NZ/Australia correction service from satellites in the northern sky. It sharpens the GPS position once it\'s locked on.';let t=base;
     if(S.southpan&&b){
       if(b.ok===0)t='The GPS module refused the SouthPAN settings. Send a unit report.';
       else if(b.dgps>0||g.q===2)t='Working - corrections in use on '+Math.min(100,Math.round((b.dgps||0)/Math.max(1,g.rate)*100))+'% of fixes'+(b.snr?' (signal '+b.snr+' dB)':'')+'.';
-      else if(b.seen>=0&&b.seen<10)t='Satellite found (signal '+b.snr+' dB) - waiting for the first corrections. Can take a few minutes.';
+      else if(b.seen>=0&&b.seen<10)t='SouthPAN satellite '+(b.prn||'')+' found (signal '+b.snr+' dB) - waiting for the first corrections. Can take a few minutes.';
       else if(!g.fix)t='Waiting for a GPS fix first.';
       else if(b.gsv===0)t='The GPS isn\'t sending its satellite list, so SouthPAN can\'t be checked. Send a unit report.';
-      else if(b.heard&&!String(b.heard).split(',').includes('122'))t='Hearing correction satellite '+b.heard+' but not SouthPAN (122) yet. Keep the unit in open sky towards the north-west.';
-      else t='Looking for the SouthPAN satellite. It needs open sky towards the north-west - not under trees or a roof.';}
+      else if(b.heard&&!String(b.heard).split(',').some(x=>/^12[24]/.test(x)))t='Hearing correction satellite '+String(b.heard).replace(/:\d+/g,'')+' but not SouthPAN (122 or 124) yet. Keep the unit in open sky to the north.';
+      else t='Looking for the SouthPAN satellites (one almost due north, one north-west). It needs open sky that way - not under trees or a roof.';}
     $('sbasNote').textContent=t;}}}
   $('actPause').textContent=S.ride.paused?'Resume':'Pause';$('actStart').hidden=!!(S.ride.armed||S.ride.active);
   const g=S.gps,kv=[['GPS',g.alive?g.kind+(g.baud?' · '+g.baud+' baud':''):'Nothing heard - check the wiring'],
