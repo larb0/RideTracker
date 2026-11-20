@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0c0e">
+<title>RideTracker Race</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{--bg:#0b0c0e;--panel:#141518;--panel2:#1c1d21;--panel3:#24262b;--line:#26282d;--fg:#f3f4f6;--muted:#8b8f97;--dim:#5d6168;--purple:#b06cff;--green:#34d36b;--yellow:#f5c84a;--red:#ff5a5a;--blue:#4fb0ff;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:720px;margin:0 auto;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 40px max(12px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:10px}
+header{display:flex;align-items:center;gap:10px}
+header h1{font-size:20px;margin:0;flex:1;letter-spacing:-.01em}header h1 span{color:var(--muted);font-weight:500;font-size:15px;margin-left:6px}
+.pill{display:flex;align-items:center;gap:7px;padding:6px 11px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-size:13px}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.seg{display:flex;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:3px}
+.seg button{flex:1;font:inherit;font-size:14px;padding:8px 6px;border:0;border-radius:9px;background:none;color:var(--muted)}
+.seg button.on{background:var(--panel3);color:var(--fg);font-weight:600}
+.btn{font:inherit;font-size:15px;padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--fg)}
+.btn.pri{background:var(--fg);color:var(--bg);border-color:var(--fg);font-weight:600}
+.btn:disabled{opacity:.4}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.note{color:var(--muted);font-size:13px;margin:0}
+#map{height:38vh;min-height:240px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#000}
+.leaflet-container{background:#111}
+.leaflet-marker-icon{transition:transform .2s linear}   /* positions arrive 5 a second: glide between them */
+.leaflet-zoom-anim .leaflet-marker-icon{transition:none}
+.rdot{width:22px;height:22px;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font:700 11px/1 system-ui;color:#0b0c0e;box-shadow:0 1px 4px #0008}
+/* status strip */
+.status{display:flex;align-items:center;gap:12px}
+.status .clock{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.status .what{flex:1;min-width:0}.status .what b{display:block;font-size:15px}.status .what span{color:var(--muted);font-size:13px}
+.lights{display:flex;gap:5px}.lights i{width:14px;height:14px;border-radius:50%;background:var(--panel3)}
+.lights.red i{background:var(--red);box-shadow:0 0 8px var(--red)}.lights.go i{background:var(--green);box-shadow:0 0 8px var(--green)}
+.flag{width:26px;height:18px;border-radius:2px;background:conic-gradient(#fff 25%,#111 0 50%,#fff 0 75%,#111 0) 0 0/9px 9px}
+.stepper{display:flex;align-items:center;gap:8px}.stepper button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);font-size:20px}
+.stepper b{min-width:76px;text-align:center;font-size:17px;font-variant-numeric:tabular-nums}
+/* tower */
+.tower{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.tr{display:grid;grid-template-columns:30px 6px minmax(0,1fr) 62px 64px 64px;align-items:center;gap:0 8px;padding:9px 12px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.tr:first-child{border-top:0}
+.tr.head{padding:7px 12px;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.tr .pos{font-size:17px;font-weight:700;text-align:center}
+.tr .sw{width:6px;height:28px;border-radius:3px}
+.tr .nm{min-width:0}.tr .nm .top{display:flex;align-items:center;min-width:0}.tr .nm b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}.tr .nm .tag{flex:none}
+.tr .nm .secs{display:flex;gap:3px;margin-top:4px}.secs i{width:20px;height:5px;border-radius:2px;background:var(--panel3)}
+.secs i.p{background:var(--purple)}.secs i.g{background:var(--green)}.secs i.y{background:var(--yellow)}
+.tr .c{text-align:right;font-size:14px}.tr .c small{display:block;color:var(--muted);font-size:11px}
+.p{color:var(--purple)}.g{color:var(--green)}.y{color:var(--yellow)}.r{color:var(--red)}.m{color:var(--muted)}
+.arrow{font-size:10px;margin-left:4px}.tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;padding:1px 5px;border-radius:5px;margin-left:6px;vertical-align:2px}
+.tag.js{background:#ff5a5a22;color:var(--red)}.tag.fin{background:#ffffff18;color:var(--fg)}
+.hcard{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.hcard .k{width:34px;height:34px;border-radius:10px;background:var(--panel3);display:flex;align-items:center;justify-content:center;flex:none}
+.hcard .t{flex:1;min-width:0}.hcard .t b{display:block}.hcard .t span{color:var(--muted);font-size:13px}
+.hcard .v{text-align:right;font-variant-numeric:tabular-nums;font-size:14px}.hcard .v small{display:block;color:var(--muted);font-size:11px}
+.back{background:none;border:0;color:var(--fg);font:inherit;font-size:16px;font-weight:600;padding:4px 0;margin-bottom:6px}
+.demo{border:1px dashed var(--line);border-radius:12px;padding:8px 12px;display:flex;gap:10px;align-items:center;justify-content:space-between}
+@media (max-width:380px){.tr{grid-template-columns:24px 5px minmax(0,1fr) 54px 58px 0;gap:0 6px}.tr>:nth-child(6){display:none}}
+</style></head><body><main>
+<header><h1>RideTracker<span>Race</span></h1><div class="pill"><i></i>RT-Base</div></header>
+
+<div class="seg" id="modeSeg"><button data-m="practice" class="on">Practice</button><button data-m="race">Race</button><button data-m="history">History</button></div>
+
+<div class="card" id="ctl"></div>
+<div id="map"></div>
+<div class="tower" id="tower"></div>
+<div id="hist" hidden></div>
+
+<div class="demo"><span class="note">Demo: 5 made-up riders on AG Track</span><div class="seg" id="spd" style="min-width:150px"><button data-s="1">1×</button><button data-s="4" class="on">4×</button><button data-s="10">10×</button></div></div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/* =====================================================================================================
+   RideTracker race mode - MOCK.  Everything below "FEED" is what the real app will use; the simulator at the
+   bottom produces exactly the messages the base will send (positions 5/s, laps + sectors with GPS times,
+   start reactions), so swapping it for Bluetooth later changes nothing else.
+   ===================================================================================================== */
+const TRACK={"name":"AG Track","fin":[-43.497701,172.201224,-43.497743,172.2013474],"sec":[[-43.4967799,172.2017865,-43.4968597,172.2018865],[-43.4974353,172.2024672,-43.4973823,172.2023378]],"line":[[-43.497719,172.201279],[-43.497692,172.201298],[-43.497669,172.201318],[-43.497647,172.20134],[-43.497622,172.201359],[-43.497597,172.201373],[-43.49757,172.201386],[-43.497544,172.201393],[-43.497517,172.201388],[-43.497496,172.201361],[-43.497494,172.201324],[-43.497496,172.201284],[-43.497506,172.201248],[-43.497523,172.201217],[-43.497517,172.20118],[-43.49749,172.201174],[-43.497467,172.201195],[-43.497446,172.20122],[-43.497427,172.201248],[-43.497406,172.201271],[-43.497383,172.201298],[-43.49736,172.201324],[-43.497338,172.201348],[-43.497315,172.201374],[-43.497293,172.201397],[-43.497268,172.201424],[-43.497247,172.201449],[-43.497225,172.201478],[-43.497205,172.201505],[-43.497189,172.201536],[-43.497172,172.201567],[-43.497154,172.201597],[-43.497144,172.201638],[-43.497135,172.201679],[-43.497129,172.201719],[-43.497122,172.201762],[-43.497115,172.201801],[-43.497108,172.201838],[-43.497096,172.201873],[-43.497081,172.201904],[-43.497056,172.201918],[-43.497033,172.201895],[-43.497026,172.201859],[-43.49702,172.20182],[-43.497012,172.201782],[-43.497002,172.201748],[-43.496988,172.201716],[-43.496962,172.201704],[-43.496935,172.201713],[-43.496909,172.201734],[-43.496887,172.201756],[-43.496865,172.20178],[-43.496843,172.201805],[-43.496822,172.201834],[-43.496803,172.201865],[-43.496789,172.2019],[-43.496789,172.201938],[-43.496798,172.201975],[-43.496816,172.202006],[-43.496834,172.202036],[-43.496854,172.202067],[-43.496873,172.202099],[-43.496889,172.202132],[-43.496907,172.202164],[-43.496924,172.202194],[-43.496941,172.202223],[-43.496963,172.202249],[-43.496988,172.202265],[-43.497016,172.202259],[-43.497041,172.202239],[-43.497063,172.202214],[-43.497085,172.202186],[-43.497104,172.202153],[-43.497121,172.202123],[-43.497139,172.20209],[-43.497158,172.202059],[-43.497176,172.20203],[-43.497196,172.201999],[-43.497215,172.201973],[-43.497238,172.201948],[-43.497263,172.201927],[-43.49729,172.201914],[-43.497317,172.201912],[-43.497343,172.201924],[-43.497355,172.20196],[-43.49735,172.202],[-43.497337,172.202034],[-43.497317,172.202066],[-43.497299,172.202095],[-43.497278,172.202125],[-43.497259,172.202153],[-43.497242,172.202181],[-43.497223,172.202213],[-43.497207,172.202244],[-43.497192,172.202279],[-43.497183,172.202316],[-43.497178,172.202353],[-43.497181,172.202391],[-43.497194,172.202425],[-43.497217,172.202451],[-43.497243,172.202464],[-43.497273,172.202468],[-43.4973,172.202463],[-43.497326,172.202454],[-43.497352,172.20244],[-43.497381,172.202423],[-43.497405,172.202406],[-43.49743,172.202385],[-43.497455,172.202362],[-43.497482,172.202338],[-43.497503,172.202315],[-43.497526,172.202291],[-43.497549,172.202265],[-43.497574,172.202241],[-43.497597,172.202218],[-43.497619,172.202193],[-43.497642,172.202168],[-43.497665,172.202143],[-43.497689,172.202119],[-43.497714,172.202096],[-43.497742,172.202077],[-43.497768,172.202056],[-43.497793,172.202039],[-43.497817,172.202016],[-43.497831,172.201981],[-43.49785,172.201951],[-43.497863,172.201916],[-43.497868,172.201879],[-43.497861,172.201842],[-43.497839,172.20182],[-43.497814,172.201804],[-43.497789,172.201785],[-43.49777,172.201754],[-43.497754,172.201724],[-43.497738,172.201692],[-43.49774,172.201653],[-43.497755,172.201619],[-43.497778,172.201597],[-43.497802,172.201577],[-43.497828,172.201556],[-43.497852,172.201536],[-43.497875,172.201518],[-43.497899,172.201497],[-43.49792,172.201474],[-43.497942,172.201447],[-43.497961,172.201419],[-43.497976,172.201383],[-43.497985,172.201346],[-43.497985,172.201306],[-43.497975,172.201271],[-43.497955,172.201243],[-43.497927,172.201228],[-43.497898,172.201225],[-43.497869,172.201225],[-43.49784,172.201234],[-43.497812,172.201243],[-43.497783,172.201255],[-43.497758,172.201267],[-43.49773,172.201281]]};
+const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtLap=ms=>{if(ms==null)return'–';const s=ms/1000,m=Math.floor(s/60);return(m?m+':'+(s-m*60).toFixed(2).padStart(5,'0'):s.toFixed(2));};
+const fmtGap=ms=>ms==null?'':'+'+(ms/1000).toFixed(ms<100000?2:1);
+const fmtClock=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+const NSEC=TRACK.sec.length+1;
+
+/* ---------------------------------------------------------------- session state (built from the feed) */
+let MODE='practice';              // practice | race
+let S=null;                       // the current session
+function newSession(kind,opt={}){
+  S={kind,phase:kind==='practice'?'open':'grid',t0:null,goUtc:null,len:opt.len||null,lenKind:opt.lenKind||'laps',
+     riders:new Map(),bestLap:null,bestSec:Array(NSEC).fill(null),flagAt:null,leaderLaps:0};
+  for(const r of SIM.riders)rider(r.id,r.name,r.col);
+  render();}
+function rider(id,name,col){let r=S.riders.get(id);if(!r){r={id,name,col,laps:[],best:null,last:null,cur:Array(NSEC).fill(null),prevCur:null,
+    secBest:Array(NSEC).fill(null),lapsDone:0,gridPos:id,lineKey:-1,lineUtc:0,react:null,jump:false,finished:false,pos:null,prevPos:null,la:0,lo:0};S.riders.set(id,r);}return r;}
+
+/* ---------------------------------------------------------------- FEED: what the base sends */
+const FEED={
+  pos(id,la,lo,kmh){const r=S&&S.riders.get(id);if(!r)return;r.la=la;r.lo=lo;r.kmh=kmh;moveDot(r);},
+  sector(id,lapNo,s,ms,utc){const r=S&&S.riders.get(id);if(!r||S.phase==='grid'||S.phase==='lights')return;if(r.finished)return;
+    if(s===0&&r.prevCur)r.prevCur=null;
+    r.cur[s]={ms,c:colourFor(ms,S.bestSec[s],r.secBest[s])};
+    if(!r.secBest[s]||ms<r.secBest[s])r.secBest[s]=ms;if(!S.bestSec[s]||ms<S.bestSec[s])S.bestSec[s]=ms;
+    r.lineKey=lapNo*NSEC+s+1;r.lineUtc=utc;cross(r);render();},
+  lap(id,lapNo,ms,utc){const r=S&&S.riders.get(id);if(!r||r.finished)return;
+    const c=colourFor(ms,S.bestLap,r.best);r.last={ms,c};r.laps.push(ms);if(!r.best||ms<r.best)r.best=ms;if(!S.bestLap||ms<S.bestLap)S.bestLap=ms;
+    r.lapsDone=lapNo;r.prevCur=r.cur.slice();r.cur=Array(NSEC).fill(null);r.lineKey=lapNo*NSEC+NSEC;r.lineUtc=utc;
+    if(S.kind==='race')raceLine(r,utc);cross(r);render();},
+  start(id,reactMs,jump){const r=S&&S.riders.get(id);if(!r)return;r.react=reactMs;r.jump=jump;render();}
+};
+// purple = best of anyone this session, green = rider's own best, yellow = slower
+function colourFor(ms,overall,own){return!overall||ms<=overall?'p':!own||ms<=own?'g':'y';}
+
+/* ---------------------------------------------------------------- order and gaps
+   Race: by laps done, then furthest timing line, then who crossed it first. Gap = time behind the leader at the
+   last line both have crossed (official order only changes at the lines - no flicker between bikes side by side).
+   Practice (qualifying): by best lap.                                                                          */
+const lineTimes=new Map();   // "lineKey" -> Map(riderId -> utc), so gaps are measured at the same line
+function cross(r){if(!lineTimes.has(r.lineKey))lineTimes.set(r.lineKey,new Map());lineTimes.get(r.lineKey).set(r.id,r.lineUtc);}
+function order(){const R=[...S.riders.values()];
+  if(S.kind==='practice')return R.sort((a,b)=>(a.best||9e9)-(b.best||9e9)||a.name.localeCompare(b.name));
+  return R.sort((a,b)=>(b.finished-a.finished)||b.lineKey-a.lineKey||a.lineUtc-b.lineUtc||(a.gridPos-b.gridPos));}
+function gapOf(r,lead){
+  if(S.kind==='practice')return r.best&&lead.best&&r!==lead?{t:fmtGap(r.best-lead.best)}:{t:''};
+  if(r===lead||r.lineKey<0)return{t:r===lead&&r.lineKey>=0?'Leader':''};
+  const lapsDown=Math.floor((lead.lineKey-r.lineKey)/NSEC);if(lapsDown>=1)return{t:'+'+lapsDown+' lap'+(lapsDown>1?'s':'')};
+  const m=lineTimes.get(r.lineKey),t=m&&m.get(lead.id);return t?{t:fmtGap(r.lineUtc-t)}:{t:''};}
+function interval(r,ahead){if(!ahead)return null;const m=lineTimes.get(r.lineKey),t=m&&m.get(ahead.id);return t&&ahead.lineKey>=r.lineKey&&ahead.lineKey-r.lineKey<NSEC?r.lineUtc-t:null;}
+
+/* ---------------------------------------------------------------- race control */
+function raceLine(r,utc){
+  if(S.phase!=='racing'&&S.phase!=='flag')return;
+  if(S.phase==='flag'){r.finished=true;r.finishUtc=utc;checkDone();return;}
+  S.leaderLaps=Math.max(S.leaderLaps,r.lapsDone);
+  const lead=order()[0]===r;   // only the leader brings out the flag (not a lapped rider crossing first)
+  const done=lead&&(S.lenKind==='laps'?r.lapsDone>=S.len:(utc-S.goUtc)>=S.len*60000);
+  if(done){S.phase='flag';S.flagAt=utc;r.finished=true;r.finishUtc=utc;SIM.flag();checkDone();}}
+function checkDone(){if([...S.riders.values()].every(r=>r.finished)){S.phase='done';SIM.stop();saveSession();}}
+let lastOrder=new Map();
+
+/* ---------------------------------------------------------------- map */
+const map=L.map('map',{zoomControl:false,attributionControl:false});
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,maxNativeZoom:18}).addTo(map);
+L.polyline(TRACK.line,{color:'#ffffff',weight:3,opacity:.55}).addTo(map);
+const gate=(g,c)=>L.polyline([[g[0],g[1]],[g[2],g[3]]],{color:c,weight:4}).addTo(map);
+gate(TRACK.fin,'#ffffff');TRACK.sec.forEach(g=>gate(g,'#b06cff'));
+map.fitBounds(L.latLngBounds(TRACK.line).pad(0.08));
+const dots=new Map();
+function moveDot(r){let d=dots.get(r.id);
+  if(!d){d=L.marker([r.la,r.lo],{icon:L.divIcon({className:'',html:`<div class="rdot" style="background:${r.col}">${esc(r.name[0])}</div>`,iconSize:[22,22],iconAnchor:[11,11]})}).addTo(map);dots.set(r.id,d);}
+  d.setLatLng([r.la,r.lo]);}
+
+/* ---------------------------------------------------------------- screen */
+let raceLen={laps:6,time:10},lenKind='laps';
+function renderCtl(){const c=$('ctl');
+  if(!S){c.innerHTML='';return;}
+  if(S.kind==='practice'){
+    const el=S.t0!=null?(S.phase==='open'?simNow():S.endAt)-S.t0:0;
+    c.innerHTML=`<div class="status"><div class="clock">${fmtClock(el/1000)}</div><div class="what"><b>${S.phase==='open'?'Practice · open':'Practice ended'}</b><span>${S.bestLap?'Fastest '+fmtLap(S.bestLap)+' · '+esc(order()[0].name):'Riders join as they cross the line'}</span></div>
+      <button class="btn${S.phase==='open'?'':' pri'}" id="pEnd">${S.phase==='open'?'End':'New'}</button></div>`;
+    $('pEnd').onclick=()=>{if(S.phase==='open'){S.phase='ended';S.endAt=simNow();SIM.stop();saveSession();render();}else{startPractice();}};return;}
+  // race
+  if(S.phase==='grid'){
+    c.innerHTML=`<div class="row" style="justify-content:space-between"><div class="seg" id="lenSeg" style="flex:1;max-width:220px"><button data-k="laps"${lenKind==='laps'?' class="on"':''}>Laps</button><button data-k="time"${lenKind==='time'?' class="on"':''}>Time</button></div>
+      <div class="stepper"><button id="lm">−</button><b>${lenKind==='laps'?raceLen.laps+' laps':raceLen.time+' min'}</b><button id="lp">+</button></div></div>
+      <p class="note" style="margin:10px 0">${lenKind==='laps'?'The race ends when the leader finishes lap '+raceLen.laps+'.':'After '+raceLen.time+' min, the race ends when the leader next crosses the line.'} Lights go red on every bike, then out after a random hold - all at the same moment.</p>
+      <button class="btn pri" id="go" style="width:100%">Start race · lights in 10 s</button>`;
+    $('lenSeg').onclick=e=>{const b=e.target.closest('button');if(b){lenKind=b.dataset.k;renderCtl();}};
+    $('lm').onclick=()=>{if(lenKind==='laps')raceLen.laps=Math.max(1,raceLen.laps-1);else raceLen.time=Math.max(1,raceLen.time-1);renderCtl();};
+    $('lp').onclick=()=>{if(lenKind==='laps')raceLen.laps=Math.min(50,raceLen.laps+1);else raceLen.time=Math.min(60,raceLen.time+1);renderCtl();};
+    $('go').onclick=startRace;return;}
+  const now=simNow();let clock='',what='',sub='',lights='<div class="lights"><i></i><i></i><i></i></div>',btn='';
+  if(S.phase==='lights'){const toRed=S.redUtc-now;
+    if(toRed>0){clock=fmtClock(toRed/1000);what='Get ready';sub='Lights go red on every bike in '+Math.ceil(toRed/1000)+' s';}
+    else{lights='<div class="lights red"><i></i><i></i><i></i></div>';what='Lights red';sub='Out any moment';clock='';}}
+  else if(S.phase==='racing'){const el=now-S.goUtc;
+    if(S.lenKind==='laps'){clock='Lap '+Math.min(S.len,S.leaderLaps+1)+'/'+S.len;what='Race';sub=fmtClock(el/1000)+' gone';}
+    else{const left=S.len*60000-el;clock=left>0?fmtClock(left/1000):'+1 lap';what='Race';sub=left>0?'Then the leader\'s next lap':'Last lap for the leader';}
+    if(now-S.goUtc<1500)lights='<div class="lights go"><i></i><i></i><i></i></div>';}
+  else if(S.phase==='flag'){clock='';lights='<div class="flag"></div>';what='Chequered flag';sub='Everyone finishes the lap they\'re on';}
+  else if(S.phase==='done'){lights='<div class="flag"></div>';what='Results';sub=(S.lenKind==='laps'?S.len+' laps':S.len+' min + 1 lap')+' · winner '+esc(order()[0].name);btn='<button class="btn pri" id="again">New race</button>';}
+  c.innerHTML=`<div class="status">${lights}${clock?`<div class="clock">${clock}</div>`:''}<div class="what"><b>${what}</b><span>${sub}</span></div>${btn||(S.phase!=='done'?'<button class="btn" id="abort">Stop</button>':'')}</div>`;
+  if($('again'))$('again').onclick=()=>{SIM.stop();newSession('race');};
+  if($('abort'))$('abort').onclick=()=>{SIM.stop();newSession('race');};}
+
+function renderTower(){const t=$('tower');if(!S){t.innerHTML='';return;}
+  const O=order(),lead=O[0],race=S.kind==='race';
+  let h=`<div class="tr head"><span>#</span><span></span><span>Rider</span><span class="c">${race?'Gap':'Gap'}</span><span class="c">Last</span><span class="c">Best</span></div>`;
+  O.forEach((r,i)=>{const prev=lastOrder.get(r.id),moved=race&&prev!=null&&S.phase!=='grid'&&S.phase!=='lights'?prev-i:0;
+    const g=gapOf(r,lead),iv=race&&i>0?interval(r,O[i-1]):null;
+    const secs=Array.from({length:NSEC},(_,k)=>{const x=r.cur[k]||(r.prevCur&&!r.cur.some(Boolean)?r.prevCur[k]:null);return`<i class="${x?x.c:''}"></i>`;}).join('');
+    const tags=(r.jump?'<span class="tag js">JUMP</span>':'')+(race&&r.finished&&S.phase==='flag'?'<span class="tag fin">FIN</span>':'');
+    h+=`<div class="tr"><span class="pos">${i+1}${moved?`<span class="arrow ${moved>0?'g':'r'}">${moved>0?'▲':'▼'}</span>`:''}</span><span class="sw" style="background:${r.col}"></span>
+      <span class="nm"><span class="top"><b>${esc(r.name)}</b>${tags}</span><span class="secs">${secs}</span></span>
+      <span class="c">${g.t==='Leader'?'<span class="m">Leader</span>':esc(g.t)}${iv!=null&&g.t.indexOf('lap')<0?`<small>${fmtGap(iv)} int</small>`:race&&r.react!=null&&S.phase!=='done'&&r.lapsDone<1?`<small>${r.jump?'jump':(r.react/1000).toFixed(2)+' s'}</small>`:''}</span>
+      <span class="c ${r.last?r.last.c:''}">${r.last?fmtLap(r.last.ms):'–'}${race?`<small>L${r.lapsDone}</small>`:''}</span>
+      <span class="c ${r.best&&r.best===S.bestLap?'p':''}">${fmtLap(r.best)}${!race?`<small>${r.laps.length} laps</small>`:''}</span></div>`;});
+  t.innerHTML=h;
+  if(race&&S.phase!=='grid')lastOrder=new Map(O.map((r,i)=>[r.id,i]));}
+function render(){renderCtl();renderTower();}
+setInterval(()=>{if(S&&(S.phase==='open'||S.phase==='lights'||S.phase==='racing'||S.phase==='flag'))renderCtl();},250);
+
+$('modeSeg').onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.m===MODE)return;MODE=b.dataset.m;
+  document.querySelectorAll('#modeSeg button').forEach(x=>x.classList.toggle('on',x===b));
+  const h=MODE==='history';['ctl','map','tower'].forEach(id=>$(id).hidden=h);$('hist').hidden=!h;
+  if(h){histOpen=null;renderHist();return;}
+  if(S&&S.kind===MODE){render();map.invalidateSize();return;}           // back to the session that's running - carry on
+  SIM.stop();if(MODE==='practice')startPractice();else{lastOrder=new Map();newSession('race');}map.invalidateSize();};
+
+/* ---------------------------------------------------------------- history (kept on the phone; the base keeps its own copy too) */
+const HKEY='rtRaceHistory';
+function loadHist(){try{return JSON.parse(localStorage.getItem(HKEY)||'[]');}catch(e){return[];}}
+function saveHist(H){try{localStorage.setItem(HKEY,JSON.stringify(H.slice(0,200)));}catch(e){}}
+let MEMH=null;   // used when the browser won't store anything
+function getHist(){const h=loadHist();return h.length||!MEMH?h:MEMH;}
+function saveSession(){if(!S||S.saved)return;S.saved=true;
+  const O=order(),lead=O[0];
+  const rows=O.filter(r=>r.laps.length||r.react!=null).map((r,i)=>({name:r.name,col:r.col,gap:gapOf(r,lead).t,best:r.best,laps:r.laps.length,react:r.react,jump:r.jump,fin:r.finished,bestOverall:r.best&&r.best===S.bestLap}));
+  if(!rows.length)return;
+  const rec={id:Date.now(),kind:S.kind,when:Date.now(),track:TRACK.name||'Track',lenKind:S.lenKind,len:S.len,
+    mins:S.kind==='practice'?Math.round(((S.endAt||simNow())-S.t0)/60000):null,best:S.bestLap,bestBy:(O.find(r=>r.best===S.bestLap)||{}).name,rows};
+  const H=getHist();H.unshift(rec);saveHist(H);MEMH=H;}
+let histOpen=null,delArm=0;
+function whenStr(t){const d=new Date(t);return d.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'})+' · '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});}
+function renderHist(){const el=$('hist'),H=getHist();
+  if(histOpen!=null){const x=H.find(h=>h.id===histOpen);if(!x){histOpen=null;return renderHist();}
+    const race=x.kind==='race';
+    el.innerHTML=`<button class="back" id="hBack">‹ History</button>
+      <div class="card" style="margin-bottom:10px"><div class="status">${race?'<div class="flag"></div>':''}<div class="what"><b>${race?'Race · '+(x.lenKind==='laps'?x.len+' laps':x.len+' min + 1 lap'):'Practice'+(x.mins!=null?' · '+x.mins+' min':'')}</b><span>${esc(x.track)} · ${whenStr(x.when)}</span></div></div></div>
+      <div class="tower"><div class="tr head"><span>#</span><span></span><span>Rider</span><span class="c">Gap</span><span class="c">${race?'Start':'Laps'}</span><span class="c">Best</span></div>
+      ${x.rows.map((r,i)=>`<div class="tr"><span class="pos">${i+1}</span><span class="sw" style="background:${r.col}"></span><span class="nm"><span class="top"><b>${esc(r.name)}</b>${r.jump?'<span class="tag js">JUMP</span>':''}</span></span>
+        <span class="c">${i?esc(r.gap):(race?'<span class="m">Winner</span>':'')}</span><span class="c">${race?(r.jump?'<span class="r">jump</span>':r.react!=null?(r.react/1000).toFixed(2)+' s':'–'):r.laps}</span><span class="c ${r.bestOverall?'p':''}">${fmtLap(r.best)}</span></div>`).join('')}</div>
+      <div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn" id="hDel" style="color:var(--red)">Delete</button></div>`;
+    $('hBack').onclick=()=>{histOpen=null;renderHist();};
+    $('hDel').onclick=()=>{if(Date.now()-delArm>3000){delArm=Date.now();$('hDel').textContent='Tap again to delete';return;}
+      const H2=getHist().filter(h=>h.id!==x.id);saveHist(H2);MEMH=H2;histOpen=null;renderHist();};
+    return;}
+  if(!H.length){el.innerHTML='<div class="card"><p class="note">No sessions yet. Finished races and practice sessions are kept here.</p></div>';return;}
+  el.innerHTML=H.map(x=>{const race=x.kind==='race',w=x.rows[0];
+    return`<button class="hcard" data-id="${x.id}"><span class="k">${race?'<span class="flag" style="width:18px;height:13px;background-size:6px 6px"></span>':'<b style="font-size:13px">P</b>'}</span>
+      <span class="t"><b>${race?'Race · '+(x.lenKind==='laps'?x.len+' laps':x.len+' min'):'Practice'}</b><span>${whenStr(x.when)} · ${x.rows.length} riders</span></span>
+      <span class="v">${race?esc(w.name):fmtLap(x.best)}<small>${race?'winner':'fastest · '+esc(x.bestBy||'')}</small></span></button>`;}).join('');
+  el.querySelectorAll('.hcard').forEach(b=>b.onclick=()=>{histOpen=+b.dataset.id;renderHist();window.scrollTo(0,0);});}
+function startPractice(){lineTimes.clear();newSession('practice');S.t0=simNow();SIM.run('practice');}
+function startRace(){lineTimes.clear();lastOrder=new Map();
+  newSession('race',{len:lenKind==='laps'?raceLen.laps:raceLen.time,lenKind});
+  // the base picks ONE lights-out time and tells every bike; red goes on 10 s from now, out after a random 3-6 s hold
+  const now=simNow();S.redUtc=now+10000;S.goUtc=S.redUtc+3000+Math.random()*3000;S.phase='lights';render();
+  SIM.run('race',S.goUtc);}
+
+/* =====================================================================================================
+   SIMULATOR (demo only) - 5 riders round the real track line, sending what the base would send.
+   ===================================================================================================== */
+const SIM=(()=>{
+  // track geometry: cumulative distance along the line, and where the sector lines cut it
+  const P=TRACK.line,cosL=Math.cos(P[0][0]*Math.PI/180),xy=p=>[(p[1]-P[0][1])*111320*cosL,(p[0]-P[0][0])*111320];
+  const D=[0];for(let i=1;i<P.length;i++){const a=xy(P[i-1]),b=xy(P[i]);D.push(D[i-1]+Math.hypot(b[0]-a[0],b[1]-a[1]));}
+  const LEN=D[D.length-1]+Math.hypot(...[0,1].map(k=>xy(P[0])[k]-xy(P[P.length-1])[k]));
+  const near=g=>{const m=xy([(g[0]+g[2])/2,(g[1]+g[3])/2]);let bi=0,bd=1e9;P.forEach((p,i)=>{const q=xy(p),d=Math.hypot(q[0]-m[0],q[1]-m[1]);if(d<bd){bd=d;bi=i;}});return D[bi];};
+  const CUT=[...TRACK.sec.map(near),LEN];   // sector ends (last = the finish line)
+  const at=d=>{d=((d%LEN)+LEN)%LEN;let i=D.findIndex(x=>x>d);if(i<0)return P[P.length-1];const u=(d-D[i-1])/(D[i]-D[i-1]);return[P[i-1][0]+(P[i][0]-P[i-1][0])*u,P[i-1][1]+(P[i][1]-P[i-1][1])*u];};
+  const riders=[{id:1,name:'Bossman',col:'#4fb0ff',pace:1.00},{id:2,name:'Jake',col:'#ff9a3c',pace:1.015},{id:3,name:'Tom',col:'#ff6fae',pace:1.03},{id:4,name:'Sam',col:'#3fd9c5',pace:1.045},{id:5,name:'Liam',col:'#c6e85a',pace:1.07}];
+  const BASE=62000;            // a 1:02 lap
+  let speed=4,clock=0,last=0,timer=null,mode=null,goUtc=0,B=[];
+  const lapTarget=r=>BASE*r.pace*(1+(Math.random()-.5)*0.035);
+  function run(m,go){stop();mode=m;goUtc=go||0;
+    // practice: riders spread round the last part of the lap, timing starts the first time over the line
+    // race: on the grid just past the line - lap 1 runs from lights out (it includes the start)
+    B=riders.map((r,i)=>m==='practice'?{...r,d:-(i*90+15),lap:-1,sec:NSEC-1,done:0,v:LEN/lapTarget(r),lapStart:null,secStart:null,started:true}
+                                      :{...r,d:1+i*0.4,lap:0,sec:0,done:0,v:LEN/lapTarget(r),lapStart:null,secStart:null,started:false,react:null});
+    last=performance.now();timer=setInterval(step,50);}
+  function stop(){clearInterval(timer);timer=null;}
+  let posAcc=0;
+  function step(){const t=performance.now(),dt=(t-last)*speed;last=t;clock+=dt;
+    for(const b of B){
+      if(!b.started){
+        if(b.react==null){b.jump=Math.random()<0.12;b.react=b.jump?-(150+Math.random()*300):180+Math.random()*450;}
+        if(clock>=goUtc+b.react){b.started=true;FEED.start(b.id,Math.max(0,b.react),b.jump);b.lapStart=goUtc;b.secStart=goUtc;}
+        else continue;}
+      if(b.fin)continue;
+      b.d+=b.v*dt*(0.93+Math.random()*0.14);
+      for(;;){const next=b.lap*LEN+CUT[b.sec];if(b.d<next)break;
+        const utc=Math.round(clock-(b.d-next)/b.v);
+        if(b.secStart!=null){FEED.sector(b.id,b.done,b.sec,utc-b.secStart,utc);
+          if(b.sec===NSEC-1&&b.lapStart!=null){b.done++;FEED.lap(b.id,b.done,utc-b.lapStart,utc);const r=S&&S.riders.get(b.id);if(r&&r.finished){b.fin=true;}}}
+        if(b.sec===NSEC-1){b.lapStart=utc;b.v=LEN/lapTarget(b);}
+        b.secStart=utc;b.sec++;if(b.sec===NSEC){b.sec=0;b.lap++;}
+        if(b.fin)break;}
+    }
+    posAcc+=dt;if(posAcc>=200){posAcc=0;for(const b of B){const p=at(b.d);FEED.pos(b.id,p[0],p[1],0);}}
+    if(S&&S.phase==='lights'&&clock>=S.goUtc){S.phase='racing';render();}
+  }
+  // practice and race laps are numbered the same way the units number them (lap 1 = first full lap)
+  return{riders,run,stop,flag(){},now:()=>clock,setSpeed(s){speed=s;}};
+})();
+function simNow(){return SIM.now();}
+$('spd').onclick=e=>{const b=e.target.closest('button');if(!b)return;SIM.setSpeed(+b.dataset.s);document.querySelectorAll('#spd button').forEach(x=>x.classList.toggle('on',x===b));};
+SIM.setSpeed(4);startPractice();
+</script></body></html>

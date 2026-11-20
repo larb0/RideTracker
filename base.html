@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0c0e">
+<title>RideTracker Base</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{--bg:#0b0c0e;--panel:#141518;--panel2:#1c1d21;--line:#26282d;--fg:#f3f4f6;--muted:#8b8f97;--dim:#5d6168;--green:#34d36b;--yellow:#f5c84a;--orange:#ff9a3c;--red:#ff5a5a;--blue:#4fb0ff;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:720px;margin:0 auto;padding:max(12px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 40px max(16px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:12px}
+header{display:flex;align-items:center;gap:10px}
+header h1{font-size:20px;margin:0;flex:1}
+.pill{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-size:14px}
+.pill i{width:9px;height:9px;border-radius:50%;background:var(--dim)}.pill.on i{background:var(--green)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.btn{font:inherit;font-size:15px;padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--fg)}
+.btn.pri{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.note{color:var(--muted);font-size:13px;margin:0}
+#map{height:56vh;min-height:300px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#000}
+.bike{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 0;border-top:1px solid var(--line)}
+.bike:first-of-type{border-top:0}
+.bike b{font-size:16px}.bike .big{font-size:22px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.bike .sub{color:var(--muted);font-size:13px}.bike .sub2{color:var(--muted);font-size:13px;text-align:right}
+.g{color:var(--green)}.y{color:var(--yellow)}.o{color:var(--orange)}.r{color:var(--red)}
+.key{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.key span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px;background:var(--c)}
+.laps{font-size:13px;color:var(--muted);grid-column:1/-1;font-variant-numeric:tabular-nums}
+.leaflet-container{background:#000}
+</style></head><body><main>
+<header><h1>Base · radio test</h1><div class="pill" id="pill"><i></i><span>Not connected</span></div></header>
+<div class="row"><button class="btn pri" id="conn">Connect to base</button><button class="btn" id="clear">Clear</button><button class="btn" id="dl">Save test file</button></div>
+<div class="card"><p class="lbl">Bikes heard</p><div id="bikes"><p class="note">Nothing yet. Turn a bike on (it sends once it has a GPS fix).</p></div></div>
+<div id="map"></div>
+<div class="key"><span style="--c:var(--green)">Strong</span><span style="--c:var(--yellow)">OK</span><span style="--c:var(--orange)">Weak</span><span style="--c:var(--red)">Messages lost</span></div>
+<p class="note">Put the base where you'd stand to watch, ride a few laps, then look for red. Each bike sends 5 messages a second; lost ones show as red lines where they went missing.</p>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const SVC='6d780001-7a1e-4c55-9b3f-2f61e0b8a001',C_CMD='6d780002-7a1e-4c55-9b3f-2f61e0b8a001',C_DATA='6d780004-7a1e-4c55-9b3f-2f61e0b8a001';
+const $=id=>document.getElementById(id),enc=new TextEncoder(),dec=new TextDecoder();
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// ---- Bluetooth: same framing as the bike units ('H' id total status, then 'D' id data)
+const BLE={dev:null,cmd:null,ok:false,id:1,pend:new Map(),chain:Promise.resolve(),
+  async pick(){this.dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'RT-Base'}],optionalServices:[SVC]});
+    this.dev.addEventListener('gattserverdisconnected',()=>{this.ok=false;ui();setTimeout(()=>this.reopen(0),1500);});await this.open();},
+  async open(){const g=await this.dev.gatt.connect(),s=await g.getPrimaryService(SVC);this.cmd=await s.getCharacteristic(C_CMD);const d=await s.getCharacteristic(C_DATA);
+    d.addEventListener('characteristicvaluechanged',e=>this.onData(e.target.value));await d.startNotifications();this.ok=true;ui();},
+  async reopen(n){if(this.ok||n>40)return;try{await this.open();}catch(e){setTimeout(()=>this.reopen(n+1),2500);}},
+  onData(dv){const k=dv.getUint8(0),id=dv.getUint16(1,true),p=this.pend.get(id);if(!p)return;let o=3;
+    if(k===72){p.total=dv.getUint32(3,true);p.status=dv.getUint8(7);p.buf=new Uint8Array(p.total);p.got=0;o=8;}
+    if(!p.buf)return;const n=Math.min(dv.byteLength-o,p.total-p.got);if(n>0){p.buf.set(new Uint8Array(dv.buffer,dv.byteOffset+o,n),p.got);p.got+=n;}
+    if(p.got>=p.total){clearTimeout(p.tm);this.pend.delete(id);p.res(JSON.parse(dec.decode(p.buf)));}},
+  json(op){const run=()=>new Promise(async(res,rej)=>{if(!this.ok)return rej(new Error('not connected'));const id=this.id=(this.id%60000)+1;
+      const p={res,rej,buf:null,got:0};p.tm=setTimeout(()=>{this.pend.delete(id);rej(new Error('no reply'));},5000);this.pend.set(id,p);
+      try{await this.cmd.writeValue(enc.encode(id+' '+op));}catch(e){clearTimeout(p.tm);this.pend.delete(id);rej(e);}});
+    const r=this.chain.then(run,run);this.chain=r.catch(()=>{});return r;}};
+
+// ---- map
+const map=L.map('map',{zoomControl:false,attributionControl:false,preferCanvas:true}).setView([-43.6,172.2],15);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,maxNativeZoom:18}).addTo(map);
+const ptLayer=L.layerGroup().addTo(map),dots={};let fitted=false;
+try{const TR=JSON.parse(localStorage.getItem('mxTracks')||'null');(TR&&TR.tracks||[]).forEach(t=>{const ln=x=>{const v=Array.isArray(x)?x:x&&[x.la1,x.lo1,x.la2,x.lo2];if(v&&isFinite(v[0])&&isFinite(v[2]))L.polyline([[v[0],v[1]],[v[2],v[3]]],{color:'#fff',weight:3,opacity:.9}).addTo(map);};ln(t.fin);(t.sec||[]).forEach(ln);});}catch(e){}
+const col=r=>r>=-75?'#34d36b':r>=-85?'#f5c84a':'#ff9a3c';
+let PTS=[],next=0,last={},S=null;
+function addPts(arr){for(const a of arr){const [b,la,lo,rssi,gap,kmh]=a,ll=[la/1e7,lo/1e7];PTS.push({b,la:ll[0],lo:ll[1],rssi,gap,kmh});
+    const prev=last[b];if(gap>0&&prev)L.polyline([prev,ll],{color:'#ff5a5a',weight:5,opacity:.95}).addTo(ptLayer);
+    L.circleMarker(ll,{radius:3,stroke:false,fillColor:col(rssi),fillOpacity:.9}).addTo(ptLayer);last[b]=ll;
+  }
+  if(!fitted&&PTS.length>=50){fitted=true;map.fitBounds(L.latLngBounds(PTS.map(p=>[p.la,p.lo])).pad(0.15),{maxZoom:18});}}
+
+// ---- screen
+function ui(){const p=$('pill');p.className='pill'+(BLE.ok?' on':'');p.querySelector('span').textContent=BLE.ok?(S?S.unit:'Connected'):'Not connected';$('conn').textContent=BLE.ok?'Connected':'Connect to base';}
+const fmtLap=ms=>{const s=ms/1000,m=Math.floor(s/60);return m+':'+(s-m*60).toFixed(2).padStart(5,'0');};
+function renderBikes(){if(!S)return;const B=S.bikes||[];if(!B.length){$('bikes').innerHTML='<p class="note">Nothing yet. Turn a bike on (it sends once it has a GPS fix).</p>';return;}
+  $('bikes').innerHTML=B.map(b=>{const tot=b.got+b.miss,pc=tot?100*b.got/tot:0,pcC=pc>=98?'g':pc>=90?'y':'r',sig=b.avg>=-75?['Strong','g']:b.avg>=-85?['OK','y']:['Weak','o'];
+    const stale=b.ago>2000;
+    return `<div class="bike"><b>${esc(b.name||b.mac)}</b><div class="big ${pcC}">${pc.toFixed(1)}%</div>
+      <div class="sub">${stale?'<span class="r">Not heard for '+Math.round(b.ago/1000)+' s</span>':b.rate+'/s · '+b.kmh.toFixed(0)+' km/h · '+b.sats+' sats'+(b.batt>=0?' · '+b.batt+'%':'')}</div>
+      <div class="sub2">received · ${b.miss} lost</div>
+      <div class="sub">Signal <span class="${sig[1]}">${sig[0]}</span> · ${b.rssi} dBm now, ${b.avg} avg</div><div></div>
+      ${b.ev!==undefined?`<div class="laps">Laps &amp; sectors: <b class="g">${b.ev} delivered</b>${b.late?` · <span class="y">${b.late} arrived late (radio shadow)</span>`:''}${b.rep?` · ${b.rep} resends`:''}</div>`:''}
+      ${b.laps.length?`<div class="laps">Laps: ${b.laps.slice(-6).map(l=>'L'+l[0]+' '+fmtLap(l[1])+(l[4]?' <span class="y">(+'+l[4]+' s late)</span>':'')).join(' · ')}</div>`:''}</div>`;}).join('');
+  for(const b of B){if(!b.lat)continue;const ll=[b.lat,b.lon];if(!dots[b.i])dots[b.i]=L.circleMarker(ll,{radius:8,color:'#fff',weight:2,fillColor:'#4fb0ff',fillOpacity:1}).addTo(map).bindTooltip(esc(b.name),{permanent:true,direction:'right',className:''});else dots[b.i].setLatLng(ll);}}
+async function tick(){if(!BLE.ok)return;
+  try{S=await BLE.json('state');ui();renderBikes();
+    if(S.logN<next){next=0;PTS=[];last={};ptLayer.clearLayers();}       // the base restarted or was cleared
+    for(let k=0;k<6&&next<S.logN;k++){const r=await BLE.json('log '+next);addPts(r.pts);next=r.next;if(r.from>next)next=r.next;}}catch(e){}}
+setInterval(tick,1000);
+
+$('conn').onclick=async()=>{if(BLE.ok)return;if(!navigator.bluetooth){alertNote('This browser has no Bluetooth - use Chrome on Android or Bluefy on iPhone.');return;}try{await BLE.pick();tick();}catch(e){}};
+$('clear').onclick=async()=>{if(!BLE.ok)return;if($('clear').dataset.arm!=='1'){$('clear').dataset.arm='1';$('clear').textContent='Tap again to clear';setTimeout(()=>{$('clear').dataset.arm='';$('clear').textContent='Clear';},3000);return;}
+  $('clear').dataset.arm='';$('clear').textContent='Clear';try{S=await BLE.json('clear');}catch(e){}next=0;PTS=[];last={};ptLayer.clearLayers();renderBikes();};
+$('dl').onclick=()=>{const blob=new Blob([JSON.stringify({saved:new Date().toISOString(),state:S,pts:PTS})],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='radio_test_'+Date.now()+'.json';a.click();};
+function alertNote(t){$('bikes').innerHTML='<p class="note">'+esc(t)+'</p>';}
+ui();
+</script></body></html>

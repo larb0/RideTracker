@@ -18,3 +18,8 @@ ON THE PHONE
 
 UPDATING THE PAGE LATER
  Upload the new index.html over the old one on GitHub (same steps 3). Phones pick it up next time they open it.
+
+
+BASE STATION (live timing, step 1: radio range test)
+  base.html  - open https://<your pages site>/base.html, tap Connect to base, pick RT-Base-xxxx.
+  It shows every bike the base hears, how many messages arrived, signal strength, and a coverage map.
