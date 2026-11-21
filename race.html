@@ -56,6 +56,13 @@ header h1{font-size:20px;margin:0;flex:1;letter-spacing:-.01em}header h1 span{co
 .hcard .t{flex:1;min-width:0}.hcard .t b{display:block}.hcard .t span{color:var(--muted);font-size:13px}
 .hcard .v{text-align:right;font-variant-numeric:tabular-nums;font-size:14px}.hcard .v small{display:block;color:var(--muted);font-size:11px}
 .back{background:none;border:0;color:var(--fg);font:inherit;font-size:16px;font-weight:600;padding:4px 0;margin-bottom:6px}
+.redBtn{color:var(--red);border-color:#ff5a5a66}#redBtn.on{background:var(--red);color:#fff;border-color:var(--red)}
+.redBar{background:var(--red);color:#fff;border-radius:12px;padding:10px 14px;font-weight:700;display:flex;align-items:center;gap:10px}
+.redBar i{width:12px;height:12px;border-radius:50%;background:#fff;animation:blink .3s steps(1) infinite}@keyframes blink{50%{opacity:0}}
+.tr.ident{animation:idf .5s steps(1) 12}@keyframes idf{50%{background:#4fb0ff33}}
+.bat{color:var(--red);font-size:12px;font-weight:700;margin-left:6px;flex:none}
+#toast{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--panel3);border:1px solid var(--line);color:var(--fg);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px)}
+#toast.on{opacity:1}
 .demo{border:1px dashed var(--line);border-radius:12px;padding:8px 12px;display:flex;gap:10px;align-items:center;justify-content:space-between}
 @media (max-width:380px){.tr{grid-template-columns:24px 5px minmax(0,1fr) 54px 58px 0;gap:0 6px}.tr>:nth-child(6){display:none}}
 </style></head><body><main>
@@ -63,10 +70,12 @@ header h1{font-size:20px;margin:0;flex:1;letter-spacing:-.01em}header h1 span{co
 
 <div class="seg" id="modeSeg"><button data-m="practice" class="on">Practice</button><button data-m="race">Race</button><button data-m="history">History</button></div>
 
+<div class="row" id="flagRow"><span class="note" style="flex:1">Tap a rider to make their unit blink</span><button class="btn redBtn" id="redBtn">Red flag</button></div>
 <div class="card" id="ctl"></div>
 <div id="map"></div>
 <div class="tower" id="tower"></div>
 <div id="hist" hidden></div>
+<div id="toast"></div>
 
 <div class="demo"><span class="note">Demo: 5 made-up riders on AG Track</span><div class="seg" id="spd" style="min-width:150px"><button data-s="1">1×</button><button data-s="4" class="on">4×</button><button data-s="10">10×</button></div></div>
 </main>
@@ -97,7 +106,7 @@ function rider(id,name,col){let r=S.riders.get(id);if(!r){r={id,name,col,laps:[]
 
 /* ---------------------------------------------------------------- FEED: what the base sends */
 const FEED={
-  pos(id,la,lo,kmh){const r=S&&S.riders.get(id);if(!r)return;r.la=la;r.lo=lo;r.kmh=kmh;moveDot(r);},
+  pos(id,la,lo,kmh,batt){const r=S&&S.riders.get(id);if(!r)return;r.la=la;r.lo=lo;r.kmh=kmh;if(batt!=null)r.batt=batt;moveDot(r);},
   sector(id,lapNo,s,ms,utc){const r=S&&S.riders.get(id);if(!r||S.phase==='grid'||S.phase==='lights')return;if(r.finished)return;
     if(s===0&&r.prevCur)r.prevCur=null;
     r.cur[s]={ms,c:colourFor(ms,S.bestSec[s],r.secBest[s])};
@@ -153,7 +162,8 @@ function moveDot(r){let d=dots.get(r.id);
 
 /* ---------------------------------------------------------------- screen */
 let raceLen={laps:6,time:10},lenKind='laps';
-function renderCtl(){const c=$('ctl');
+function renderCtl(){renderCtl0();if(RED&&S)$('ctl').insertAdjacentHTML('afterbegin',`<div class="redBar" style="margin-bottom:10px"><i></i>RED FLAG · every bike is flashing red</div>`);}
+function renderCtl0(){const c=$('ctl');
   if(!S){c.innerHTML='';return;}
   if(S.kind==='practice'){
     const el=S.t0!=null?(S.phase==='open'?simNow():S.endAt)-S.t0:0;
@@ -190,20 +200,30 @@ function renderTower(){const t=$('tower');if(!S){t.innerHTML='';return;}
   O.forEach((r,i)=>{const prev=lastOrder.get(r.id),moved=race&&prev!=null&&S.phase!=='grid'&&S.phase!=='lights'?prev-i:0;
     const g=gapOf(r,lead),iv=race&&i>0?interval(r,O[i-1]):null;
     const secs=Array.from({length:NSEC},(_,k)=>{const x=r.cur[k]||(r.prevCur&&!r.cur.some(Boolean)?r.prevCur[k]:null);return`<i class="${x?x.c:''}"></i>`;}).join('');
-    const tags=(r.jump?'<span class="tag js">JUMP</span>':'')+(race&&r.finished&&S.phase==='flag'?'<span class="tag fin">FIN</span>':'');
-    h+=`<div class="tr"><span class="pos">${i+1}${moved?`<span class="arrow ${moved>0?'g':'r'}">${moved>0?'▲':'▼'}</span>`:''}</span><span class="sw" style="background:${r.col}"></span>
+    const tags=(r.batt!=null&&r.batt>=0&&r.batt<=20?`<span class="bat" title="Battery low">▮${r.batt}%</span>`:'')+(r.jump?'<span class="tag js">JUMP</span>':'')+(race&&r.finished&&S.phase==='flag'?'<span class="tag fin">FIN</span>':'');
+    h+=`<div class="tr${(identAt.get(r.id)||0)>Date.now()?' ident':''}" data-id="${r.id}"><span class="pos">${i+1}${moved?`<span class="arrow ${moved>0?'g':'r'}">${moved>0?'▲':'▼'}</span>`:''}</span><span class="sw" style="background:${r.col}"></span>
       <span class="nm"><span class="top"><b>${esc(r.name)}</b>${tags}</span><span class="secs">${secs}</span></span>
       <span class="c">${g.t==='Leader'?'<span class="m">Leader</span>':esc(g.t)}${iv!=null&&g.t.indexOf('lap')<0?`<small>${fmtGap(iv)} int</small>`:race&&r.react!=null&&S.phase!=='done'&&r.lapsDone<1?`<small>${r.jump?'jump':(r.react/1000).toFixed(2)+' s'}</small>`:''}</span>
       <span class="c ${r.last?r.last.c:''}">${r.last?fmtLap(r.last.ms):'–'}${race?`<small>L${r.lapsDone}</small>`:''}</span>
-      <span class="c ${r.best&&r.best===S.bestLap?'p':''}">${fmtLap(r.best)}${!race?`<small>${r.laps.length} laps</small>`:''}</span></div>`;});
+      <span class="c ${r.best&&r.best===S.bestLap?'p':''}">${fmtLap(r.best)}${!race?`<small>${r.laps.length} lap${r.laps.length===1?'':'s'}</small>`:''}</span></div>`;});
   t.innerHTML=h;
   if(race&&S.phase!=='grid')lastOrder=new Map(O.map((r,i)=>[r.id,i]));}
 function render(){renderCtl();renderTower();}
+/* ---------------------------------------------------------------- red flag + identify + battery
+   Red flag: the base puts it in its "I'm here" beacon, so every unit flashes red within a second.
+   Practice: lifting it carries on. Race: lifting it restarts the race from the grid (red flag = restart). */
+let RED=false;const identAt=new Map();
+$('redBtn').onclick=()=>{RED=!RED;$('redBtn').classList.toggle('on',RED);$('redBtn').textContent=RED?'Lift red flag':'Red flag';SIM.red(RED);
+  if(!RED&&S&&S.kind==='race'&&S.phase!=='grid'&&S.phase!=='done'){SIM.stop();lineTimes.clear();lastOrder=new Map();newSession('race');toast('Red flag lifted - back to the grid to restart');return;}
+  toast(RED?'Red flag: every unit is flashing red':'Red flag lifted');render();};
+$('tower').addEventListener('click',e=>{const row=e.target.closest('.tr[data-id]');if(!row||!S)return;const r=S.riders.get(+row.dataset.id);if(!r)return;
+  identAt.set(r.id,Date.now()+6000);toast(r.name+'\'s unit is blinking blue and white for 6 s');renderTower();});
+let toastT;function toast(t){const el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('on'),2600);}
 setInterval(()=>{if(S&&(S.phase==='open'||S.phase==='lights'||S.phase==='racing'||S.phase==='flag'))renderCtl();},250);
 
 $('modeSeg').onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.m===MODE)return;MODE=b.dataset.m;
   document.querySelectorAll('#modeSeg button').forEach(x=>x.classList.toggle('on',x===b));
-  const h=MODE==='history';['ctl','map','tower'].forEach(id=>$(id).hidden=h);$('hist').hidden=!h;
+  const h=MODE==='history';['ctl','map','tower','flagRow'].forEach(id=>$(id).hidden=h);$('hist').hidden=!h;
   if(h){histOpen=null;renderHist();return;}
   if(S&&S.kind===MODE){render();map.invalidateSize();return;}           // back to the session that's running - carry on
   SIM.stop();if(MODE==='practice')startPractice();else{lastOrder=new Map();newSession('race');}map.invalidateSize();};
@@ -260,7 +280,8 @@ const SIM=(()=>{
   const near=g=>{const m=xy([(g[0]+g[2])/2,(g[1]+g[3])/2]);let bi=0,bd=1e9;P.forEach((p,i)=>{const q=xy(p),d=Math.hypot(q[0]-m[0],q[1]-m[1]);if(d<bd){bd=d;bi=i;}});return D[bi];};
   const CUT=[...TRACK.sec.map(near),LEN];   // sector ends (last = the finish line)
   const at=d=>{d=((d%LEN)+LEN)%LEN;let i=D.findIndex(x=>x>d);if(i<0)return P[P.length-1];const u=(d-D[i-1])/(D[i]-D[i-1]);return[P[i-1][0]+(P[i][0]-P[i-1][0])*u,P[i-1][1]+(P[i][1]-P[i-1][1])*u];};
-  const riders=[{id:1,name:'Bossman',col:'#4fb0ff',pace:1.00},{id:2,name:'Jake',col:'#ff9a3c',pace:1.015},{id:3,name:'Tom',col:'#ff6fae',pace:1.03},{id:4,name:'Sam',col:'#3fd9c5',pace:1.045},{id:5,name:'Liam',col:'#c6e85a',pace:1.07}];
+  const riders=[{id:1,name:'Bossman',col:'#4fb0ff',pace:1.00,batt:82},{id:2,name:'Jake',col:'#ff9a3c',pace:1.015,batt:64},{id:3,name:'Tom',col:'#ff6fae',pace:1.03,batt:47},{id:4,name:'Sam',col:'#3fd9c5',pace:1.045,batt:71},{id:5,name:'Liam',col:'#c6e85a',pace:1.07,batt:16}];
+  let redF=false;
   const BASE=62000;            // a 1:02 lap
   let speed=4,clock=0,last=0,timer=null,mode=null,goUtc=0,B=[];
   const lapTarget=r=>BASE*r.pace*(1+(Math.random()-.5)*0.035);
@@ -279,6 +300,7 @@ const SIM=(()=>{
         if(clock>=goUtc+b.react){b.started=true;FEED.start(b.id,Math.max(0,b.react),b.jump);b.lapStart=goUtc;b.secStart=goUtc;}
         else continue;}
       if(b.fin)continue;
+      if(redF)continue;                 // red flag: everyone stops
       b.d+=b.v*dt*(0.93+Math.random()*0.14);
       for(;;){const next=b.lap*LEN+CUT[b.sec];if(b.d<next)break;
         const utc=Math.round(clock-(b.d-next)/b.v);
@@ -288,11 +310,11 @@ const SIM=(()=>{
         b.secStart=utc;b.sec++;if(b.sec===NSEC){b.sec=0;b.lap++;}
         if(b.fin)break;}
     }
-    posAcc+=dt;if(posAcc>=200){posAcc=0;for(const b of B){const p=at(b.d);FEED.pos(b.id,p[0],p[1],0);}}
+    posAcc+=dt;if(posAcc>=200){posAcc=0;for(const b of B){const p=at(b.d);FEED.pos(b.id,p[0],p[1],0,b.batt);}}
     if(S&&S.phase==='lights'&&clock>=S.goUtc){S.phase='racing';render();}
   }
   // practice and race laps are numbered the same way the units number them (lap 1 = first full lap)
-  return{riders,run,stop,flag(){},now:()=>clock,setSpeed(s){speed=s;}};
+  return{riders,run,stop,flag(){},now:()=>clock,setSpeed(s){speed=s;},red(v){redF=v;}};
 })();
 function simNow(){return SIM.now();}
 $('spd').onclick=e=>{const b=e.target.closest('button');if(!b)return;SIM.setSpeed(+b.dataset.s);document.querySelectorAll('#spd button').forEach(x=>x.classList.toggle('on',x===b));};

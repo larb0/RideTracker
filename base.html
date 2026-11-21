@@ -28,11 +28,12 @@ header h1{font-size:20px;margin:0;flex:1}
 .g{color:var(--green)}.y{color:var(--yellow)}.o{color:var(--orange)}.r{color:var(--red)}
 .key{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
 .key span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px;background:var(--c)}
+.btn.redOn{background:var(--red);color:#fff!important;border-color:var(--red)!important}.find{font:inherit;font-size:12px;padding:3px 9px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);margin-left:8px;vertical-align:1px}
 .laps{font-size:13px;color:var(--muted);grid-column:1/-1;font-variant-numeric:tabular-nums}
 .leaflet-container{background:#000}
 </style></head><body><main>
 <header><h1>Base · radio test</h1><div class="pill" id="pill"><i></i><span>Not connected</span></div></header>
-<div class="row"><button class="btn pri" id="conn">Connect to base</button><button class="btn" id="clear">Clear</button><button class="btn" id="dl">Save test file</button></div>
+<div class="row"><button class="btn pri" id="conn">Connect to base</button><button class="btn" id="clear">Clear</button><button class="btn" id="dl">Save test file</button><button class="btn" id="red" style="margin-left:auto;color:var(--red);border-color:#ff5a5a66">Red flag</button></div>
 <div class="card"><p class="lbl">Bikes heard</p><div id="bikes"><p class="note">Nothing yet. Turn a bike on (it sends once it has a GPS fix).</p></div></div>
 <div id="map"></div>
 <div class="key"><span style="--c:var(--green)">Strong</span><span style="--c:var(--yellow)">OK</span><span style="--c:var(--orange)">Weak</span><span style="--c:var(--red)">Messages lost</span></div>
@@ -65,7 +66,7 @@ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/
 const ptLayer=L.layerGroup().addTo(map),dots={};let fitted=false;
 try{const TR=JSON.parse(localStorage.getItem('mxTracks')||'null');(TR&&TR.tracks||[]).forEach(t=>{const ln=x=>{const v=Array.isArray(x)?x:x&&[x.la1,x.lo1,x.la2,x.lo2];if(v&&isFinite(v[0])&&isFinite(v[2]))L.polyline([[v[0],v[1]],[v[2],v[3]]],{color:'#fff',weight:3,opacity:.9}).addTo(map);};ln(t.fin);(t.sec||[]).forEach(ln);});}catch(e){}
 const col=r=>r>=-75?'#34d36b':r>=-85?'#f5c84a':'#ff9a3c';
-let PTS=[],next=0,last={},S=null;
+let PTS=[],next=0,last={},S=null;const identAt={};
 function addPts(arr){for(const a of arr){const [b,la,lo,rssi,gap,kmh]=a,ll=[la/1e7,lo/1e7];PTS.push({b,la:ll[0],lo:ll[1],rssi,gap,kmh});
     const prev=last[b];if(gap>0&&prev)L.polyline([prev,ll],{color:'#ff5a5a',weight:5,opacity:.95}).addTo(ptLayer);
     L.circleMarker(ll,{radius:3,stroke:false,fillColor:col(rssi),fillOpacity:.9}).addTo(ptLayer);last[b]=ll;
@@ -75,10 +76,11 @@ function addPts(arr){for(const a of arr){const [b,la,lo,rssi,gap,kmh]=a,ll=[la/1
 // ---- screen
 function ui(){const p=$('pill');p.className='pill'+(BLE.ok?' on':'');p.querySelector('span').textContent=BLE.ok?(S?S.unit:'Connected'):'Not connected';$('conn').textContent=BLE.ok?'Connected':'Connect to base';}
 const fmtLap=ms=>{const s=ms/1000,m=Math.floor(s/60);return m+':'+(s-m*60).toFixed(2).padStart(5,'0');};
-function renderBikes(){if(!S)return;const B=S.bikes||[];if(!B.length){$('bikes').innerHTML='<p class="note">Nothing yet. Turn a bike on (it sends once it has a GPS fix).</p>';return;}
+function renderBikes(){if(!S)return;$('red').classList.toggle('redOn',!!S.red);$('red').textContent=S.red?'Lift red flag':'Red flag';const B=S.bikes||[];if(!B.length){$('bikes').innerHTML='<p class="note">Nothing yet. Turn a bike on (it sends once it has a GPS fix).</p>';return;}
   $('bikes').innerHTML=B.map(b=>{const tot=b.got+b.miss,pc=tot?100*b.got/tot:0,pcC=pc>=98?'g':pc>=90?'y':'r',sig=b.avg>=-75?['Strong','g']:b.avg>=-85?['OK','y']:['Weak','o'];
     const stale=b.ago>2000;
-    return `<div class="bike"><b>${esc(b.name||b.mac)}</b><div class="big ${pcC}">${pc.toFixed(1)}%</div>
+    const low=b.batt>=0&&b.batt<=20;
+    return `<div class="bike"><b>${esc(b.name||b.mac)}${low?' <span class="r" title="Battery low">▮ '+b.batt+'%</span>':''}<button class="find" data-i="${b.i}">${(identAt[b.i]||0)>Date.now()?'Blinking…':'Find'}</button></b><div class="big ${pcC}">${pc.toFixed(1)}%</div>
       <div class="sub">${stale?'<span class="r">Not heard for '+Math.round(b.ago/1000)+' s</span>':b.rate+'/s · '+b.kmh.toFixed(0)+' km/h · '+b.sats+' sats'+(b.batt>=0?' · '+b.batt+'%':'')}</div>
       <div class="sub2">received · ${b.miss} lost</div>
       <div class="sub">Signal <span class="${sig[1]}">${sig[0]}</span> · ${b.rssi} dBm now, ${b.avg} avg</div><div></div>
@@ -94,6 +96,8 @@ setInterval(tick,1000);
 $('conn').onclick=async()=>{if(BLE.ok)return;if(!navigator.bluetooth){alertNote('This browser has no Bluetooth - use Chrome on Android or Bluefy on iPhone.');return;}try{await BLE.pick();tick();}catch(e){}};
 $('clear').onclick=async()=>{if(!BLE.ok)return;if($('clear').dataset.arm!=='1'){$('clear').dataset.arm='1';$('clear').textContent='Tap again to clear';setTimeout(()=>{$('clear').dataset.arm='';$('clear').textContent='Clear';},3000);return;}
   $('clear').dataset.arm='';$('clear').textContent='Clear';try{S=await BLE.json('clear');}catch(e){}next=0;PTS=[];last={};ptLayer.clearLayers();renderBikes();};
+$('red').onclick=async()=>{if(!BLE.ok)return;try{S=await BLE.json(S&&S.red?'flag clear':'flag red');renderBikes();}catch(e){}};
+$('bikes').addEventListener('click',async e=>{const f=e.target.closest('.find');if(!f||!BLE.ok)return;identAt[f.dataset.i]=Date.now()+6000;f.textContent='Blinking…';try{await BLE.json('ident '+f.dataset.i);}catch(x){}});
 $('dl').onclick=()=>{const blob=new Blob([JSON.stringify({saved:new Date().toISOString(),state:S,pts:PTS})],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='radio_test_'+Date.now()+'.json';a.click();};
 function alertNote(t){$('bikes').innerHTML='<p class="note">'+esc(t)+'</p>';}
 ui();

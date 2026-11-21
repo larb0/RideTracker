@@ -257,6 +257,8 @@ body.island main{padding-bottom:96px}body.island #toast{bottom:calc(92px + env(s
 <section id="v-rides" hidden>
   <div id="ridesList"></div>
   <p id="ridesNote" class="note" style="margin-top:12px"></p>
+  <div class="card" id="bakNudge" hidden style="margin-top:12px"><p style="margin:0 0 10px" id="bakNudgeTx"></p>
+    <div class="row"><button class="btn pri" id="bakNow">Back up now</button><button class="btn" id="bakLater">Later</button></div></div>
 </section>
 
 <section id="v-help" hidden>
@@ -1589,7 +1591,15 @@ function renderRides(){
   const ph=RIDES.filter(r=>r.phone).length,un=RIDES.length-ph;
   $('ridesNote').textContent=(un+' on the unit'+(ph?' · '+ph+' only on this phone':''))+(S?' · '+(S.flash.free/1048576).toFixed(1)+' MB free':'')+
     '. Rides copy to this phone by themselves; when the unit runs low it deletes its oldest copied rides, and they stay here.';
+  renderBakNudge();
 }
+// Rides live in this browser - clearing its data or changing phones loses them. Nudge for a backup now and then:
+// 5+ rides since the last one and 2+ weeks (or never backed up). "Later" waits a week.
+function renderBakNudge(){const last=+LS.get('mxLastBak','0'),cnt=+LS.get('mxBakCount','0'),snooze=+LS.get('mxBakSnooze','0'),now=Date.now(),newR=Math.max(0,RIDES.filter(r=>!r.rec).length-cnt);
+  const show=newR>=5&&now-last>14*864e5&&now>snooze;$('bakNudge').hidden=!show;if(!show)return;
+  $('bakNudgeTx').textContent=(last?newR+' rides since your last backup ('+Math.round((now-last)/864e5)+' days ago).':'Your '+newR+' rides only live on this phone and the unit.')+' A backup file keeps them safe if the phone is lost or the browser is cleared.';}
+$('bakNow').onclick=()=>{show('settings');$('bakBtn').click();};
+$('bakLater').onclick=()=>{LS.set('mxBakSnooze',String(Date.now()+7*864e5));renderBakNudge();};
 $('ridesList').onclick=e=>{const it=e.target.closest('.rideItem');if(!it)return;const r=entry(+it.dataset.n);rideFrom='history';if(r&&r.rec&&BLE.ok)show('live');else openRide(+it.dataset.n,'history');};
 $('backBtn').onclick=()=>show(rideFrom);
 
@@ -1860,6 +1870,7 @@ $('bakBtn').onclick=async()=>{
     const blob=new Blob([enc.encode('RTBAK1\n'),len,head,...parts],{type:'application/octet-stream'}),d=new Date();
     const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ridetracker_backup_'+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'.rtbak';
     document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);
+    LS.set('mxLastBak',String(Date.now()));LS.set('mxBakCount',String(list.length+skipped));if($('bakNudge'))renderBakNudge();
     msg.textContent='Saved '+list.length+' ride'+(list.length===1?'':'s')+' ('+(total/1048576).toFixed(1)+' MB)'+(skipped?' - '+skipped+' skipped (connect the unit to include them)':'')+'.';
   }catch(x){msg.textContent='Backup failed: '+x.message;}finally{b.disabled=false;}
 };
