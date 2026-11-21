@@ -36,6 +36,7 @@ header h1{font-size:20px;margin:0;flex:1}
 <div class="row"><button class="btn pri" id="conn">Connect to base</button><button class="btn" id="clear">Clear</button><button class="btn" id="dl">Save test file</button><button class="btn" id="red" style="margin-left:auto;color:var(--red);border-color:#ff5a5a66">Red flag</button></div>
 <div class="card"><p class="lbl">Bikes heard</p><div id="bikes"><p class="note">Nothing yet. Turn a bike on (it sends once it has a GPS fix).</p></div></div>
 <div id="map"></div>
+<p class="note" id="logInfo"></p><p class="note r" id="err" hidden></p>
 <div class="key"><span style="--c:var(--green)">Strong</span><span style="--c:var(--yellow)">OK</span><span style="--c:var(--orange)">Weak</span><span style="--c:var(--red)">Messages lost</span></div>
 <p class="note">Put the base where you'd stand to watch, ride a few laps, then look for red. Each bike sends 5 messages a second; lost ones show as red lines where they went missing.</p>
 </main>
@@ -87,10 +88,16 @@ function renderBikes(){if(!S)return;$('red').classList.toggle('redOn',!!S.red);$
       ${b.ev!==undefined?`<div class="laps">Laps &amp; sectors: <b class="g">${b.ev} delivered</b>${b.late?` · <span class="y">${b.late} arrived late (radio shadow)</span>`:''}${b.rep?` · ${b.rep} resends`:''}</div>`:''}
       ${b.laps.length?`<div class="laps">Laps: ${b.laps.slice(-6).map(l=>'L'+l[0]+' '+fmtLap(l[1])+(l[4]?' <span class="y">(+'+l[4]+' s late)</span>':'')).join(' · ')}</div>`:''}</div>`;}).join('');
   for(const b of B){if(!b.lat)continue;const ll=[b.lat,b.lon];if(!dots[b.i])dots[b.i]=L.circleMarker(ll,{radius:8,color:'#fff',weight:2,fillColor:'#4fb0ff',fillOpacity:1}).addTo(map).bindTooltip(esc(b.name),{permanent:true,direction:'right',className:''});else dots[b.i].setLatLng(ll);}}
-async function tick(){if(!BLE.ok)return;
+let busy=false,errN=0;
+async function tick(){if(!BLE.ok||busy)return;busy=true;      // one at a time - a slow reply mustn't stack up requests
   try{S=await BLE.json('state');ui();renderBikes();
     if(S.logN<next){next=0;PTS=[];last={};ptLayer.clearLayers();}       // the base restarted or was cleared
-    for(let k=0;k<6&&next<S.logN;k++){const r=await BLE.json('log '+next);addPts(r.pts);next=r.next;if(r.from>next)next=r.next;}}catch(e){}}
+    for(let k=0;k<15&&next<S.logN;k++){const r=await BLE.json('log '+next);addPts(r.pts);next=Math.max(r.next,r.from);}
+    errN=0;showErr('');}
+  catch(e){errN++;if(errN>=3)showErr('Trouble reading from the base: '+(e&&e.message||e)+' (still trying)');}
+  finally{busy=false;}
+  $('logInfo').textContent=S?'Map points: '+PTS.length.toLocaleString()+(S.logN>next?' · catching up '+(S.logN-next).toLocaleString()+' more':''):'';}
+function showErr(t){const el=$('err');el.textContent=t;el.hidden=!t;}
 setInterval(tick,1000);
 
 $('conn').onclick=async()=>{if(BLE.ok)return;if(!navigator.bluetooth){alertNote('This browser has no Bluetooth - use Chrome on Android or Bluefy on iPhone.');return;}try{await BLE.pick();tick();}catch(e){}};
