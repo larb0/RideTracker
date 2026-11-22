@@ -1,11 +1,13 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b0c0e">
+<meta name="theme-color" content="#050806">
 <title>RideTracker</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
 <style>
 :root{--bg:#0b0c0e;--panel:#141518;--panel2:#1c1d21;--panel3:#24262b;--line:#26282d;--fg:#f3f4f6;--muted:#8b8f97;--dim:#5d6168;--accent:#f3f4f6;--onaccent:#0b0c0e;--purple:#b06cff;--green:#34d36b;--yellow:#f5c84a;--red:#ff5a5a;--blue:#4fb0ff;color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -64,7 +66,7 @@ main{max-width:760px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-rig
 #lapsChev{font-style:normal;color:var(--muted);transition:transform .15s}.lapsShut #lapsChev{transform:rotate(-90deg)}#lapsBody{margin-top:8px}
 #rideTab{margin:0 0 12px}
 .anaTop{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--muted);margin:0 2px 12px}.anaTop b{color:var(--fg);font-weight:650}.anaTop b.yellow{color:var(--yellow)}
-.anaRow.tap{cursor:pointer}.anaFlag{display:block;margin-top:4px;color:var(--yellow)!important;font-size:13px}.lapBars i{cursor:pointer}.lapBars i em{position:absolute;left:0;right:0;top:-15px;text-align:center;font-style:normal;font-size:9px;color:var(--muted);white-space:nowrap;overflow:hidden}
+.anaRow.tap,.anaTbl tr.tap{cursor:pointer}.anaFlag{display:block;margin-top:4px;color:var(--yellow)!important;font-size:13px}.lapBars i{cursor:pointer}.lapBars i em{position:absolute;left:0;right:0;top:-15px;text-align:center;font-style:normal;font-size:9px;color:var(--muted);white-space:nowrap;overflow:hidden}
 .lapBars{margin-top:16px}
 .tName{background:none;border:0;padding:0;color:var(--fg);font:inherit;font-weight:600;text-align:left;text-decoration:underline dotted var(--dim);text-underline-offset:3px}
 .tNameIn{width:100%;max-width:150px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--fg);padding:4px 6px;font:inherit}
@@ -189,6 +191,115 @@ body.island main{padding-bottom:96px}body.island #toast{bottom:calc(92px + env(s
   #laps td{padding:8px 3px}#laps td:first-child{white-space:nowrap}#laps .tag{margin-left:4px;padding:2px 5px;letter-spacing:.02em;font-size:9px}
   #laps button.x{padding:5px 8px;font-size:12px}
 }
+/* ---------- race mode (connected to a base station) ---------- */
+body.race #nav,body.race main>section:not(#v-race),body.race #backBar,body.race #island,body.race #batt{display:none!important}
+#v-race{display:flex;flex-direction:column;gap:10px}
+#v-race .rhead{display:flex;align-items:center;gap:10px}
+#v-race .rhead .leave{font:inherit;font-size:14px;background:none;border:0;color:var(--muted);padding:6px 0}
+#v-race .rhead .tk{margin-left:auto;font-size:13px;color:var(--muted);text-align:right}
+#v-race .rmap{height:38vh;min-height:230px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#111;position:relative}
+#v-race .rmap .leaflet-container{background:#111;height:100%}
+#v-race .rmap .mapMsg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;text-align:center;padding:16px}
+#v-race .leaflet-marker-icon{transition:transform 1s linear}
+#v-race .leaflet-zoom-anim .leaflet-marker-icon{transition:none}
+#v-race .rdot{width:22px;height:22px;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font:700 11px/1 system-ui;color:#0b0c0e;box-shadow:0 1px 4px #0008}
+#v-race .status{display:flex;align-items:center;gap:12px}
+#v-race .status .clock{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+#v-race .status .what{flex:1;min-width:0}#v-race .status .what b{display:block;font-size:15px}#v-race .status .what span{color:var(--muted);font-size:13px}
+#v-race .lightsR{display:flex;gap:5px}#v-race .lightsR i{width:14px;height:14px;border-radius:50%;background:var(--panel3,#24262b)}
+#v-race .lightsR.red i{background:#ff5a5a;box-shadow:0 0 8px #ff5a5a}#v-race .lightsR.go i{background:#34d36b;box-shadow:0 0 8px #34d36b}
+#v-race .chq{width:26px;height:18px;border-radius:2px;background:conic-gradient(#fff 25%,#111 0 50%,#fff 0 75%,#111 0) 0 0/9px 9px;flex:none}
+#v-race .stepper{display:flex;align-items:center;gap:8px}#v-race .stepper button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--panel2,#1c1d21);color:var(--fg);font-size:20px}
+#v-race .stepper b{min-width:76px;text-align:center;font-size:17px;font-variant-numeric:tabular-nums}
+#v-race .tower{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+#v-race .tr{display:grid;grid-template-columns:30px 6px minmax(0,1fr) 62px 64px 64px;align-items:center;gap:0 8px;padding:9px 12px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+#v-race .tr:first-child{border-top:0}
+#v-race .tr.head{padding:7px 12px;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+#v-race .tr .pos{font-size:17px;font-weight:700;text-align:center}
+#v-race .tr .swc{width:6px;height:28px;border-radius:3px}
+#v-race .tr .nm{min-width:0}#v-race .tr .nm .top{display:flex;align-items:center;min-width:0}
+#v-race .tr .nm b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#v-race .secs{display:flex;gap:3px;margin-top:4px}#v-race .secs i{width:20px;height:5px;border-radius:2px;background:var(--panel3,#24262b)}
+#v-race .secs i.p{background:#b06cff}#v-race .secs i.g{background:#34d36b}#v-race .secs i.y{background:#f5c84a}
+#v-race .tr .cc{text-align:right;font-size:14px}#v-race .tr .cc small{display:block;color:var(--muted);font-size:11px}
+#v-race .cp{color:#b06cff}#v-race .cg{color:#34d36b}#v-race .cy{color:#f5c84a}#v-race .cr{color:#ff5a5a}#v-race .cm{color:var(--muted)}
+#v-race .arrow{font-size:10px;margin-left:4px}
+#v-race .rtag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;padding:1px 5px;border-radius:5px;margin-left:6px;flex:none}
+#v-race .rtag.js{background:#ff5a5a22;color:#ff5a5a}#v-race .rtag.fin{background:#ffffff18;color:var(--fg)}#v-race .rtag.off{background:#ffffff10;color:var(--muted)}
+#v-race .bat{color:#ff5a5a;font-size:12px;font-weight:700;margin-left:6px;flex:none}
+#v-race .tr.ident{animation:ridf .5s steps(1) 12}@keyframes ridf{50%{background:#4fb0ff33}}
+#v-race .redBtn{color:#ff5a5a;border-color:#ff5a5a66}#v-race .redBtn.on{background:#ff5a5a;color:#fff;border-color:#ff5a5a}
+#v-race .redBar{background:#ff5a5a;color:#fff;border-radius:12px;padding:10px 14px;font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:10px}
+#v-race .redBar i{width:12px;height:12px;border-radius:50%;background:#fff;animation:rblink .3s steps(1) infinite}@keyframes rblink{50%{opacity:0}}
+#v-race .hcard{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+#v-race .hcard .k{width:34px;height:34px;border-radius:10px;background:var(--panel3,#24262b);display:flex;align-items:center;justify-content:center;flex:none}
+#v-race .hcard .t{flex:1;min-width:0}#v-race .hcard .t b{display:block}#v-race .hcard .t span{color:var(--muted);font-size:13px}
+#v-race .hcard .v{text-align:right;font-variant-numeric:tabular-nums;font-size:14px}#v-race .hcard .v small{display:block;color:var(--muted);font-size:11px}
+#v-race .rback{background:none;border:0;color:var(--fg);font:inherit;font-size:16px;font-weight:600;padding:4px 0}
+@media (max-width:380px){#v-race .tr{grid-template-columns:24px 5px minmax(0,1fr) 54px 58px 0;gap:0 6px}#v-race .tr>:nth-child(6){display:none}}
+#v-race .card{margin:0;padding:14px 16px}#v-race .seg{margin:0}
+
+/* ================= THEME: dark glass + expressive, forest green =================
+   Near-black with a faint green glow behind frosted glass cards; one forest-green "hero" card per screen
+   (rounded with one tight corner); Inter; a floating rounded tab bar at the bottom.
+   Timing colours are untouched: purple = best, green = personal best, yellow = slower. */
+:root{--bg:#050806;--panel:rgba(255,255,255,.055);--panel2:#151e18;--panel3:#1e2a22;--line:rgba(255,255,255,.09);--fg:#eaf2eb;--muted:#9eaca2;--dim:#5f6d64;
+  --accent:#9ed6a6;--onaccent:#08200f;--hero:#1b4129;--onhero:#d4f1d9;--glassBlur:blur(24px) saturate(140%)}
+html,body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg)}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(420px 420px at 0% 0%,rgba(46,125,79,.22),transparent 70%),radial-gradient(380px 380px at 100% 70%,rgba(31,111,106,.14),transparent 70%)}
+header{background:rgba(5,8,6,.92);border-bottom:0;-webkit-backdrop-filter:none;backdrop-filter:none}   /* no blur here: a blurred parent would trap the floating tab bar inside the header */
+.pill{background:var(--panel);border:1px solid var(--line);-webkit-backdrop-filter:var(--glassBlur);backdrop-filter:var(--glassBlur);color:var(--fg);padding:7px 13px}
+.brand{font-weight:800;letter-spacing:-.02em}
+/* the tab bar floats at the bottom */
+nav#nav{position:fixed;z-index:20;left:max(16px,env(safe-area-inset-left));right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));
+  max-width:520px;margin:0 auto;height:64px;padding:6px;border-radius:999px;align-items:center;gap:2px;
+  background:rgba(18,26,21,.78);border:1px solid var(--line);-webkit-backdrop-filter:var(--glassBlur);backdrop-filter:var(--glassBlur);box-shadow:0 12px 34px rgba(0,0,0,.5)}
+nav#nav button{height:100%;border:0;border-radius:999px;padding:0;font-size:13px;color:var(--muted)}
+nav#nav button.on{background:var(--accent);color:var(--onaccent);font-weight:800}
+main{padding-bottom:110px}
+#conn{bottom:calc(92px + env(safe-area-inset-bottom));background:rgba(30,42,34,.85);-webkit-backdrop-filter:var(--glassBlur);backdrop-filter:var(--glassBlur);border-radius:26px}
+body.island main{padding-bottom:190px}#toast{bottom:calc(92px + env(safe-area-inset-bottom))}body.island #toast{bottom:calc(170px + env(safe-area-inset-bottom))}
+#toast{background:var(--accent);color:var(--onaccent)}
+/* cards: frosted glass */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:26px;-webkit-backdrop-filter:var(--glassBlur);backdrop-filter:var(--glassBlur);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.banner{background:var(--panel);border-radius:22px}
+.btn{border-radius:16px;padding:10px 16px;font-weight:700}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--onaccent)}
+.seg{background:var(--panel);border-radius:999px;padding:4px;-webkit-backdrop-filter:var(--glassBlur);backdrop-filter:var(--glassBlur)}
+.seg button{border-radius:999px}
+.seg button.on{background:var(--accent);color:var(--onaccent);font-weight:800}
+.tag{border-radius:8px;background:var(--panel3)}
+.stat b{font-weight:800;letter-spacing:-.02em}
+/* hero cards: forest green, big numbers, one tight corner */
+#summary{background:var(--hero);border-color:transparent;border-radius:34px 34px 34px 10px;color:var(--onhero);-webkit-backdrop-filter:none;backdrop-filter:none}
+#summary .stat span,#summary .note{color:rgba(212,241,217,.72)}
+#summary .stat.big b{font-size:52px;font-weight:900;letter-spacing:-.04em}
+#summary{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 8px;padding:16px 18px 16px}#summary .stat{min-width:0}#summary .stat b{font-size:18px;font-weight:800}#summary .stat.big b{font-size:40px;line-height:1}#summary .big{grid-column:span 2}#summary{align-items:end}#summary .stat span{font-size:11px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#summary .purple{color:#e2c6ff}#summary .green{color:#7ff0a4}#summary .yellow{color:#ffe08a}
+.lapRow{background:var(--hero);color:var(--onhero);border-radius:26px 26px 26px 8px;padding:14px 16px}
+.lapRow .stat span{color:rgba(212,241,217,.72)}.lapRow .purple{color:#e2c6ff}.lapRow .green{color:#7ff0a4}.lapRow .yellow{color:#ffe08a}
+.lapRow .secRow i{background:rgba(0,0,0,.25);color:rgba(212,241,217,.6)}
+.speedBig b{font-weight:900}
+#rideTitle{font-size:24px;font-weight:800;letter-spacing:-.02em}
+/* ride lists: each ride its own glass card; the newest one is the hero */
+#ridesList .rideItem,#trRides .rideItem,#trList .rideItem{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:14px 14px;margin-bottom:8px;-webkit-backdrop-filter:var(--glassBlur);backdrop-filter:var(--glassBlur)}
+#trList .rideItem:last-child,#trRides .rideItem:last-child{border-bottom:1px solid var(--line)}
+#ridesList .rideItem:first-of-type{background:var(--hero);border-color:transparent;border-radius:30px 30px 30px 10px;color:var(--onhero)}
+#ridesList .rideItem:first-of-type .sub,#ridesList .rideItem:first-of-type .note{color:rgba(212,241,217,.72)}
+#ridesList .rideItem:first-of-type .purple{color:#e2c6ff}
+#ridesList .rideItem:first-of-type .tag{background:rgba(0,0,0,.25);color:var(--onhero)}
+.trThumb{border-radius:16px}
+.anaRow .n{background:var(--panel3)}
+/* race mode */
+#v-race .tower{background:var(--panel);-webkit-backdrop-filter:var(--glassBlur);backdrop-filter:var(--glassBlur);border-radius:26px}
+#v-race .rmap{border-radius:26px}
+#v-race #rCtl{background:var(--hero);border-color:transparent;color:var(--onhero);border-radius:30px 30px 30px 10px}
+#v-race #rCtl .what span,#v-race #rCtl .note{color:rgba(212,241,217,.75)}
+#v-race #rCtl .seg{background:rgba(0,0,0,.2)}
+#v-race #rCtl .stepper button{background:rgba(0,0,0,.22);border-color:transparent;color:var(--onhero)}
+#v-race #rCtl .btn:not(.pri){background:rgba(0,0,0,.22);border-color:transparent;color:var(--onhero)}
+#v-race .hcard{border-radius:22px;-webkit-backdrop-filter:var(--glassBlur);backdrop-filter:var(--glassBlur)}
 </style></head><body>
 <header>
   <div class="hrow"><div class="brand"><img src="icon.svg" alt="">RideTracker<span id="hdrName"></span></div><div class="hright"><div id="batt" class="batt" hidden><b><i></i></b><span></span></div><div id="pill" class="pill"><i></i>Connecting</div></div></div>
@@ -283,7 +394,10 @@ body.island main{padding-bottom:96px}body.island #toast{bottom:calc(92px + env(s
   <div class="card help"><h3>Start practice</h3>
     <p style="margin:0">At a track, tap the Ride button 3 times quickly (or Practise a start on the Live tab). Sit still - all the lights go red, then green after a few seconds. Go! Your reaction, 0-50 km/h and time to the start distance (set per track in the Tracks tab, 60 m to begin with) show in the ride's Insights. Several starts in a row with no laps make a Start practice ride. Moving on red is a jump start - the lights flash red and it's saved as a jump. Do another straight away: stop, sit still, tap 3 times.</p></div>
   <div class="card help"><h3>Insights</h3>
-    <p style="margin:0">Open a track ride and tap Insights: time left to find, where you lose time turn by turn (tap one to see it on the map), lap by lap and your turns - name them, add or delete them. Notes go in the box under the ride's name.</p></div>
+    <p style="margin:0">Open a track ride and tap Insights: time left to find, where you lose time turn by turn (tap one to see it on the map) and lap by lap. Turns are named, added or removed on the track's page. Notes are in the ⋯ menu.</p>
+    <p style="margin:8px 0 0">With the bike sensor fitted: jumps (air time, length) show as yellow arcs on the map, brake points as red marks on the lap you're on, and on Adventure rides wheelies show in blue. The sensor is rough - treat the numbers as a guide.</p></div>
+  <div class="card help"><h3>Racing with a base station</h3>
+    <p style="margin:0">Riders: turn on Settings > Live timing once, then just switch on and ride. Race control: put the base up high near the middle of the track, then Settings > Connect to a base station. Start practice or a race from there - every unit starts recording, a race goes red then lights out on every bike together, and each unit stops recording a minute after it finishes. Tap a rider to make their unit blink. Red flag stops everyone; in a race, lifting it goes back to the grid.</p></div>
   <div class="card help"><h3>It looks after you</h3>
     <p><b>Over the line:</b> all the lights flash the lap colour - purple best, green faster than last lap, yellow slower.</p>
     <p><b>Forgot to start?</b> Riding without recording, the lights flash amber. Hold Ride 1 s to start, or tap a button to ignore it.</p>
@@ -318,11 +432,25 @@ body.island main{padding-bottom:96px}body.island #toast{bottom:calc(92px + env(s
     <p class="note" style="margin:0">After 3 laps somewhere new, a finish line goes on the fastest straight by itself, as long as no other part of the track comes within reach of it. Wider catches every pass even with GPS wobble; narrower fits tight tracks.</p>
   </div>
 </section>
+<section id="v-race" hidden>
+  <div class="rhead"><button class="leave" id="rLeave">&#8249; Leave race mode</button><div class="tk"><b id="rBase">Base</b><br><button class="leave" id="rTrackBtn" style="padding:0;color:var(--muted)"><span id="rTrack"></span> &#9662;</button></div></div>
+  <div class="seg" id="rSeg"><button data-t="practice" class="on">Practice</button><button data-t="race">Race</button><button data-t="history">History</button></div>
+  <div class="row" id="rFlagRow" style="gap:8px"><span class="note" style="flex:1;margin:0">Tap a rider to make their unit blink</span><button class="btn redBtn" id="rRed">Red flag</button></div>
+  <div class="card" id="rCtl"></div>
+  <div class="rmap" id="rMapBox"><div id="rMap" style="height:100%"></div><div class="mapMsg" id="rMapMsg">Loading the map…</div></div>
+  <div class="tower" id="rTower"></div>
+  <div id="rHist" hidden></div>
+</section>
 <section id="v-settings" hidden>
   <div class="card">
     <div class="lbl" style="margin-bottom:8px">Riding mode</div>
     <div class="seg" id="setMode"><button data-m="0">Track</button><button data-m="1">Adventure</button></div>
     <p class="note" style="margin:0">Track times laps. Adventure records the ride and its stats. New rides use this; you can also switch any ride afterwards.</p>
+  </div>
+  <div class="card">
+    <div class="lbl" style="margin-bottom:8px">Race control</div>
+    <p class="note" style="margin:0 0 10px">Run practice and races from this phone: connect it to the base station. Riders just switch their units on with Live timing on.</p>
+    <button class="btn pri" id="raceBtn">Connect to a base station</button>
   </div>
   <div class="card">
     <div class="lbl" style="margin-bottom:8px">Live timing</div>
@@ -375,7 +503,7 @@ const BLE={dev:null,cmd:null,up:null,data:null,id:1,pend:new Map(),ok:false,lock
   async pick(){this.dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'MX-'},{services:[SVC]}],optionalServices:[SVC]});this.watch();await this.open();},
   async remembered(){                            // Chrome can reconnect to a unit picked before, without asking again
     if(!navigator.bluetooth.getDevices)return false;
-    try{const want=LS.get('mxUnit',''),wid=LS.get('mxDevId','');const ds=await navigator.bluetooth.getDevices();const d=ds.find(x=>wid&&x.id===wid)||ds.find(x=>x.name===want)||ds.find(x=>(x.name||'').startsWith('MX-'))||(ds.length===1?ds[0]:null);
+    try{const want=LS.get('mxUnit',''),wid=LS.get('mxDevId','');const ds=(await navigator.bluetooth.getDevices()).filter(x=>!/^RT-Base/.test(x.name||''));   // bike units only - race mode is opened on purposeconst d=ds.find(x=>wid&&x.id===wid)||ds.find(x=>x.name===want)||ds.find(x=>(x.name||'').startsWith('MX-'))||(ds.length===1?ds[0]:null);
       if(!d)return false;this.dev=d;this.watch();await this.open();return true;}catch(e){return false;}},
   watch(){if(this.dev._w)return;this.dev._w=1;this.dev.addEventListener('gattserverdisconnected',()=>this.dropped());},
   async open(){
@@ -383,7 +511,7 @@ const BLE={dev:null,cmd:null,up:null,data:null,id:1,pend:new Map(),ok:false,lock
     this.cmd=await sv.getCharacteristic(C_CMD);this.up=await sv.getCharacteristic(C_UP);this.data=await sv.getCharacteristic(C_DATA);
     if(!this.data._l){this.data._l=1;this.data.addEventListener('characteristicvaluechanged',e=>this.onData(e.target.value));}
     await this.data.startNotifications();
-    this.ok=true;LS.set('mxDevId',this.dev.id||'');if(!LS.get('mxUnit','')&&/^MX-/.test(this.dev.name||''))LS.set('mxUnit',this.dev.name);connChanged();
+    this.ok=true;if(!/^RT-Base/.test(this.dev.name||''))LS.set('mxDevId',this.dev.id||'');if(!LS.get('mxUnit','')&&/^MX-/.test(this.dev.name||''))LS.set('mxUnit',this.dev.name);connChanged();
   },
   dropped(){this.ok=false;lastRecKey=null;for(const p of this.pend.values()){clearTimeout(p.tm);const e=new Error('Connection lost');e.partial=p.buf?p.buf.subarray(0,p.got):null;p.rej(e);}this.pend.clear();connChanged();this.retry(0);},
   async retry(n){if(this.ok||!this.dev||n>30)return;await new Promise(r=>setTimeout(r,n<10?1500:5000));if(this.ok)return;try{await this.open();startData();}catch(e){this.retry(n+1);}},
@@ -403,6 +531,7 @@ const BLE={dev:null,cmd:null,up:null,data:null,id:1,pend:new Map(),ok:false,lock
   req(op,args='',o={}){
     const run=async()=>{
       if(!this.ok)throw new Error('Not connected');
+      if(RACE.on&&!RACE.allowed(op))throw new Error('Connected to the base station');
       const id=this.id=(this.id%60000)+1;
       const pr=new Promise((res,rej)=>{const p={res,rej,onProg:o.onProg,wait:o.wait||6000,buf:null,got:0};
         p.fail=m=>{this.pend.delete(id);const e=new Error(m);e.partial=p.buf?p.buf.subarray(0,p.got):null;rej(e);};
@@ -570,15 +699,56 @@ function imuAnalyse(R){
     if(haveFwd&&V[i]>2.2){const roll=(gx*fx+gy*fy+gz*fz)*kg;lean=0.97*(lean-roll*dt)+0.03*turnLean;}   // + = left; rolling about forward the + way tips the bike right
     else lean=turnLean;
     L[i]=Math.max(-65,Math.min(65,lean));}
-  // per fix: lean, g load, brake/accel g (GPS)
+  const gapAt=i=>i&&I.ms[i]-I.ms[i-1]>200;   // a hole in the sensor data
+  const fixAt=t=>{let lo=0,hi=ft.length-1;while(lo<hi){const m=(lo+hi)>>1;if(ft[m]<t)lo=m+1;else hi=m;}return lo;};
+  const dAt=t=>{const j=fixAt(t),p=Math.max(0,j-1),a=F[p],b=F[j];return b.t>a.t?a.d+(b.d-a.d)*Math.max(0,Math.min(1,(t-a.t)/(b.t-a.t))):b.d;};
+  const per=n>1?Math.max(0.004,Math.min(0.2,(I.ms[n-1]-I.ms[0])/1000/(n-1))):0.04;
+  // Jumps: in the air the accelerometer reads near 0 g (free fall). A knock off the lip (under 0.1 s) is bridged.
+  // Air time = first to last weightless sample; length = GPS distance between take-off and landing.
+  const jumps=[],air=new Uint8Array(n);
+  for(let i=0;i<n;){
+    if(!(A[i]<0.5&&V[i]>4)){i++;continue;}
+    let e=i;for(let k=i+1;k<n&&!gapAt(k);k++){if(A[k]<0.5)e=k;else if(T[k]-T[e]>0.1)break;}
+    const dur=T[e]-T[i]+per;
+    if(dur>=0.3&&e-i>=2){let land=0;for(let q=e+1;q<n&&T[q]-T[e]<0.4;q++)land=Math.max(land,A[q]);
+      for(let q=i;q<=e;q++)air[q]=1;
+      jumps.push({i0:fixAt(T[i]),i1:fixAt(T[e]),air:dur,len:Math.max(0,dAt(T[e]+per)-dAt(T[i])),land});}
+    i=e+1;}
+  // Along the bike (IMU, smoothed): braking shows here a moment before the GPS speed drops.
+  // Pitch (front up = +): gyro about the bike's sideways axis, kept honest by gravity once the GPS
+  // acceleration is taken off. A wheelie = the front rising 15°+ above the ground you're on, then coming down.
+  const LG=new Float32Array(n),P=new Float32Array(n),wheelies=[];
+  if(haveFwd){const rx=fy*uz-fz*uy,ry=fz*ux-fx*uz,rz=fx*uy-fy*ux;   // right = forward x up
+    let lg=0,ap=0,p=0;
+    for(let i=0;i<n;i++){const dt=i?Math.max(0.001,Math.min(0.2,(I.ms[i]-I.ms[i-1])/1000)):per;
+      const ff=(I.ax[i]*fx+I.ay[i]*fy+I.az[i]*fz)*ka;
+      lg+=(ff-lg)*Math.min(1,dt/0.25);LG[i]=lg;
+      const gx=I.gx[i]-bx,gy=I.gy[i]-by,gz=I.gz[i]-bz,lr=L[i]*Math.PI/180;   // leaned over, part of the turn shows up as pitch: take it off
+      const q=(gx*rx+gy*ry+gz*rz)*kg*Math.cos(lr)-(gx*ux+gy*uy+gz*uz)*kg*Math.sin(lr);
+      ap+=(Math.asin(Math.max(-1,Math.min(1,ff-gpsAcc[i])))*180/Math.PI-ap)*Math.min(1,dt/0.5);
+      p+=q*dt;if(!air[i])p+=(ap-p)*Math.min(1,dt/1.5);P[i]=p;}
+    let base=P[0],s=-1,pk=0;
+    for(let i=0;i<n;i++){const dt=i?Math.max(0.001,Math.min(0.2,(I.ms[i]-I.ms[i-1])/1000)):per,rel=P[i]-base;
+      if(s<0){if(rel>12&&V[i]>2.5&&!air[i]){s=i;pk=i;}else base+=(P[i]-base)*Math.min(1,dt/4);continue;}
+      if(P[i]>P[pk])pk=i;
+      if(T[i]-T[s]>8||air[i]||gapAt(i)){s=-1;base=P[i];continue;}   // up that long is a hill, not a wheelie
+      if(rel>=Math.max(5,0.5*(P[pk]-base)))continue;   // ends once the front is most of the way down
+      let a=s;while(a>0&&P[a-1]-base>3&&T[s]-T[a-1]<1)a--;
+      const up=P[pk]-base,dur=T[i]-T[a],i0=fixAt(T[a]),i1=fixAt(T[i]),len=Math.max(0,dAt(T[i])-dAt(T[a]));
+      // a short climb looks the same to the sensor - but then the GPS height goes up too
+      const climb=(F[i1].alt||0)-(F[i0].alt||0),hill=len>5&&climb>Math.max(2,0.4*len*Math.sin(up*Math.PI/180));
+      if(dur>=0.8&&up>=15&&!hill)wheelies.push({i0,i1,dur,len,deg:up});
+      s=-1;}}
+  // per fix: lean, g load, brake/accel g (GPS), brake/accel g along the bike (IMU)
   let si=0;let maxL=0,maxR=0,maxB=0,maxA=0;
   for(let k=0;k<F.length;k++){const f=F[k];while(si<n-1&&T[si+1]<=f.t)si++;
     let lean=0,load=0;for(let q=Math.max(0,si-2);q<=Math.min(n-1,si+2);q++){if(Math.abs(L[q])>Math.abs(lean))lean=L[q];load=Math.max(load,A[q]);}
-    f.lean=lean;f.load=load;
+    f.lean=lean;f.load=load;f.lgi=haveFwd?LG[si]:null;
     const a=F[Math.max(0,k-3)],b=F[Math.min(F.length-1,k+3)];f.lg=b.t>a.t&&b.t-a.t<1.2?((b.kmh-a.kmh)/3.6/(b.t-a.t))/9.81:0;
     if(f.kmh>10){if(lean>maxL)maxL=lean;if(lean<maxR)maxR=lean;}
     if(f.lg<maxB)maxB=f.lg;if(f.lg>maxA)maxA=f.lg;}
-  return{maxL,maxR:-maxR,maxB:-maxB,maxA,samples:n,fwd:haveFwd};
+  const most=(a,k)=>a.reduce((m,x)=>!m||x[k]>m[k]?x:m,null);
+  return{maxL,maxR:-maxR,maxB:-maxB,maxA,samples:n,fwd:haveFwd,jumps,wheelies,mostAir:most(jumps,'air'),longWh:most(wheelies,'dur')};
 }
 
 /* ---------- maths ---------- */
@@ -781,6 +951,26 @@ MAP.onDraw=(ctx,W,H)=>{
   const dot=(f,col,r)=>{const[x,y]=MAP.toS(f.mx,f.my);ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fillStyle=col;ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#000';ctx.stroke();};
   if(cur.mode===1){dot(F[0],'#2bd35a',5);dot(F[F.length-1],'#ff4545',5);}
   for(const m of cur.R.markers){const f=F[m.i];if(!f)continue;const[x,y]=MAP.toS(f.mx,f.my);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-7,y-16);ctx.lineTo(x+7,y-16);ctx.closePath();ctx.fillStyle='#ff9f0a';ctx.fill();ctx.lineWidth=1.5;ctx.strokeStyle='#000';ctx.stroke();}
+  // bike sensor: jumps (an arc, take-off to landing), wheelies (Adventure) and brake points (the lap you're on)
+  const M=cur.A.imu;
+  if(M&&!setup){ctx.font='700 11px Inter,system-ui,sans-serif';ctx.textAlign='center';
+    const tags=[],tag=(t,x,y,col)=>{if(tags.some(q=>Math.abs(q[0]-x)<44&&Math.abs(q[1]-y)<16))return;tags.push([x,y]);ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.75)';ctx.strokeText(t,x,y);ctx.fillStyle=col;ctx.fillText(t,x,y);};
+    const shown=j=>j.i0>=rg.i0&&j.i1<=rg.i1&&!(lap&&(j.i0<lap.i0||j.i0>lap.i1));
+    for(const j of M.jumps){if(!shown(j))continue;const a=MAP.toS(F[j.i0].mx,F[j.i0].my),b=MAP.toS(F[Math.min(F.length-1,j.i1+1)].mx,F[Math.min(F.length-1,j.i1+1)].my);
+      const cx=(a[0]+b[0])/2,cy=(a[1]+b[1])/2-Math.max(12,Math.hypot(b[0]-a[0],b[1]-a[1])*0.6);
+      ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.quadraticCurveTo(cx,cy,b[0],b[1]);ctx.lineWidth=6;ctx.strokeStyle='rgba(0,0,0,.6)';ctx.stroke();ctx.lineWidth=3;ctx.strokeStyle='#f5c84a';ctx.stroke();
+      if(MAP.v.z>=17)tag(j.air.toFixed(2)+' s',cx,(a[1]+b[1])/2-Math.max(12,Math.hypot(b[0]-a[0],b[1]-a[1])*0.6)/2-8,'#f5c84a');}
+    if(cur.mode===1)for(const w of M.wheelies){if(!shown(w))continue;const pa=new Path2D();for(let i=w.i0;i<=w.i1;i++){const[x,y]=MAP.toS(F[i].mx,F[i].my);if(i===w.i0)pa.moveTo(x,y);else pa.lineTo(x,y);}
+      ctx.lineWidth=8;ctx.strokeStyle='rgba(0,0,0,.6)';ctx.stroke(pa);ctx.lineWidth=5;ctx.strokeStyle='#5ce1e6';ctx.stroke(pa);
+      if(MAP.v.z>=16){const[x,y]=MAP.toS(F[(w.i0+w.i1)>>1].mx,F[(w.i0+w.i1)>>1].my);tag('wheelie '+w.dur.toFixed(1)+' s',x,y-10,'#5ce1e6');}}
+    if(cur.mode===0&&lap&&cur.track&&cur.laps.best&&trackTurns().length){
+      const key=lap.n+':'+cur.track.turns.map(t=>t.la+','+t.lo).join(';');if(!cur.bk||cur.bk.key!==key)cur.bk={key,c:lapAtTurns(F,lap,cur.track.turns)};
+      for(const c of cur.bk.c){if(!c||c.brakeM<3)continue;   // under 3 m: rolled in, no real braking
+        const f=F[c.bp],p0=F[Math.max(0,c.bp-2)],p1=F[Math.min(F.length-1,c.bp+2)];const[x,y]=MAP.toS(f.mx,f.my),[x0,y0]=MAP.toS(p0.mx,p0.my),[x1,y1]=MAP.toS(p1.mx,p1.my);
+        let dx=x1-x0,dy=y1-y0;const dl=Math.hypot(dx,dy)||1;dx/=dl;dy/=dl;
+        ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x-dy*9,y+dx*9);ctx.lineTo(x+dy*9,y-dx*9);ctx.lineWidth=7;ctx.strokeStyle='rgba(0,0,0,.7)';ctx.stroke();ctx.lineWidth=4;ctx.strokeStyle='#ff4545';ctx.stroke();
+        if(MAP.v.z>=18)tag(Math.round(c.brakeM)+' m',x+dy*20,y-dx*20+4,'#ff8a8a');}}
+    ctx.textAlign='start';}
   // where the scrub bar is
   {const sl=shownLap(),vl=vsLap(),sf=F[scrub];if(sl&&vl&&sf){const t=vl.t0+(sf.t-sl.t0);if(t<=vl.t1){let i=vl.i0;while(i<vl.i1&&F[i].t<t)i++;const[x,y]=MAP.toS(F[i].mx,F[i].my);
     ctx.beginPath();ctx.arc(x,y,7,0,7);ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--blue');ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#0b0c0e';ctx.stroke();}}}
@@ -1028,6 +1218,8 @@ function renderPoint(){
     const ln=Math.round(Math.abs(f.lean||0));h.push(cell(ln<3?'Upright':ln+'° '+(f.lean>0?'L':'R'),'Lean'));
     const g=f.lg||0;h.push(cell(Math.abs(g)<0.05?'–':Math.abs(g).toFixed(2)+' g',g<-0.05?'Braking':g>0.05?'Driving':'Brake / drive',g<-0.05?'red':g>0.05?'green':''));
     h.push(cell((f.load||0).toFixed(1)+' g','Load'));
+    const jj=cur.A.imu.jumps.find(j=>scrub>=j.i0&&scrub<=j.i1+1);if(jj)h.push(cell(jj.air.toFixed(2)+' s','In the air','yellow'));
+    const ww=cur.mode===1&&cur.A.imu.wheelies.find(w=>scrub>=w.i0&&scrub<=w.i1);if(ww)h.push(cell(ww.dur.toFixed(1)+' s','Wheelie','yellow'));
   }
   if(cur.mode===0&&cur.laps&&cur.laps.length)more.push(cell(fmtDist(f.d),'Distance'));
   more.push(cell(Math.round(f.alt)+' m','Elevation'));
@@ -1256,9 +1448,11 @@ function lapAtTurns(F,l,turns){
     let a=j,b=j;while(a>last&&Math.hypot(F[a-1].x-x,F[a-1].y-y)<30)a--;while(b<l.i1&&Math.hypot(F[b+1].x-x,F[b+1].y-y)<30)b++;
     let m=a;for(let i=a;i<=b;i++)if(F[i].kmh<F[m].kmh)m=i;
     let pk=m;for(let i=m;i>last;i--)if(F[i].kmh>F[pk].kmh)pk=i;
+    // where braking starts: the bike sensor feels it a moment before the GPS speed drops (held 0.3 s, so a bump doesn't count)
+    let bp=pk;if(F[m].lgi!=null)for(let i=Math.max(last,pk-5);i<m;i++){if(F[i].lgi>-0.3)continue;let s=0,c=0;for(let q=i;q<=Math.min(m,i+3);q++){s+=F[q].lgi;c++;}if(s/c<=-0.25){bp=i;break;}}
     let lean=0;for(let i=a;i<=b;i++)if(Math.abs(F[i].lean||0)>Math.abs(lean))lean=F[i].lean||0;
     let ex=m;while(ex<l.i1&&F[ex].d-F[m].d<20)ex++;   // 20 m after the slowest point: how well you drove out
-    out.push({i:j,m,t:F[j].t-F[l.i0].t,v:F[m].kmh,brakeM:Math.max(0,F[m].d-F[pk].d),brakeV:F[pk].kmh,exitV:F[ex].d-F[m].d>=15?F[ex].kmh:null,lean});last=j;}
+    out.push({i:j,m,bp,t:F[j].t-F[l.i0].t,v:F[m].kmh,brakeM:Math.max(0,F[m].d-F[bp].d),brakeV:F[pk].kmh,exitV:F[ex].d-F[m].d>=15?F[ex].kmh:null,lean});last=j;}
   return out;}
 function insightData(){
   const F=cur.R.fixes,L=cur.laps,best=L.best,ok=L.filter(l=>!l.del&&!l.bad),turns=trackTurns();
@@ -1318,14 +1512,25 @@ function renderInsights(){
     <div class="lapAxis"><span>Lap 1</span><span>time behind your best · shorter = closer</span><span>Lap ${L.length}</span></div>${fade}`);
   // turns: best through it this session vs your average
   const tr=D.turns.map((tu,k)=>{const b=D.bestRow[k]&&D.bestRow[k].c[k],v=D.rows.map(r=>r.c[k]).filter(Boolean),lost=D.avgS[k]!==null&&D.bestS[k]!==null?D.avgS[k]-D.bestS[k]:null;
-    return`<tr><td>${esc(tu.name)}</td><td>${b?b.v.toFixed(0):'–'}</td><td>${v.length?mean(v.map(x=>x.v)).toFixed(0):'–'}</td><td>${lost!==null?lost.toFixed(2):'–'}</td></tr>`;}).join('');
-  card('Turns',`<div class="anaTblWrap"><table class="anaTbl"><thead><tr><th>Turn</th><th>Best km/h</th><th>Avg km/h</th><th>Lost s</th></tr></thead><tbody>${tr||'<tr><td colspan="4" class="note">No turns yet</td></tr>'}</tbody></table></div>
-    <p class="note" style="margin:8px 0 0">Slowest speed through each turn: your best this session against your average.</p>`);
+    return`<tr><td>${esc(tu.name)}</td><td>${b?b.v.toFixed(0):'–'}</td><td>${v.length?mean(v.map(x=>x.v)).toFixed(0):'–'}</td><td>${v.length?Math.round(mean(v.map(x=>x.brakeM)))+(b?' <span class="note">('+Math.round(b.brakeM)+')</span>':''):'–'}</td><td>${lost!==null?lost.toFixed(2):'–'}</td></tr>`;}).join('');
+  card('Turns',`<div class="anaTblWrap"><table class="anaTbl"><thead><tr><th>Turn</th><th>Best km/h</th><th>Avg km/h</th><th>Brake m</th><th>Lost s</th></tr></thead><tbody>${tr||'<tr><td colspan="5" class="note">No turns yet</td></tr>'}</tbody></table></div>
+    <p class="note" style="margin:8px 0 0">Slowest speed through each turn: your best this session against your average. Brake m = how far before the turn you start braking on average (your best time through there in brackets). Red marks on the map show them for the lap you're on.</p>`);
+  const JS=jumpSpots();
+  if(JS.length){const all=JS.flatMap(s=>s.js),top=all.reduce((m,j)=>!m||j.air>m.air?j:m,null);
+    card('Jumps',`<div class="anaTblWrap"><table class="anaTbl"><thead><tr><th>Jump</th><th>Times</th><th>Best air</th><th>Avg air</th><th>Longest</th></tr></thead><tbody>${JS.map((s,k)=>{const b=s.js.reduce((m,j)=>!m||j.air>m.air?j:m,null);
+      return`<tr class="tap" data-ji="${s.js[0].i0}"><td>Jump ${k+1}</td><td>${s.js.length}</td><td class="purple">${b.air.toFixed(2)} s</td><td>${mean(s.js.map(j=>j.air)).toFixed(2)} s</td><td>${Math.round(Math.max(...s.js.map(j=>j.len)))} m</td></tr>`;}).join('')}</tbody></table></div>
+      <p class="note" style="margin:8px 0 0">${all.length} jump${all.length>1?'s':''} this session · most air ${top.air.toFixed(2)} s on lap ${top.lap}. Air time comes from the bike sensor feeling weightless (rough); length is the GPS distance from take-off to landing. Tap one to see it on the map.</p>`);}
   if(S0.length>=2)card('Starts',startsTable(S0));
   P.innerHTML=out.join('');
   P.querySelectorAll('.anaRow.tap').forEach(r=>r.onclick=()=>showTurn(+r.dataset.turn,D));
+  P.querySelectorAll('tr[data-ji]').forEach(r=>r.onclick=()=>{const i=+r.dataset.ji,f=cur.R.fixes[i];goRideTab();requestAnimationFrame(()=>{$('map').scrollIntoView({block:'center'});setScrub(i,false);MAP.v.z=Math.max(MAP.v.z,18);MAP.centreOn(f.mx,f.my);});});
   P.querySelectorAll('.lapBars i').forEach(b=>b.onclick=()=>{const l=cur.laps.find(x=>x.n===+b.dataset.lap);if(!l)return;goRideTab();setScrub(l.i0,false);MAP.fit(cur.R.fixes.slice(l.i0,l.i1+1));});
 }
+// jumps grouped by spot on the track (take-offs within 20 m), in lap order; only laps that count
+function jumpSpots(){const M=cur.A.imu;if(!M||!M.jumps.length||!cur.laps)return[];const F=cur.R.fixes,sp=[];
+  for(const j of M.jumps){const l=cur.laps.find(x=>!x.del&&j.i0>=x.i0&&j.i0<=x.i1);if(!l)continue;const f=F[j.i0];
+    let s=sp.find(s=>Math.hypot(s.x-f.x,s.y-f.y)<20);if(!s){s={x:f.x,y:f.y,at:f.d-F[l.i0].d,js:[]};sp.push(s);}s.js.push(Object.assign({lap:l.n},j));}
+  return sp.sort((a,b)=>a.at-b.at);}
 function showTurn(k,D){   // the part of the lap behind this tip: on your average-ish lap, at the turn
   const tu=D.turns[Math.min(k,D.turns.length-1)];if(!tu){goRideTab();return;}
   const r=D.bestRow[k]||D.rows[0],c=r&&r.c[Math.min(k,D.turns.length-1)];goRideTab();
@@ -1376,7 +1581,6 @@ function renderRide(){
     const rg=rng(),F=cur.R.fixes;let mv=0;for(let i=rg.i0+1;i<=rg.i1;i++){const f=F[i],p=F[i-1];if(!f.brk&&f.mv&&p.mv&&f.kmh>=2&&p.kmh>=2)mv+=f.t-p.t;}
     h.push(stat(fmtDist(F[rg.i1].d-F[rg.i0].d),'Distance'));
     h.push(stat(fmtDur(mv),'Riding time'));
-    h.push(stat(fmtDur(F[rg.i1].t-F[rg.i0].t),'On track'));
   }else{
     h.push(stat(fmtDist(A.dist),'Distance','',true));
     h.push(stat(fmtDur(A.moving),'Riding time'));
@@ -1387,7 +1591,9 @@ function renderRide(){
     h.push(stat(Math.round(A.climb)+' m','Climbed'));
   }
   const M=A.imu;   // bike sensor (rough): lean and braking, in with the rest
-  if(M){h.push(stat(Math.round(M.maxL)+'°','Max lean L'));h.push(stat(Math.round(M.maxR)+'°','Max lean R'));h.push(stat(M.maxB?M.maxB.toFixed(2)+' g':'–','Hardest braking'));}
+  if(M){h.push(stat(Math.round(M.maxL)+'°','Max lean L'));h.push(stat(Math.round(M.maxR)+'°','Max lean R'));h.push(stat(M.maxB?M.maxB.toFixed(2)+' g':'–','Max braking'));
+    h.push(stat(M.jumps.length,'Jumps'));h.push(stat(M.mostAir?M.mostAir.air.toFixed(2)+' s':'–','Most air'));
+    if(cur.mode===1){h.push(stat(M.wheelies.length,'Wheelies'));h.push(stat(M.longWh?M.longWh.dur.toFixed(1)+' s':'–','Top wheelie'));}}
   $('summary').innerHTML=h.join('');
   // track banner
   const bn=$('trackBanner');
@@ -1811,7 +2017,10 @@ function onState(){if(!S)return;const key=S.ride.active?S.ride.n:0;
   lastRecKey=key;}
 async function refreshState(){
   if(!BLE.ok||BLE.quiet)return;
-  try{S=await BLE.json('state');}catch(x){return;}
+  if(RACE.on)return;                       // race mode polls the base itself
+  let st;try{st=await BLE.json('state');}catch(x){return;}
+  if(st&&st.base){RACE.enter(st);return;}  // it's a base station: race control
+  S=st;
   if(S.id)LS.set('mxUnit',S.id);   // rides are filed under the unit's fixed id (MX-xxxx), so renaming the unit changes nothing
   onState();
   hdrName();
@@ -1948,6 +2157,8 @@ function rideNotes(no,R,A,laps,track,e){
   if(R.health.length){const H=R.health,mx=k=>H.reduce((a,x)=>Math.max(a,x[k]),-1e9),mn=k=>H.reduce((a,x)=>Math.min(a,x[k]),1e9);
     p('Unit: missed fixes ',mx('missed'),' · longest gap ',mx('maxGap'),' ms · slowest loop ',(mx('loopUs')/1000).toFixed(1),' ms · ',mn('temp'),'-',mx('temp'),' C');}
   const I=A.imu;p(I?'Bike sensor ('+(I.samples/Math.max(1,A.dur)).toFixed(0)+'/s, rough): max lean L '+I.maxL.toFixed(0)+' / R '+I.maxR.toFixed(0)+' deg · hardest braking '+I.maxB.toFixed(2)+' g · hardest accel '+I.maxA.toFixed(2)+' g':'Bike sensor: no data');
+  if(I&&I.jumps.length){p('JUMPS (air time from the sensor, length from GPS)');for(const j of I.jumps)p('  at ',fmtDur(F[j.i0].t),'  ',F[j.i0].lat.toFixed(6),',',F[j.i0].lon.toFixed(6),'  air ',j.air.toFixed(2),' s  ',Math.round(j.len),' m  landing ',j.land.toFixed(1),' g');}
+  if(I&&I.wheelies.length){p('WHEELIES');for(const w of I.wheelies)p('  at ',fmtDur(F[w.i0].t),'  ',w.dur.toFixed(1),' s  ',Math.round(w.len),' m  front up ',Math.round(w.deg),' deg');}
   if(laps&&laps.length){
     const best=laps.best,ok=laps.filter(l=>!l.del&&!l.bad);
     p('');p('LAPS - track "',track?track.name:'?','"',track?' · finish line '+track.fin.map(v=>v.toFixed(6)).join(',')+' heading '+track.dir:'');
@@ -2018,11 +2229,203 @@ $('fwGo').onclick=async()=>{
 // Everything loads from the phone first (works with the unit off), then refreshes from the unit once connected.
 async function startData(){
   await refreshState();
+  if(RACE.on)return;
   if(BLE.ok){try{if(LS.get('mxTrPending','0')==='1')await saveTracks();
     else{const t=await BLE.json('tracks','',{wait:10000});if(t&&Array.isArray(t.tracks)){TR=t;LS.set('mxTracks',JSON.stringify(TR));}}}catch(x){}}
   await loadRides();
   if(view==='live'||!cur)show('live');      // Live first: the ride being recorded, building up as you ride
 }
+/* ================================================================ RACE MODE
+   Connected to a base station (RT-Base-xxxx) instead of a unit, the whole app becomes race control:
+   live map on top, timing tower below, Practice | Race | History. The base runs everything (it keeps going
+   with this phone in a pocket); this screen shows it and sends the commands.
+   From the base: state once a second (session, bikes, positions, GPS time) + the session's timing
+   ("ev <from>": starts, sectors, laps with GPS times). The tower is rebuilt from those, with the same rules
+   the base uses: race order = laps / furthest timing line / first there; practice order = best lap.        */
+const RACE=(()=>{
+  const COLS=['#4fb0ff','#ff9a3c','#ff6fae','#3fd9c5','#c6e85a','#b388ff','#ffd54a','#b0b0b0'];
+  const OK_OPS=new Set(['state','ev','sess','track','flag','ident','log','clear']);
+  let on=false,BS=null,pollAt=0,tab='practice',timer=null,busy=false,histOpen=null,delArm=0,lenKind='laps',raceLen={laps:6,time:10},trackSent=false;
+  let SS=null,evNext=0,lastOrder=new Map();const identAt=new Map();
+  // ---------- session model, rebuilt from the base's timing
+  function newSS(id){return{id,riders:new Map(),bestLap:null,bestSec:[],lineTimes:new Map(),saved:false};}
+  const nsec=()=>((BS&&BS.track&&BS.track.nSec)||0)+1;
+  const utcNow=()=>BS&&BS.utc>=0?(BS.utc+(Date.now()-pollAt))%86400000:null;
+  const udiff=(a,b)=>((a-b)%86400000+86400000)%86400000;
+  function rider(i){let r=SS.riders.get(i);if(!r){r={i,laps:[],best:null,last:null,cur:[],prevCur:null,secBest:[],lapsDone:0,lineKey:-1,lineUtc:0,react:null,jump:false};SS.riders.set(i,r);}return r;}
+  const colourFor=(ms,overall,own)=>!overall||ms<=overall?'p':!own||ms<=own?'g':'y';
+  function cross(r){if(!SS.lineTimes.has(r.lineKey))SS.lineTimes.set(r.lineKey,new Map());SS.lineTimes.get(r.lineKey).set(r.i,r.lineUtc);}
+  function apply(e){const [bi,kind,lapNo,sec,flags,ms,utc]=e,r=rider(bi),N=nsec();
+    if(kind===3){r.react=flags?null:ms;r.jump=!!flags;return;}
+    if(kind===2){const done=lapNo-1;if(sec===0)r.prevCur=null;
+      r.cur[sec]={ms,c:colourFor(ms,SS.bestSec[sec],r.secBest[sec])};
+      if(!flags){if(!r.secBest[sec]||ms<r.secBest[sec])r.secBest[sec]=ms;if(!SS.bestSec[sec]||ms<SS.bestSec[sec])SS.bestSec[sec]=ms;}
+      const k=done*N+sec+1;if(k>=r.lineKey){r.lineKey=k;r.lineUtc=utc;cross(r);}return;}
+    if(kind===1){const c=flags?'y':colourFor(ms,SS.bestLap,r.best);r.last={ms,c};r.laps.push(ms);
+      if(!flags){if(!r.best||ms<r.best)r.best=ms;if(!SS.bestLap||ms<SS.bestLap)SS.bestLap=ms;}
+      r.lapsDone=Math.max(r.lapsDone,lapNo);r.prevCur=r.cur.slice();r.cur=[];const k=lapNo*N;if(k>=r.lineKey){r.lineKey=k;r.lineUtc=utc;cross(r);}}}
+  // ---------- who's in, in what order
+  const sk=()=>BS&&BS.sess?BS.sess.kind:0, ph=()=>BS&&BS.sess?BS.sess.phase:0;
+  function bike(i){return BS&&BS.bikes.find(b=>b.i===i);}
+  function entrants(){const R=[];for(const b of (BS?BS.bikes:[])){if(!b.in&&!(SS&&SS.riders.has(b.i)))continue;const r=SS?rider(b.i):null;if(r)R.push(r);}return R;}
+  function order(){const R=entrants(),race=sk()===2;
+    if(!race)return R.sort((a,b)=>(a.best||9e9)-(b.best||9e9)||a.i-b.i);
+    return R.sort((a,b)=>b.lineKey-a.lineKey||(a.lineKey>=0?udiff(a.lineUtc,b.lineUtc)<43200000?1:-1:0)||((bike(a.i)||{}).grid||0)-((bike(b.i)||{}).grid||0));}
+  const fmtLap=ms=>{if(ms==null)return'–';const s=ms/1000,m=Math.floor(s/60);return m?m+':'+(s-m*60).toFixed(2).padStart(5,'0'):s.toFixed(2);};
+  const fmtGap=ms=>ms==null?'':'+'+(ms/1000).toFixed(ms<100000?2:1);
+  const fmtClock=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+  function gapOf(r,lead){
+    if(sk()!==2)return r.best&&lead.best&&r!==lead?fmtGap(r.best-lead.best):'';
+    if(r===lead||r.lineKey<0)return r===lead&&r.lineKey>=0?'Leader':'';
+    const down=Math.floor((lead.lineKey-r.lineKey)/nsec());if(down>=1)return'+'+down+' lap'+(down>1?'s':'');
+    const m=SS.lineTimes.get(r.lineKey),t=m&&m.get(lead.i);return t!=null?fmtGap(udiff(r.lineUtc,t)):'';}
+  function interval(r,ahead){if(!ahead)return null;const m=SS.lineTimes.get(r.lineKey),t=m&&m.get(ahead.i);return t!=null&&ahead.lineKey>=r.lineKey&&ahead.lineKey-r.lineKey<nsec()?udiff(r.lineUtc,t):null;}
+  // ---------- the base
+  async function cmd(op,args){try{const r=await BLE.json(op,args||'');if(r&&r.base){BS=r;pollAt=Date.now();}render();return r;}catch(e){toast(e.message||'The base didn\'t answer');throw e;}}
+  async function poll(){if(!on||busy||!BLE.ok)return;busy=true;
+    try{const st=await BLE.json('state');BS=st;pollAt=Date.now();
+      if(!trackSent)await sendTrack();
+      const sid=st.sess.kind?st.sess.id:0;
+      if(!SS||SS.id!==sid){SS=newSS(sid);evNext=0;lastOrder=new Map();if(sid&&st.sess.kind===2&&tab!=='history')tab='race';else if(sid&&st.sess.kind===1&&tab!=='history')tab='practice';segOn();}
+      for(let k=0;k<10&&evNext<st.sess.evN;k++){const r=await BLE.json('ev',String(evNext));if(r.sess!==SS.id)break;r.evs.forEach(apply);evNext=Math.max(r.next,evNext);if(r.next<=r.from)break;}
+      maybeSave();render();moveDots();}
+    catch(e){}finally{busy=false;}}
+  // The base keeps one track: the one you pick here (it sends it to every unit, so mates' units need no setup)
+  function trackFor(){const want=LS.get('rtRaceTrack','');return TR.tracks.find(t=>t.name===want)||(BS&&BS.track&&TR.tracks.find(t=>t.name.slice(0,15)===BS.track.name))||TR.tracks[0]||null;}
+  function trackText(t){const g=(v,d)=>[v[0],v[1],v[2],v[3]].map(x=>(+x).toFixed(7)).join(',')+','+(+d||0).toFixed(1);
+    return t.name.replace(/[;|]/g,' ').slice(0,15)+';'+(t.startM||60)+';'+Math.round(t.minLap||20)+';'+g(t.fin,t.dir)+(t.sec||[]).map(s=>';'+g(s,s[4])).join('');}
+  async function sendTrack(){const t=trackFor();trackSent=true;if(!t)return;
+    if(BS&&BS.track&&BS.track.name===t.name.replace(/[;|]/g,' ').slice(0,15)&&BS.track.nSec===(t.sec||[]).length)return;
+    try{await cmd('track',trackText(t));toast('Track sent to the base: '+t.name);drawTrack();}catch(e){}}
+  // ---------- map (Leaflet, satellite) - needs internet for the pictures; the tower works without it
+  let L=null,map=null,trackLayer=null;const dots=new Map();let leafletLoading=null;
+  function loadLeaflet(){if(window.L)return Promise.resolve(window.L);if(leafletLoading)return leafletLoading;
+    leafletLoading=new Promise((res,rej)=>{const c=document.createElement('link');c.rel='stylesheet';c.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';document.head.appendChild(c);
+      const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';s.onload=()=>res(window.L);s.onerror=()=>{leafletLoading=null;rej(new Error('no map'));};document.head.appendChild(s);});return leafletLoading;}
+  async function ensureMap(){if(map)return;try{L=await loadLeaflet();}catch(e){$('rMapMsg').textContent='The map needs internet - timing still works';$('rMapMsg').hidden=false;return;}
+    $('rMapMsg').hidden=true;map=L.map('rMap',{zoomControl:false,attributionControl:false});
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,maxNativeZoom:18}).addTo(map);
+    map.setView([-43.5,172.2],16);drawTrack();}
+  function drawTrack(){if(!map)return;if(trackLayer)trackLayer.remove();trackLayer=L.layerGroup().addTo(map);const t=trackFor();if(!t)return;
+    if(t.line&&t.line.length>2){L.polyline(t.line,{color:'#fff',weight:3,opacity:.55}).addTo(trackLayer);map.fitBounds(L.latLngBounds(t.line).pad(.08));}
+    const gate=(g,c)=>L.polyline([[g[0],g[1]],[g[2],g[3]]],{color:c,weight:4}).addTo(trackLayer);gate(t.fin,'#fff');(t.sec||[]).forEach(s=>gate(s,'#b06cff'));
+    if(!(t.line&&t.line.length>2))map.setView([(t.fin[0]+t.fin[2])/2,(t.fin[1]+t.fin[3])/2],17);}
+  function moveDots(){if(!map||!BS)return;for(const b of BS.bikes){if(!b.lat||b.ago>30000){const d=dots.get(b.i);if(d){d.remove();dots.delete(b.i);}continue;}
+    let d=dots.get(b.i);const col=COLS[b.i%COLS.length];
+    if(!d){d=L.marker([b.lat,b.lon],{icon:L.divIcon({className:'',html:`<div class="rdot" style="background:${col}">${esc((b.name||'?')[0])}</div>`,iconSize:[22,22],iconAnchor:[11,11]})}).addTo(map);dots.set(b.i,d);}
+    d.setLatLng([b.lat,b.lon]);}}
+  // ---------- screen
+  function segOn(){document.querySelectorAll('#rSeg button').forEach(x=>x.classList.toggle('on',x.dataset.t===tab));
+    const h=tab==='history';['rCtl','rMapBox','rTower','rFlagRow'].forEach(id=>$(id).hidden=h);$('rHist').hidden=!h;if(!h&&map)setTimeout(()=>map.invalidateSize(),50);}
+  function render(){if(!on)return;
+    $('rBase').textContent=BS?BS.unit:'Base';
+    {const p=$('pill'),live=BLE.ok&&BS;p.className='pill '+(live?'g':'r');p.innerHTML='<i></i>'+(live?'Base · '+(BS.bikes.filter(b=>b.ago<10000).length)+' unit'+(BS.bikes.filter(b=>b.ago<10000).length===1?'':'s'):'Base out of range');}
+    const t=BS&&BS.track;$('rTrack').textContent=t?t.name+' · '+(t.nSec+1)+' sectors':'No track yet';
+    $('rRed').classList.toggle('on',!!(BS&&BS.red));$('rRed').textContent=BS&&BS.red?'Lift red flag':'Red flag';
+    if(tab==='history'){renderHist();return;}
+    renderCtl();renderTower();}
+  function renderCtl(){const c=$('rCtl');const kind=sk(),p=ph(),now=utcNow(),S=BS&&BS.sess;let h='';
+    if(tab==='practice'){
+      if(kind===1&&p===2){const el=now!=null&&S.startUtc?udiff(now,S.startUtc):0,O=order();
+        h=`<div class="status"><div class="clock">${fmtClock(el/1000)}</div><div class="what"><b>Practice · open</b><span>${SS.bestLap?'Fastest '+fmtLap(SS.bestLap)+' · '+esc((bike(O[0].i)||{}).name||''):'Every unit is recording - laps show as riders cross the line'}</span></div><button class="btn" id="rEnd">End</button></div>`;}
+      else h=`<div class="status"><div class="what"><b>${kind===1?'Practice ended':'Practice'}</b><span>${BS&&BS.bikes.length?BS.bikes.length+' unit'+(BS.bikes.length>1?'s':'')+' heard':'No units heard yet - switch them on with Live timing on'}</span></div><button class="btn pri" id="rPrac">Start practice</button></div>`;}
+    else{
+      if(kind!==2||p===0){
+        h=`<div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap"><div class="seg" id="rLen" style="flex:1;max-width:220px;margin:0"><button data-k="laps"${lenKind==='laps'?' class="on"':''}>Laps</button><button data-k="time"${lenKind==='time'?' class="on"':''}>Time</button></div>
+          <div class="stepper"><button id="rLm">−</button><b>${lenKind==='laps'?raceLen.laps+' laps':raceLen.time+' min'}</b><button id="rLp">+</button></div></div>
+          <p class="note" style="margin:10px 0">${lenKind==='laps'?'Ends when the leader finishes lap '+raceLen.laps+'.':'After '+raceLen.time+' min, ends when the leader next crosses the line.'} Every unit starts recording, goes red, then lights out after a random hold - all together.</p>
+          <button class="btn pri" id="rGo" style="width:100%">Start race · lights in 10 s</button>`;}
+      else{let clock='',what='',sub='',lights='<div class="lightsR"><i></i><i></i><i></i></div>',btn='';
+        if(p===1){const toRed=now!=null?udiff(S.redUtc,now):0,red=now!=null&&udiff(now,S.redUtc)<43200000;
+          if(!red){clock=fmtClock(toRed/1000);what='Get ready';sub='Lights go red on every bike in '+Math.ceil(toRed/1000)+' s';}else{lights='<div class="lightsR red"><i></i><i></i><i></i></div>';what='Lights red';sub='Out any moment';}}
+        else if(p===2){const el=now!=null?udiff(now,S.goUtc):0,lead=order()[0];
+          if(S.lenKind===0){clock='Lap '+Math.min(S.len,(lead?lead.lapsDone:0)+1)+'/'+S.len;what='Race';sub=fmtClock(el/1000)+' gone';}
+          else{const left=S.len*60000-el;clock=left>0?fmtClock(left/1000):'+1 lap';what='Race';sub=left>0?'Then the leader\'s next lap':'Last lap for the leader';}
+          if(el<1500)lights='<div class="lightsR go"><i></i><i></i><i></i></div>';}
+        else if(p===3){lights='<div class="chq"></div>';what='Chequered flag';sub='Everyone finishes the lap they\'re on';}
+        else if(p===4){const O=order();lights='<div class="chq"></div>';what='Results';sub=(S.lenKind===0?S.len+' laps':S.len+' min + 1 lap')+(O[0]?' · winner '+esc((bike(O[0].i)||{}).name||''):'');btn='<button class="btn pri" id="rAgain">New race</button>';}
+        h=`<div class="status">${lights}${clock?`<div class="clock">${clock}</div>`:''}<div class="what"><b>${what}</b><span>${sub}</span></div>${btn||'<button class="btn" id="rStop">Stop</button>'}</div>`;}}
+    if(BS&&BS.red)h=`<div class="redBar"><i></i>RED FLAG · every bike is flashing red</div>`+h;
+    c.innerHTML=h;
+    const on=(id,f)=>{const e=$(id);if(e)e.onclick=f;};
+    on('rPrac',()=>cmd('sess','practice').then(()=>toast('Practice started - every unit is recording')).catch(()=>{}));
+    on('rEnd',()=>cmd('sess','end').catch(()=>{}));
+    on('rGo',()=>cmd('sess','race '+(lenKind==='laps'?'L '+raceLen.laps:'T '+raceLen.time)).catch(()=>{}));
+    on('rStop',()=>{const b=$('rStop');if(b.dataset.arm!=='1'){b.dataset.arm='1';b.textContent='Tap again';setTimeout(()=>{if(b.isConnected){b.dataset.arm='';b.textContent='Stop';}},3000);return;}cmd('sess','end').then(()=>cmd('sess','clear')).catch(()=>{});});
+    on('rAgain',()=>cmd('sess','clear').catch(()=>{}));
+    if($('rLen'))$('rLen').onclick=e=>{const b=e.target.closest('button');if(b){lenKind=b.dataset.k;renderCtl();}};
+    on('rLm',()=>{if(lenKind==='laps')raceLen.laps=Math.max(1,raceLen.laps-1);else raceLen.time=Math.max(1,raceLen.time-1);renderCtl();});
+    on('rLp',()=>{if(lenKind==='laps')raceLen.laps=Math.min(50,raceLen.laps+1);else raceLen.time=Math.min(60,raceLen.time+1);renderCtl();});}
+  function renderTower(){const t=$('rTower');
+    const showSess=(tab==='practice'&&sk()===1)||(tab==='race'&&sk()===2&&ph()>0);
+    if(!BS||!SS){t.innerHTML='';return;}
+    const race=tab==='race';
+    if(!showSess){   // no session on this tab: who's here
+      t.innerHTML=`<div class="tr head"><span>#</span><span></span><span>Units heard</span><span class="cc"></span><span class="cc">Speed</span><span class="cc">Battery</span></div>`+
+        (BS.bikes.length?BS.bikes.map((b,i)=>`<div class="tr${(identAt.get(b.i)||0)>Date.now()?' ident':''}" data-i="${b.i}"><span class="pos cm">·</span><span class="swc" style="background:${COLS[b.i%COLS.length]}"></span><span class="nm"><span class="top"><b>${esc(b.name||b.mac)}</b>${b.ago>10000?'<span class="rtag off">GONE</span>':''}</span></span><span class="cc"></span><span class="cc">${b.kmh.toFixed(0)}<small>km/h</small></span><span class="cc ${b.batt>=0&&b.batt<=20?'cr':''}">${b.batt>=0?b.batt+'%':'–'}</span></div>`).join(''):'<div class="tr"><span></span><span></span><span class="nm cm">Turn units on with Settings > Live timing on</span><span></span><span></span><span></span></div>');return;}
+    const O=order(),lead=O[0];
+    let h=`<div class="tr head"><span>#</span><span></span><span>Rider</span><span class="cc">Gap</span><span class="cc">Last</span><span class="cc">Best</span></div>`;
+    O.forEach((r,i)=>{const b=bike(r.i)||{},prev=lastOrder.get(r.i),moved=race&&prev!=null&&ph()>=2?prev-i:0,g=gapOf(r,lead),iv=race&&i>0?interval(r,O[i-1]):null,N=nsec();
+      const secs=Array.from({length:N},(_,k)=>{const x=r.cur[k]||(r.prevCur&&!r.cur.some(Boolean)?r.prevCur[k]:null);return`<i class="${x?x.c:''}"></i>`;}).join('');
+      const tags=(b.batt>=0&&b.batt<=20?`<span class="bat">▮${b.batt}%</span>`:'')+(r.jump?'<span class="rtag js">JUMP</span>':'')+(race&&b.fin&&ph()===3?'<span class="rtag fin">FIN</span>':'')+(b.ago>10000&&ph()<4?'<span class="rtag off">NO SIGNAL</span>':'');
+      h+=`<div class="tr${(identAt.get(r.i)||0)>Date.now()?' ident':''}" data-i="${r.i}"><span class="pos">${i+1}${moved?`<span class="arrow ${moved>0?'cg':'cr'}">${moved>0?'▲':'▼'}</span>`:''}</span><span class="swc" style="background:${COLS[r.i%COLS.length]}"></span>
+        <span class="nm"><span class="top"><b>${esc(b.name||'?')}</b>${tags}</span><span class="secs">${secs}</span></span>
+        <span class="cc">${g==='Leader'?'<span class="cm">'+(ph()===4?'Winner':'Leader')+'</span>':esc(g)}${iv!=null&&g.indexOf('lap')<0?`<small>${fmtGap(iv)} int</small>`:race&&r.lapsDone<1&&(r.react!=null||r.jump)?`<small>${r.jump?'jump':(r.react/1000).toFixed(2)+' s'}</small>`:''}</span>
+        <span class="cc ${r.last?'c'+r.last.c:''}">${r.last?fmtLap(r.last.ms):'–'}${race?`<small>L${r.lapsDone}</small>`:''}</span>
+        <span class="cc ${r.best&&r.best===SS.bestLap?'cp':''}">${fmtLap(r.best)}${!race?`<small>${r.laps.length} lap${r.laps.length===1?'':'s'}</small>`:''}</span></div>`;});
+    t.innerHTML=h;if(race&&ph()>=2)lastOrder=new Map(O.map((r,i)=>[r.i,i]));}
+  // ---------- history (kept on this phone)
+  const HKEY='rtRaceHistory';
+  function getHist(){try{return JSON.parse(LS.get(HKEY,'[]'));}catch(e){return[];}}
+  function maybeSave(){if(!SS||SS.saved||!SS.id)return;const k=sk(),p=ph();if(!((k===1&&p===4)||(k===2&&p===4)))return;
+    const H=getHist();if(H.some(h=>h.sid===SS.id)){SS.saved=true;return;}
+    const O=order(),lead=O[0];if(!O.length){SS.saved=true;return;}
+    const S=BS.sess,rows=O.map(r=>{const b=bike(r.i)||{};return{name:b.name||'?',col:COLS[r.i%COLS.length],gap:gapOf(r,lead),best:r.best,laps:r.laps.length,react:r.react,jump:r.jump,bestOverall:!!(r.best&&r.best===SS.bestLap)};});
+    H.unshift({id:Date.now(),sid:SS.id,kind:k===2?'race':'practice',when:Date.now(),track:(BS.track||{}).name||'Track',lenKind:S.lenKind?'time':'laps',len:S.len,
+      mins:k===1&&S.startUtc?Math.round(udiff(utcNow()||S.startUtc,S.startUtc)/60000):null,best:SS.bestLap,bestBy:((O.find(r=>r.best===SS.bestLap)&&bike(O.find(r=>r.best===SS.bestLap).i))||{}).name,rows});
+    LS.set(HKEY,JSON.stringify(H.slice(0,200)));SS.saved=true;toast(k===2?'Race saved to History':'Practice saved to History');}
+  const whenStr=t=>{const d=new Date(t);return d.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'})+' · '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});};
+  function renderHist(){const el=$('rHist'),H=getHist();
+    if(histOpen!=null){const x=H.find(h=>h.id===histOpen);if(!x){histOpen=null;return renderHist();}const race=x.kind==='race';
+      el.innerHTML=`<button class="rback" id="rhBack">‹ History</button>
+        <div class="card" style="margin:6px 0 10px"><div class="status">${race?'<div class="chq"></div>':''}<div class="what"><b>${race?'Race · '+(x.lenKind==='laps'?x.len+' laps':x.len+' min + 1 lap'):'Practice'+(x.mins!=null?' · '+x.mins+' min':'')}</b><span>${esc(x.track)} · ${whenStr(x.when)}</span></div></div></div>
+        <div class="tower"><div class="tr head"><span>#</span><span></span><span>Rider</span><span class="cc">Gap</span><span class="cc">${race?'Start':'Laps'}</span><span class="cc">Best</span></div>
+        ${x.rows.map((r,i)=>`<div class="tr"><span class="pos">${i+1}</span><span class="swc" style="background:${r.col}"></span><span class="nm"><span class="top"><b>${esc(r.name)}</b>${r.jump?'<span class="rtag js">JUMP</span>':''}</span></span>
+          <span class="cc">${i?esc(r.gap||''):(race?'<span class="cm">Winner</span>':'')}</span><span class="cc">${race?(r.jump?'<span class="cr">jump</span>':r.react!=null?(r.react/1000).toFixed(2)+' s':'–'):r.laps}</span><span class="cc ${r.bestOverall?'cp':''}">${fmtLap(r.best)}</span></div>`).join('')}</div>
+        <div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn danger" id="rhDel">Delete</button></div>`;
+      $('rhBack').onclick=()=>{histOpen=null;renderHist();};
+      $('rhDel').onclick=()=>{if(Date.now()-delArm>3000){delArm=Date.now();$('rhDel').textContent='Tap again to delete';return;}LS.set(HKEY,JSON.stringify(getHist().filter(h=>h.id!==x.id)));histOpen=null;renderHist();};return;}
+    if(!H.length){el.innerHTML='<div class="card"><p class="note" style="margin:0">No sessions yet. Finished races and practice sessions are kept here.</p></div>';return;}
+    el.innerHTML=H.map(x=>{const race=x.kind==='race',w=x.rows[0]||{};return`<button class="hcard" data-id="${x.id}"><span class="k">${race?'<span class="chq" style="width:18px;height:13px;background-size:6px 6px"></span>':'<b style="font-size:13px">P</b>'}</span>
+      <span class="t"><b>${race?'Race · '+(x.lenKind==='laps'?x.len+' laps':x.len+' min'):'Practice'}</b><span>${whenStr(x.when)} · ${x.rows.length} rider${x.rows.length===1?'':'s'}</span></span>
+      <span class="v">${race?esc(w.name||''):fmtLap(x.best)}<small>${race?'winner':'fastest · '+esc(x.bestBy||'')}</small></span></button>`;}).join('');
+    el.querySelectorAll('.hcard').forEach(b=>b.onclick=()=>{histOpen=+b.dataset.id;renderHist();window.scrollTo(0,0);});}
+  // ---------- in / out
+  function wire(){
+    $('rSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;tab=b.dataset.t;histOpen=null;segOn();render();};
+    $('rRed').onclick=async()=>{if(!BS)return;const lift=BS.red;try{await cmd('flag',lift?'clear':'red');
+      if(lift&&sk()===2&&ph()>=1&&ph()<4){await cmd('sess','end');await cmd('sess','clear');toast('Red flag lifted - back to the grid to restart');}else toast(lift?'Red flag lifted':'Red flag: every unit is flashing red');}catch(e){}};
+    $('rTower').addEventListener('click',e=>{const row=e.target.closest('.tr[data-i]');if(!row)return;const i=+row.dataset.i,b=bike(i);identAt.set(i,Date.now()+6000);
+      cmd('ident',String(i)).then(()=>toast((b?b.name:'That')+'\'s unit is blinking blue and white for 6 s')).catch(()=>{});renderTower();});
+    $('rLeave').onclick=()=>leave();
+    $('rTrackBtn').onclick=()=>{const names=TR.tracks.map(t=>t.name);if(!names.length){toast('No tracks saved on this phone yet');return;}
+      const cur=trackFor(),i=Math.max(0,names.indexOf(cur?cur.name:''));const next=TR.tracks[(i+1)%TR.tracks.length];LS.set('rtRaceTrack',next.name);trackSent=false;toast('Track: '+next.name);poll();};}
+  let wired=false;
+  function enter(st){BS=st;pollAt=Date.now();if(on){render();return;}on=true;if(!wired){wire();wired=true;}
+    document.body.classList.add('race');$('v-race').hidden=false;trackSent=false;SS=null;
+    if(st.sess&&st.sess.kind===2)tab='race';segOn();render();ensureMap().then(()=>{drawTrack();moveDots();});
+    clearInterval(timer);timer=setInterval(()=>{poll();if(on&&tab!=='history')renderCtl();},1000);poll();}
+  function exit(){if(!on)return;on=false;clearInterval(timer);document.body.classList.remove('race');$('v-race').hidden=true;BS=null;SS=null;show('live');}
+  async function leave(){const d=BLE.dev;exit();BLE.dev=null;BLE.ok=false;try{d&&d.gatt&&d.gatt.disconnect();}catch(e){}
+    connChanged();if(BLE.supported()&&await BLE.remembered()){await startData();}else toast('Left race mode');}
+  return{get on(){return on;},enter,exit,allowed:op=>OK_OPS.has(op)};
+})();
+// Settings > Live timing: "Race control" - connect this phone to a base station
+async function pickBase(){if(!BLE.supported()){toast('This browser can\'t do Bluetooth');return;}
+  try{const d=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'RT-Base'}],optionalServices:[SVC]});
+    const old=BLE.dev;BLE.dev=null;BLE.ok=false;try{old&&old.gatt&&old.gatt.disconnect();}catch(e){}
+    BLE.dev=d;BLE.watch();await BLE.open();await refreshState();}catch(e){if(e&&e.name!=='NotFoundError')toast('Couldn\'t connect to the base: '+(e.message||e));}}
+$('raceBtn').onclick=()=>pickBase();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 (async()=>{
   try{TR=JSON.parse(LS.get('mxTracks','{"tracks":[]}'));if(!Array.isArray(TR.tracks))TR={tracks:[]};}catch(x){TR={tracks:[]};}

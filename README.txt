@@ -20,6 +20,10 @@ UPDATING THE PAGE LATER
  Upload the new index.html over the old one on GitHub (same steps 3). Phones pick it up next time they open it.
 
 
-BASE STATION (live timing, step 1: radio range test)
+RACE MODE (base station)
+  In the app: Settings > Connect to a base station. The whole app becomes race control (Practice | Race | History).
+  Leave race mode (top left) to go back to your unit.
+
+BASE STATION radio check
   base.html  - open https://<your pages site>/base.html, tap Connect to base, pick RT-Base-xxxx.
   It shows every bike the base hears, how many messages arrived, signal strength, and a coverage map.
