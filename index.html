@@ -101,6 +101,8 @@ main{max-width:760px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-rig
 .mapWrap{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#101113;margin-bottom:10px}
 #map{display:block;width:100%;height:52vh;min-height:280px;touch-action:none}
 .mapBtns{position:absolute;top:8px;left:8px;display:flex;gap:6px;flex-wrap:wrap}
+.mapBtns button.on{background:var(--accent);color:var(--onaccent)}
+.mapBtns button.off{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1.5px}
 .mapBtns button{background:rgba(11,12,14,.78);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:7px 11px;font-size:12px;font-weight:600}
 .mapNote{pointer-events:none;position:absolute;left:8px;bottom:8px;font-size:11px;background:rgba(15,17,21,.82);padding:3px 7px;border-radius:6px;color:var(--muted)}
 .attrib{position:absolute;right:6px;bottom:4px;font-size:9px;color:rgba(255,255,255,.75);text-shadow:0 0 3px #000}
@@ -134,7 +136,15 @@ tr.selA td:first-child{box-shadow:inset 3px 0 0 #f3f4f6}tr.selB td:first-child{b
 .trTurnRow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.trTurnRow:first-child{border-top:0}.trTurnRow .k{flex:none;width:26px;height:26px;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted)}.trTurnRow .tName{flex:1}
 #trList .rideItem:last-child,#trRides .rideItem:last-child{border-bottom:0}
 .trThumb{width:56px;height:56px;flex:none;background:var(--panel2);border-radius:12px;display:flex}.trThumb svg,.trMap svg{width:100%;height:100%}
-.trMap.big{position:relative;overflow:hidden;}.trAttr{position:absolute;right:8px;bottom:6px;font-size:10px;color:#fff;opacity:.75;text-shadow:0 0 3px #000}
+.trMap.big{position:relative;overflow:hidden;}.trFit{position:absolute;top:8px;right:8px;z-index:2;background:rgba(11,12,14,.78);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:7px 12px;font-size:12px;font-weight:600}
+.lapDot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:1px;box-shadow:0 0 0 2px rgba(0,0,0,.35)}
+.setRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.setGroup .setRow:first-child{border-top:0;padding-top:0}
+.setRow>div:first-child,.setRow>label{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.setRow b{font-size:15px;font-weight:700}.setRow .note{margin:0;font-size:12px}
+.setRow .seg{flex:none;width:auto;margin:0}.setRow .seg button{padding:8px 12px}
+.setRow input[type=text]{flex:0 1 150px;min-width:0;margin:0}
+.trAttr{position:absolute;right:8px;bottom:6px;font-size:10px;color:#fff;opacity:.75;text-shadow:0 0 3px #000}
 .trMap.big{margin:12px 0;height:min(62vw,300px);background:var(--panel2);border-radius:14px;display:flex;align-items:center;justify-content:center}
 #trName{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:16px;font-weight:650}#trName[readonly]{background:none;border-color:transparent;padding-left:0}
 .rideItem .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -335,7 +345,7 @@ body.island main{padding-bottom:190px}#toast{bottom:calc(92px + env(safe-area-in
     <div id="summary" class="card summary"></div>
     <div class="mapWrap">
       <canvas id="map"></canvas>
-      <div class="mapBtns"><button id="layerBtn">Satellite</button><button id="colourBtn">Speed</button><button id="fitBtn">Fit</button></div>
+      <div class="mapBtns"><button id="layerBtn">Satellite</button><button id="colourBtn">Speed</button><button id="fitBtn">Fit</button><button id="marksBtn">Marks</button></div>
       <div id="mapNote" class="mapNote" hidden></div><div id="attrib" class="attrib"></div>
     </div>
     <div id="setupPanel" class="card" hidden>
@@ -373,40 +383,30 @@ body.island main{padding-bottom:190px}#toast{bottom:calc(92px + env(safe-area-in
 </section>
 
 <section id="v-help" hidden>
-  <div class="card help"><h3>Quick start</h3>
-    <ol><li>Switch on and wait for the <b>GPS light to go green</b>.</li>
-      <li><b>Hold the Ride button 1 s</b> to start. The lights flash green.</li>
-      <li>Ride.</li>
-      <li><b>Hold the Ride button 4 s</b> (until all red) to finish. Connect the phone and the ride copies over.</li></ol></div>
-  <div class="card help"><h3>Buttons</h3>
-    <p><b>Ride button:</b> hold 1 s = start. While riding: hold and let go on blue = pause; hold until red (4 s) = end. <b>Paused?</b> Just tap Ride to carry on.</p>
-    <p style="margin:0"><b>Marker button:</b> tap to mark a spot (crash, a line to try). A press that can't do anything flicks red.</p></div>
+  <div class="card help"><h3>Riding</h3>
+    <p><b>Start:</b> wait for the green GPS light, then hold Ride 1 s.</p>
+    <p><b>Pause:</b> hold Ride, let go on blue. Tap Ride to carry on.</p>
+    <p><b>Finish:</b> hold Ride 4 s (all red). Connect the phone to copy it over.</p>
+    <p style="margin:0"><b>Marker:</b> tap to mark a spot.</p></div>
   <div class="card help"><h3>Lights</h3>
     <div class="lights">
-      <div><i style="background:var(--green)"></i><div><b>Battery</b><span>Green over 50% · yellow 20-50% · red under 20% · flashing red under 10%. When it's flat the ride is saved and the unit switches itself off - charge it, then press Ride.</span></div></div>
-      <div><i style="background:var(--green)"></i><div><b>GPS</b><span>Green strong · orange weak · red none yet.</span></div></div>
-      <div><i class="blink" style="background:#f3f4f6"></i><div><b>Recording</b><span>Blinking white = recording · fast = waiting for GPS · slow glow = paused (tap Ride to carry on) · amber = storage getting low · fast red = can't record.</span></div></div>
-      <div><i style="background:var(--blue)"></i><div><b>Phone</b><span>Blinks blue while connected.</span></div></div></div></div>
-  <div class="card help"><h3>Tracks</h3>
-    <p style="margin:0">Ride 3 laps somewhere new and the track sets itself up. Change the lines from the Tracks tab. Red laps (a stop, or a possible cut) don't count - tap <b>Count it</b> if one was fine.</p></div>
-  <div class="card help"><h3>Timer</h3>
-    <p style="margin:0">Pick a time (or, at a saved track, a number of laps) on the Live tab before you ride. When it's up all the lights flash white until you press either button (that press does nothing else). The ride keeps recording - stop when you're ready.</p></div>
-  <div class="card help"><h3>Start practice</h3>
-    <p style="margin:0">At a track, tap the Ride button 3 times quickly (or Practise a start on the Live tab). Sit still - all the lights go red, then green after a few seconds. Go! Your reaction, 0-50 km/h and time to the start distance (set per track in the Tracks tab, 60 m to begin with) show in the ride's Insights. Several starts in a row with no laps make a Start practice ride. Moving on red is a jump start - the lights flash red and it's saved as a jump. Do another straight away: stop, sit still, tap 3 times.</p></div>
-  <div class="card help"><h3>Insights</h3>
-    <p style="margin:0">Open a track ride and tap Insights: time left to find, where you lose time turn by turn (tap one to see it on the map) and lap by lap. Turns are named, added or removed on the track's page. Notes are in the ⋯ menu.</p>
-    <p style="margin:8px 0 0">With the bike sensor fitted: jumps (air time, length) show as yellow arcs on the map, brake points as red marks on the lap you're on, and on Adventure rides wheelies show in blue. The sensor is rough - treat the numbers as a guide.</p></div>
-  <div class="card help"><h3>Racing with a base station</h3>
-    <p style="margin:0">Riders: turn on Settings > Live timing once, then just switch on and ride. Race control: put the base up high near the middle of the track, then Settings > Connect to a base station. Start practice or a race from there - every unit starts recording, a race goes red then lights out on every bike together, and each unit stops recording a minute after it finishes. Tap a rider to make their unit blink. Red flag stops everyone; in a race, lifting it goes back to the grid.</p></div>
-  <div class="card help"><h3>It looks after you</h3>
-    <p><b>Over the line:</b> all the lights flash the lap colour - purple best, green faster than last lap, yellow slower.</p>
-    <p><b>Forgot to start?</b> Riding without recording, the lights flash amber. Hold Ride 1 s to start, or tap a button to ignore it.</p>
-    <p style="margin:0"><b>Track or trail:</b> as soon as you do a full lap of a saved track, the ride becomes a track session by itself - riding there from home included.</p></div>
-  <div class="card help"><h3>Something not working?</h3>
-    <p><b>Can't connect:</b> Android - use Chrome. iPhone - use the Bluefy app. Still stuck: switch the unit off and on.</p>
-    <p><b>No GPS:</b> it needs open sky, not a shed. Give it a minute.</p>
-    <p style="margin:0"><b>No lap times:</b> check the ride is on Track, not Adventure.</p></div>
-  <p class="note" style="text-align:center;margin:4px 0 20px">RideTracker v3.5</p>
+      <div><i style="background:var(--green)"></i><div><b>Battery</b><span>Green · yellow under 50% · red under 20%</span></div></div>
+      <div><i style="background:var(--green)"></i><div><b>GPS</b><span>Green strong · orange weak · red none</span></div></div>
+      <div><i class="blink" style="background:#f3f4f6"></i><div><b>Recording</b><span>Blinking = recording · glow = paused · red = problem</span></div></div>
+      <div><i style="background:linear-gradient(90deg,var(--blue) 50%,#9000ff 50%)"></i><div><b>Link</b><span>Blue = phone connected · purple = base station</span></div></div></div>
+    <p style="margin:10px 0 0">Over the line all lights flash: <b class="purple">purple</b> best, <b class="green">green</b> faster, <b class="yellow">yellow</b> slower. Amber = you forgot to start.</p></div>
+  <div class="card help"><h3>Tracks &amp; Insights</h3>
+    <p>Ride 3 laps somewhere new and the track sets itself up. Red laps don't count - tap <b>Count it</b> if one was fine.</p>
+    <p style="margin:0">Insights shows where you lose time. On the map: yellow arcs = jumps, blue = wheelies.</p></div>
+  <div class="card help"><h3>Timer &amp; starts</h3>
+    <p><b>Timer:</b> set it on the Live tab. Lights flash white when it's up.</p>
+    <p style="margin:0"><b>Start practice:</b> tap Ride 3 times, sit still, go on green.</p></div>
+  <div class="card help"><h3>Racing</h3>
+    <p style="margin:0">Riders turn on Settings &gt; Live timing. Race control taps Connect, picks the base station, and runs practice, races and red flags from the phone.</p></div>
+  <div class="card help"><h3>Not working?</h3>
+    <p><b>Can't connect:</b> Chrome on Android, Bluefy on iPhone. Or switch the unit off and on.</p>
+    <p style="margin:0"><b>No GPS:</b> needs open sky - give it a minute.</p></div>
+  <p class="note" style="text-align:center;margin:4px 0 20px">RideTracker v4.0</p>
 </section>
 <section id="v-tracks" hidden>
   <div id="trList"></div>
@@ -442,23 +442,14 @@ body.island main{padding-bottom:190px}#toast{bottom:calc(92px + env(safe-area-in
   <div id="rHist" hidden></div>
 </section>
 <section id="v-settings" hidden>
-  <div class="card">
-    <div class="lbl" style="margin-bottom:8px">Riding mode</div>
-    <div class="seg" id="setMode"><button data-m="0">Track</button><button data-m="1">Adventure</button></div>
-    <p class="note" style="margin:0">Track times laps. Adventure records the ride and its stats. New rides use this; you can also switch any ride afterwards.</p>
-  </div>
-  <div class="card">
-    <div class="lbl" style="margin-bottom:8px">Race control</div>
-    <p class="note" style="margin:0 0 10px">Run practice and races from this phone: connect it to the base station. Riders just switch their units on with Live timing on.</p>
-    <button class="btn pri" id="raceBtn">Connect to a base station</button>
-  </div>
-  <div class="card">
-    <div class="lbl" style="margin-bottom:8px">Live timing</div>
-    <div class="seg" id="setRadio"><button data-r="0">Off</button><button data-r="1">On</button></div>
-    <p class="note" style="margin:0" id="setRadioNote">Sends your laps and position to a base station for live timing. Leave it off when you're not racing - it uses a little more battery.</p>
-  </div>
-  <div class="card">
-    <div class="field" style="margin:0"><label class="lbl" for="setName">Unit name</label><input id="setName" type="text" maxlength="20" placeholder="MX-…"><p class="note" style="margin:6px 0 0">The name the unit shows in Bluetooth. Leave it empty to go back to its MX-… name.</p></div>
+  <div class="card setGroup">
+    <div class="setRow"><div><b>Riding mode</b><span class="note">For new rides · any ride can be switched later</span></div>
+      <div class="seg" id="setMode"><button data-m="0">Track</button><button data-m="1">Adventure</button></div></div>
+    <div class="setRow"><div><b>Live timing</b><span class="note" id="setRadioNote">For racing with a base station</span></div>
+      <div class="seg" id="setRadio"><button data-r="0">Off</button><button data-r="1">On</button></div></div>
+    <div class="setRow"><label for="setName"><b>Unit name</b><span class="note">Empty = MX-…</span></label>
+      <input id="setName" type="text" maxlength="20" placeholder="MX-…"></div>
+    <p class="note" style="margin:10px 0 0">Running races? Tap Connect and pick the base station (RT-Base) - the app becomes race control.</p>
   </div>
   <div class="card stShut" id="stCard">
     <button class="lapsHead" id="stHead"><span class="lbl">Unit status</span><span id="stSum"></span><i id="stChev">&#9662;</i></button>
@@ -467,17 +458,14 @@ body.island main{padding-bottom:190px}#toast{bottom:calc(92px + env(safe-area-in
   </div>
   <div class="card">
     <div id="details">
-      <div class="lbl" style="margin:0 0 6px">All rides</div>
-      <div class="row"><button class="btn" id="csvAllBtn">Export all rides (CSV)</button><span class="note" id="csvAllMsg"></span></div>
-      <div class="lbl" style="margin:16px 0 6px">Backup</div>
-      <div class="row"><button class="btn pri" id="bakBtn">Back up everything</button><button class="btn" id="impBtn">Import backup</button><input type="file" id="impFile" accept=".rtbak" hidden></div>
-      <p class="note" style="margin:8px 0 0" id="bakMsg">One file with every ride, your tracks, names, notes and lap edits. Keep it in Google Drive. Import puts back anything this phone doesn't already have - on a new phone, or after clearing the browser.</p>
-      <div class="lbl" style="margin:16px 0 6px">Firmware update</div>
-      <input type="file" id="fwFile" accept=".bin">
-      <div class="row" style="margin-top:8px"><button class="btn" id="fwGo">Update</button><span class="note" id="fwMsg"></span></div>
-      <div class="prog"><i id="fwBar"></i></div>
-      <p class="note" style="margin:8px 0 0">After it restarts, leave it switched on for 30 seconds. If the new version doesn't start properly, the unit goes back to the old one.</p>
-      <div id="oldBox" hidden><div class="lbl" style="margin:16px 0 6px">Old test files</div><div class="row"><span class="note" id="oldMsg"></span><button class="btn danger" id="oldDel">Delete them</button></div></div>
+      <div class="setRow" style="border-top:0;padding-top:0"><div><b>Backup</b><span class="note" id="bakMsg">Every ride, track, name and note in one file</span></div>
+        <div class="row" style="flex:none;gap:6px"><button class="btn pri" id="bakBtn">Back up</button><button class="btn" id="impBtn">Import</button><input type="file" id="impFile" accept=".rtbak" hidden></div></div>
+      <div class="setRow"><div><b>All rides</b><span class="note" id="csvAllMsg">As a spreadsheet</span></div><button class="btn" id="csvAllBtn">Export CSV</button></div>
+      <div class="setRow" style="display:block"><b>Firmware update</b>
+        <div class="row" style="margin-top:8px"><input type="file" id="fwFile" accept=".bin" style="flex:1;min-width:0"><button class="btn" id="fwGo">Update</button></div>
+        <span class="note" id="fwMsg"></span><div class="prog"><i id="fwBar"></i></div>
+        <span class="note">Leave it on for 30 s after it restarts. A bad update rolls back by itself.</span></div>
+      <div id="oldBox" hidden><div class="setRow"><div><b>Old test files</b><span class="note" id="oldMsg"></span></div><button class="btn danger" id="oldDel">Delete</button></div></div>
     </div>
   </div>
 </section>
@@ -500,7 +488,7 @@ const SVC='6d780001-7a1e-4c55-9b3f-2f61e0b8a001',C_CMD='6d780002-7a1e-4c55-9b3f-
 const enc=new TextEncoder(),dec=new TextDecoder();
 const BLE={dev:null,cmd:null,up:null,data:null,id:1,pend:new Map(),ok:false,lock:Promise.resolve(),
   supported:()=>!!(navigator.bluetooth&&navigator.bluetooth.requestDevice),
-  async pick(){this.dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'MX-'},{services:[SVC]}],optionalServices:[SVC]});this.watch();await this.open();},
+  async pick(){this.dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'MX-'},{namePrefix:'RT-Base'},{services:[SVC]}],optionalServices:[SVC]});this.watch();await this.open();},
   async remembered(){                            // Chrome can reconnect to a unit picked before, without asking again
     if(!navigator.bluetooth.getDevices)return false;
     try{const want=LS.get('mxUnit',''),wid=LS.get('mxDevId','');const ds=(await navigator.bluetooth.getDevices()).filter(x=>!/^RT-Base/.test(x.name||''));   // bike units only - race mode is opened on purposeconst d=ds.find(x=>wid&&x.id===wid)||ds.find(x=>x.name===want)||ds.find(x=>(x.name||'').startsWith('MX-'))||(ds.length===1?ds[0]:null);
@@ -924,6 +912,7 @@ const MAP=(()=>{
 /* ---------- drawing the ride on the map ---------- */
 const SPEED_COLS=['#ff453a','#ff9f0a','#ffd60a','#32d74b','#40c8e0','#4f8cff'];
 let traceColour=LS.get('mxColour','speed');
+let mapMarks=+LS.get('mxBare','0')||0;   // Marks button: 0 everything · 1 just the laps (no lines, turns, markers, jumps, brakes) · 2 only the lap you're on
 MAP.onDraw=(ctx,W,H)=>{
   if(!cur)return;const F=cur.R.fixes,A=cur.A;if(!F.length)return;
   const trk=setup?setup:cur.track,mpm=1/(40075016.686*Math.cos(A.lat0*Math.PI/180)),sc=MAP.scale();
@@ -938,7 +927,7 @@ MAP.onDraw=(ctx,W,H)=>{
     if(Math.abs(x-lx)+Math.abs(y-ly)<1.5)continue;
     if((lx<-50&&x<-50)||(lx>W+50&&x>W+50)||(ly<-50&&y<-50)||(ly>H+50&&y>H+50)){lx=x;ly=y;continue;}
     const path=cl.length?(cl[0]&&i>=cl[0].i0&&i<=cl[0].i1?plain:cl[1]&&i>=cl[1].i0&&i<=cl[1].i1?blue:null)
-      :(lap&&(i<lap.i0||i>lap.i1))?dim:traceColour==='speed'?bright[Math.min(5,Math.floor(f.kmh/vmax*6))]:plain;
+      :(lap&&(i<lap.i0||i>lap.i1))?(mapMarks===2&&!setup?null:dim):traceColour==='speed'?bright[Math.min(5,Math.floor(f.kmh/vmax*6))]:plain;
     if(!path){lx=x;ly=y;continue;}
     under.moveTo(lx,ly);under.lineTo(x,y);path.moveTo(lx,ly);path.lineTo(x,y);lx=x;ly=y;}
   ctx.lineCap='round';ctx.lineJoin='round';
@@ -949,11 +938,12 @@ MAP.onDraw=(ctx,W,H)=>{
   ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--blue');ctx.stroke(blue);
   // start / end, markers
   const dot=(f,col,r)=>{const[x,y]=MAP.toS(f.mx,f.my);ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fillStyle=col;ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#000';ctx.stroke();};
-  if(cur.mode===1){dot(F[0],'#2bd35a',5);dot(F[F.length-1],'#ff4545',5);}
-  for(const m of cur.R.markers){const f=F[m.i];if(!f)continue;const[x,y]=MAP.toS(f.mx,f.my);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-7,y-16);ctx.lineTo(x+7,y-16);ctx.closePath();ctx.fillStyle='#ff9f0a';ctx.fill();ctx.lineWidth=1.5;ctx.strokeStyle='#000';ctx.stroke();}
-  // bike sensor: jumps (an arc, take-off to landing), wheelies (Adventure) and brake points (the lap you're on)
+  const bare=mapMarks>0&&!setup;
+  if(cur.mode===1&&!bare){dot(F[0],'#2bd35a',5);dot(F[F.length-1],'#ff4545',5);}
+  if(!bare)for(const m of cur.R.markers){const f=F[m.i];if(!f)continue;const[x,y]=MAP.toS(f.mx,f.my);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-7,y-16);ctx.lineTo(x+7,y-16);ctx.closePath();ctx.fillStyle='#ff9f0a';ctx.fill();ctx.lineWidth=1.5;ctx.strokeStyle='#000';ctx.stroke();}
+  // bike sensor: jumps (an arc, take-off to landing) and wheelies (Adventure)
   const M=cur.A.imu;
-  if(M&&!setup){ctx.font='700 11px Inter,system-ui,sans-serif';ctx.textAlign='center';
+  if(M&&!setup&&!bare){ctx.font='700 11px Inter,system-ui,sans-serif';ctx.textAlign='center';
     const tags=[],tag=(t,x,y,col)=>{if(tags.some(q=>Math.abs(q[0]-x)<44&&Math.abs(q[1]-y)<16))return;tags.push([x,y]);ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.75)';ctx.strokeText(t,x,y);ctx.fillStyle=col;ctx.fillText(t,x,y);};
     const shown=j=>j.i0>=rg.i0&&j.i1<=rg.i1&&!(lap&&(j.i0<lap.i0||j.i0>lap.i1));
     for(const j of M.jumps){if(!shown(j))continue;const a=MAP.toS(F[j.i0].mx,F[j.i0].my),b=MAP.toS(F[Math.min(F.length-1,j.i1+1)].mx,F[Math.min(F.length-1,j.i1+1)].my);
@@ -963,13 +953,6 @@ MAP.onDraw=(ctx,W,H)=>{
     if(cur.mode===1)for(const w of M.wheelies){if(!shown(w))continue;const pa=new Path2D();for(let i=w.i0;i<=w.i1;i++){const[x,y]=MAP.toS(F[i].mx,F[i].my);if(i===w.i0)pa.moveTo(x,y);else pa.lineTo(x,y);}
       ctx.lineWidth=8;ctx.strokeStyle='rgba(0,0,0,.6)';ctx.stroke(pa);ctx.lineWidth=5;ctx.strokeStyle='#5ce1e6';ctx.stroke(pa);
       if(MAP.v.z>=16){const[x,y]=MAP.toS(F[(w.i0+w.i1)>>1].mx,F[(w.i0+w.i1)>>1].my);tag('wheelie '+w.dur.toFixed(1)+' s',x,y-10,'#5ce1e6');}}
-    if(cur.mode===0&&lap&&cur.track&&cur.laps.best&&trackTurns().length){
-      const key=lap.n+':'+cur.track.turns.map(t=>t.la+','+t.lo).join(';');if(!cur.bk||cur.bk.key!==key)cur.bk={key,c:lapAtTurns(F,lap,cur.track.turns)};
-      for(const c of cur.bk.c){if(!c||c.brakeM<3)continue;   // under 3 m: rolled in, no real braking
-        const f=F[c.bp],p0=F[Math.max(0,c.bp-2)],p1=F[Math.min(F.length-1,c.bp+2)];const[x,y]=MAP.toS(f.mx,f.my),[x0,y0]=MAP.toS(p0.mx,p0.my),[x1,y1]=MAP.toS(p1.mx,p1.my);
-        let dx=x1-x0,dy=y1-y0;const dl=Math.hypot(dx,dy)||1;dx/=dl;dy/=dl;
-        ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x-dy*9,y+dx*9);ctx.lineTo(x+dy*9,y-dx*9);ctx.lineWidth=7;ctx.strokeStyle='rgba(0,0,0,.7)';ctx.stroke();ctx.lineWidth=4;ctx.strokeStyle='#ff4545';ctx.stroke();
-        if(MAP.v.z>=18)tag(Math.round(c.brakeM)+' m',x+dy*20,y-dx*20+4,'#ff8a8a');}}
     ctx.textAlign='start';}
   // where the scrub bar is
   {const sl=shownLap(),vl=vsLap(),sf=F[scrub];if(sl&&vl&&sf){const t=vl.t0+(sf.t-sl.t0);if(t<=vl.t1){let i=vl.i0;while(i<vl.i1&&F[i].t<t)i++;const[x,y]=MAP.toS(F[i].mx,F[i].my);
@@ -977,11 +960,11 @@ MAP.onDraw=(ctx,W,H)=>{
   const s=F[scrub];if(s){const[x,y]=MAP.toS(s.mx,s.my);ctx.beginPath();ctx.arc(x,y,setup?5:8,0,7);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#0b0c0e';ctx.stroke();}
   // finish line
   // your turns: small labelled dots (Insights names them)
-  if(cur.mode===0&&cur.track&&Array.isArray(cur.track.turns)&&!setup){ctx.font='600 11px system-ui,sans-serif';
+  if(cur.mode===0&&cur.track&&Array.isArray(cur.track.turns)&&!setup&&!bare){ctx.font='600 11px system-ui,sans-serif';
     for(const tu of cur.track.turns){const[x,y]=MAP.toS(mercX(tu.lo),mercY(tu.la));if(x<-20||y<-20||x>W+20||y>H+20)continue;
       ctx.beginPath();ctx.arc(x,y,4,0,7);ctx.fillStyle='#f3f4f6';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='rgba(0,0,0,.6)';ctx.stroke();
       if(MAP.v.z>=17){ctx.lineWidth=3;ctx.strokeText(tu.name,x+7,y-6);ctx.fillText(tu.name,x+7,y-6);}}}
-  if(trk&&trk.fin&&cur.mode===0){const a=MAP.toS(mercX(trk.fin[1]),mercY(trk.fin[0])),b=MAP.toS(mercX(trk.fin[3]),mercY(trk.fin[2]));
+  if(trk&&trk.fin&&cur.mode===0&&!bare){const a=MAP.toS(mercX(trk.fin[1]),mercY(trk.fin[0])),b=MAP.toS(mercX(trk.fin[3]),mercY(trk.fin[2]));
     ctx.lineCap='butt';ctx.strokeStyle='#000';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();
     ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();ctx.setLineDash([]);
     if(trk.sec)trk.sec.forEach((g,k)=>{const p=MAP.toS(mercX(g[1]),mercY(g[0])),q=MAP.toS(mercX(g[3]),mercY(g[2])),on=setup&&setup.which===k;
@@ -1175,7 +1158,7 @@ function renderLapNav(){const on=lapView();$('lapNav').hidden=!on;if(!on){$('vsR
   const cv=$('timeline');if(cv.classList.contains('lapmode')!==on){cv.classList.toggle('lapmode',on);TL.resize();}
   if(!on)return;const s=shownLap(),v=vsLap(),best=cur.laps.best;
   const tag=s.running?'<small> · now</small>':s===best?'<small> · best</small>':s.bad?'<small> · '+s.flag+'</small>':best&&!s.del?'<small> · '+fmtGap(s.time-best.time)+'</small>':'';
-  $('lpLbl').innerHTML=v?'Lap '+s.n+' <small>vs</small> Lap '+v.n:'Lap '+s.n+' · '+fmtLap(s.time)+tag;
+  $('lpLbl').innerHTML=v?'<i class="lapDot" style="background:#f3f4f6"></i>Lap '+s.n+' <small>vs</small> <i class="lapDot" style="background:var(--blue)"></i>Lap '+v.n:'Lap '+s.n+' · '+fmtLap(s.time)+tag;
   $('lpVs').textContent=v?'Stop':'Compare';$('lpVs').classList.toggle('pri',!!v);
   const L=lapList(),k=L.findIndex(l=>l.n===s.n);$('lpPrev').disabled=k<=0;$('lpNext').disabled=k<0||k>=L.length-1;}
 $('lpPrev').onclick=()=>goLap(-1);$('lpNext').onclick=()=>goLap(1);
@@ -1196,7 +1179,7 @@ function renderCmp(){       // lap compare is switched off for now (cmp.on stays
   if(!cmp.on)return;
   if(ls.length<2){ci.textContent=ls.length?'Pick one more lap.':'Pick two laps to compare.';return;}
   const d=ls[1].time-ls[0].time;
-  ci.innerHTML=`<b style="color:#f3f4f6">Lap ${ls[0].n} ${fmtLap(ls[0].time)}</b> vs <b class="blue">Lap ${ls[1].n} ${fmtLap(ls[1].time)}</b> · blue is ${Math.abs(d).toFixed(2)} s ${d>=0?'slower':'faster'}. Move the scrub bar to see where.`;
+  ci.innerHTML=`<i class="lapDot" style="background:#f3f4f6"></i><b style="color:#f3f4f6">Lap ${ls[0].n} ${fmtLap(ls[0].time)}</b> vs <i class="lapDot" style="background:var(--blue)"></i><b class="blue">Lap ${ls[1].n} ${fmtLap(ls[1].time)}</b> · blue is ${Math.abs(d).toFixed(2)} s ${d>=0?'slower':'faster'}. Move the scrub bar to see where.`;
 }
 $('lapsHead').onclick=()=>{LS.set('mxLapsOpen',LS.get('mxLapsOpen','1')==='1'?'0':'1');renderCmp();};
 function cell(v,k,cls){return`<div class="cell"><b class="${cls||''}">${v}</b><span>${k}</span></div>`;}
@@ -1235,6 +1218,9 @@ function renderPoint(){
 }
 
 /* ---------- ride view ---------- */
+// About how much riding fits in the free space: GPS 10/s (~33 B each) + sensor samples (~14.6 B each)
+function rideLeft(S){if(!S||!S.flash)return'';const hz=S.imu&&S.imu.ok?(S.imu.rate||26):0,perMin=600*33+hz*60*14.6,m=Math.floor(Math.max(0,S.flash.free-65536)/perMin);
+  return'≈ '+(m>=60?Math.floor(m/60)+' h '+String(m%60).padStart(2,'0')+' m':m+' min')+' of riding left';}
 function rideName(e,trackName){
   const m=e.meta||{},s=e.sum||{};if(m.name)return m.name;
   const d=rideDate(s.date,s.t0),mode=m.mode!==undefined?m.mode:s.mode;
@@ -1324,7 +1310,7 @@ function renderLive(){
   const L=cur&&cur.live&&cur.R.fixes.length?cur.A:null;
   const dur=L?fmtDur(L.dur):S.ride.active?fmtDur(S.ride.fixes/10):'–';
   const gpsTxt=S.ride.stopped?'Stopped: '+S.ride.stopped:g.fix?(q===2?'Strong':'Weak')+' GPS · '+g.sats+' sats':armed?'Starts at the first GPS fix':'Finding GPS…';
-  const extra=[S.imu&&S.imu.ok?'sensor '+S.imu.rate+'/s':null,(S.flash.free/1048576).toFixed(1)+' MB free'].filter(Boolean).join(' · ');
+  const extra=rideLeft(S);
   let h=`<div class="wide"><i class="dot ${S.ride.stopped?'r':rec?'rec':q===2?'g':q===1?'y':'r'}"></i><div><div class="head">${esc(head)}</div><div class="note">${esc(gpsTxt+' · '+extra)}</div></div></div>`;
   if(S.ride.active){
     h+=`<div class="speedBig"><b>${g.fix&&g.kmh!==undefined?Math.round(g.kmh):'–'}</b><span>km/h</span></div>`;
@@ -1514,7 +1500,7 @@ function renderInsights(){
   const tr=D.turns.map((tu,k)=>{const b=D.bestRow[k]&&D.bestRow[k].c[k],v=D.rows.map(r=>r.c[k]).filter(Boolean),lost=D.avgS[k]!==null&&D.bestS[k]!==null?D.avgS[k]-D.bestS[k]:null;
     return`<tr><td>${esc(tu.name)}</td><td>${b?b.v.toFixed(0):'–'}</td><td>${v.length?mean(v.map(x=>x.v)).toFixed(0):'–'}</td><td>${v.length?Math.round(mean(v.map(x=>x.brakeM)))+(b?' <span class="note">('+Math.round(b.brakeM)+')</span>':''):'–'}</td><td>${lost!==null?lost.toFixed(2):'–'}</td></tr>`;}).join('');
   card('Turns',`<div class="anaTblWrap"><table class="anaTbl"><thead><tr><th>Turn</th><th>Best km/h</th><th>Avg km/h</th><th>Brake m</th><th>Lost s</th></tr></thead><tbody>${tr||'<tr><td colspan="5" class="note">No turns yet</td></tr>'}</tbody></table></div>
-    <p class="note" style="margin:8px 0 0">Slowest speed through each turn: your best this session against your average. Brake m = how far before the turn you start braking on average (your best time through there in brackets). Red marks on the map show them for the lap you're on.</p>`);
+    <p class="note" style="margin:8px 0 0">Slowest speed through each turn: your best this session against your average. Brake m = how far before the turn you start braking on average (your best time through there in brackets).</p>`);
   const JS=jumpSpots();
   if(JS.length){const all=JS.flatMap(s=>s.js),top=all.reduce((m,j)=>!m||j.air>m.air?j:m,null);
     card('Jumps',`<div class="anaTblWrap"><table class="anaTbl"><thead><tr><th>Jump</th><th>Times</th><th>Best air</th><th>Avg air</th><th>Longest</th></tr></thead><tbody>${JS.map((s,k)=>{const b=s.js.reduce((m,j)=>!m||j.air>m.air?j:m,null);
@@ -1568,7 +1554,7 @@ function renderRide(){
   const e=cur.e,A=cur.A,m=e.meta;
   if(document.activeElement!==$('rideNote')){$('rideNote').value=(m.notes&&m.notes.text)||'';requestAnimationFrame(noteGrow);}
 
-  $('rideTitle').textContent=rideName(e,cur.track&&cur.track.name);$('rideSub').textContent=fmtClock(rideDate(cur.R.fixes[0].date,cur.R.fixes[0].utc))+(e.rec?' · recording now':'');hdrName();
+  $('rideTitle').textContent=rideName(e,cur.track&&cur.track.name);{const d0=rideDate(cur.R.fixes[0].date,cur.R.fixes[0].utc);$('rideSub').textContent=(e.meta&&e.meta.name?fmtDay(d0)+' · ':'')+fmtClock(d0)+(e.rec?' · recording now':'');}hdrName();
   $('favBtn').classList.toggle('on',!!m.fav);$('favBtn').innerHTML=m.fav?'&#9733;':'&#9734;';
   document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('on',+b.dataset.m===cur.mode));
   const h=[];
@@ -1633,6 +1619,8 @@ $('moreBtn').onclick=()=>{$('rideMenu').hidden=!$('rideMenu').hidden;};
 $('rmMode').onclick=()=>{$('rideMenu').hidden=true;const m=cur.mode===0?1:0;const b=document.querySelector('#modeSeg [data-m="'+m+'"]');if(b)b.click();toast(m?'Now an adventure ride':'Now a track ride');};
 $('modeSeg').onclick=e=>{const b=e.target.closest('button');if(!b||!cur)return;cur.mode=+b.dataset.m;cur.e.meta.mode=cur.mode;setup=null;$('setupPanel').hidden=true;saveMeta(cur.no);recompute();fitRange();TL.reset();setScrub(scrub,false);};
 $('layerBtn').onclick=()=>{$('layerBtn').textContent=MAP.nextLayer();};
+const marksLbl=()=>{const b=$('marksBtn');b.textContent=mapMarks===2?'This lap':'Marks';b.classList.toggle('off',mapMarks===1);b.classList.toggle('on',mapMarks===2);};marksLbl();
+$('marksBtn').onclick=()=>{const laps=cur&&cur.mode===0&&cur.laps&&cur.laps.length;mapMarks=(mapMarks+1)%(laps?3:2);LS.set('mxBare',String(mapMarks));marksLbl();MAP.req();};
 $('colourBtn').onclick=()=>{traceColour=traceColour==='speed'?'plain':'speed';LS.set('mxColour',traceColour);$('colourBtn').textContent=traceColour==='speed'?'Speed':'Plain';MAP.req();};
 function fitRange(){const rg=rng();MAP.fit(cur.R.fixes.slice(rg.i0,rg.i1+1));}
 $('fitBtn').onclick=()=>{if(!cur)return;const l=cur.mode===0?lapAt(scrub):null;if(l)MAP.fit(cur.R.fixes.slice(l.i0,l.i1+1));else fitRange();};
@@ -1795,7 +1783,7 @@ function renderRides(){
     const right=mode===0?(m.best?fmtLap(m.best):''):(s.dist!==undefined?fmtDist(s.dist):'');
     return`<div class="rideItem" data-n="${e.n}"><span class="star${m.fav?' on':''}" style="font-size:18px">${m.fav?'&#9733;':'&#9734;'}</span><div class="main"><div class="t">${esc(rideName(e))}${e.rec?'<span class="tag rec">REC</span>':''}${e.phone?'<span class="tag">phone</span>':''}<span class="tag">${mode===0?'TRACK':'ADV'}</span></div><div class="sub">${esc(rideSub(e))}</div></div><div class="r ${mode===0?'purple':''}">${right}</div></div>`;}).join(''):'<div class="empty">No rides yet. Go for a ride and they will show up here.</div>';
   const ph=RIDES.filter(r=>r.phone).length,un=RIDES.length-ph;
-  $('ridesNote').textContent=(un+' on the unit'+(ph?' · '+ph+' only on this phone':''))+(S?' · '+(S.flash.free/1048576).toFixed(1)+' MB free':'')+
+  $('ridesNote').textContent=(un+' on the unit'+(ph?' · '+ph+' only on this phone':''))+(S?' · '+rideLeft(S).replace('≈ ',''):'')+
     '. Rides copy to this phone by themselves; when the unit runs low it deletes its oldest copied rides, and they stay here.';
   renderBakNudge();
 }
@@ -1831,22 +1819,29 @@ const trTiles=new Map();let trRedraw=null;
 function trSatMap(t){
   const box=$('trMap'),L=t.line||[];
   if(L.length<3){box.innerHTML=trSvg(t,true);return;}
-  box.innerHTML='<canvas style="width:100%;height:100%;display:block;border-radius:14px"></canvas><span class="trAttr">Imagery © Esri</span>';
-  const cv=box.firstChild,W=box.clientWidth||360,H=box.clientHeight||260,dpr=Math.min(3,window.devicePixelRatio||1);
+  box.innerHTML='<canvas style="width:100%;height:100%;display:block;border-radius:14px;touch-action:pan-y"></canvas><button class="trFit" hidden>Fit</button><span class="trAttr">Imagery © Esri</span>';
+  const cv=box.firstChild,fitB=box.querySelector('.trFit'),W=box.clientWidth||360,H=box.clientHeight||260,dpr=Math.min(3,window.devicePixelRatio||1);
   cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.scale(dpr,dpr);
-  const wx=(lon,z)=>(lon+180)/360*256*2**z,wy=(lat,z)=>{const r=lat*Math.PI/180;return(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*256*2**z;};
+  // positions as 0..1 Web Mercator; the view is a centre + a zoom level (pinch / wheel / double tap; drag once zoomed in)
+  const nx=lon=>(lon+180)/360,ny=lat=>{const r=lat*Math.PI/180;return(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2;};
   const pts=L.map(([a,o])=>[a,o]),gates=[t.fin].concat(t.sec||[]).filter(Boolean);
   gates.forEach(g=>{pts.push([g[0],g[1]]);pts.push([g[2],g[3]]);});
-  const la0=Math.min(...pts.map(p=>p[0])),la1=Math.max(...pts.map(p=>p[0])),lo0=Math.min(...pts.map(p=>p[1])),lo1=Math.max(...pts.map(p=>p[1]));
-  let z=18;while(z>3&&((wx(lo1,z)-wx(lo0,z))>W-40||(wy(la0,z)-wy(la1,z))>H-40))z--;
-  const k=Math.min(2,(W-40)/Math.max(1,wx(lo1,z)-wx(lo0,z)),(H-40)/Math.max(1,wy(la0,z)-wy(la1,z))),TS=256*k;   // fill the box (tiles stretched up to 2x)
-  const cx=(wx(lo0,z)+wx(lo1,z))/2*k,cy=(wy(la0,z)+wy(la1,z))/2*k,ox=cx-W/2,oy=cy-H/2,P=(a,o)=>[wx(o,z)*k-ox,wy(a,z)*k-oy];
+  const X0=nx(Math.min(...pts.map(p=>p[1]))),X1=nx(Math.max(...pts.map(p=>p[1]))),Y0=ny(Math.max(...pts.map(p=>p[0]))),Y1=ny(Math.min(...pts.map(p=>p[0])));
+  const fitZ=Math.min(20,Math.log2(Math.min((W-40)/Math.max(1e-12,(X1-X0)*256),(H-40)/Math.max(1e-12,(Y1-Y0)*256))));
+  const V={x:(X0+X1)/2,y:(Y0+Y1)/2,z:fitZ},MAXZ=Math.max(fitZ,21);
+  const P=(a,o)=>{const sc=256*2**V.z;return[(nx(o)-V.x)*sc+W/2,(ny(a)-V.y)*sc+H/2];};
+  const tile=(z,tx,ty)=>{const k=z+'/'+tx+'/'+ty;let tl=trTiles.get(k);
+    if(!tl){const img=new Image();tl={img,ok:false};img.onload=()=>{tl.ok=true;if(trRedraw)trRedraw();};img.src=`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`;trTiles.set(k,tl);}
+    return tl;};
   function draw(){
     c.fillStyle='#1c1d21';c.fillRect(0,0,W,H);
-    for(let tx=Math.floor(ox/TS);tx<=Math.floor((ox+W)/TS);tx++)for(let ty=Math.floor(oy/TS);ty<=Math.floor((oy+H)/TS);ty++){
-      const k=z+'/'+tx+'/'+ty;let tl=trTiles.get(k);
-      if(!tl){const img=new Image();tl={img,ok:false};img.onload=()=>{tl.ok=true;if(trRedraw)trRedraw();};img.src=`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`;trTiles.set(k,tl);}
-      if(tl.ok)c.drawImage(tl.img,tx*TS-ox,ty*TS-oy,TS+.5,TS+.5);}
+    const tz=Math.max(1,Math.min(19,Math.round(V.z))),n=2**tz,sc=256*2**V.z,TS=sc/n;
+    const ax=V.x-W/2/sc,ay=V.y-H/2/sc;
+    for(let tx=Math.floor(ax*n);tx<=Math.floor((ax+W/sc)*n);tx++)for(let ty=Math.floor(ay*n);ty<=Math.floor((ay+H/sc)*n);ty++){
+      const sx=(tx/n-V.x)*sc+W/2,sy=(ty/n-V.y)*sc+H/2,tl=tile(tz,tx,ty);
+      if(tl.ok){c.drawImage(tl.img,sx,sy,TS+.5,TS+.5);continue;}
+      const pz=trTiles.get((tz-1)+'/'+(tx>>1)+'/'+(ty>>1));   // still loading: stretch the coarser tile meanwhile
+      if(pz&&pz.ok)c.drawImage(pz.img,(tx&1)*128,(ty&1)*128,128,128,sx,sy,TS+.5,TS+.5);}
     c.lineJoin=c.lineCap='round';
     const path=()=>{c.beginPath();L.forEach(([a,o],i)=>{const[x,y]=P(a,o);i?c.lineTo(x,y):c.moveTo(x,y);});c.closePath();};
     path();c.strokeStyle='rgba(0,0,0,.55)';c.lineWidth=6;c.stroke();path();c.strokeStyle='#f3f4f6';c.lineWidth=2.5;c.stroke();
@@ -1857,9 +1852,26 @@ function trSatMap(t){
     c.font='600 11px system-ui,sans-serif';
     (t.turns||[]).forEach((tu,i)=>{const[x,y]=P(tu.la,tu.lo);c.beginPath();c.arc(x,y,4,0,7);c.fillStyle='#f3f4f6';c.fill();c.lineWidth=2;c.strokeStyle='rgba(0,0,0,.7)';c.stroke();
       const lbl=/^Turn \d+$/.test(tu.name)?String(i+1):tu.name;c.lineWidth=3;c.strokeText(lbl,x+6,y-5);c.fillStyle='#f3f4f6';c.fillText(lbl,x+6,y-5);});
+    const zoomed=V.z>fitZ+0.05;fitB.hidden=!zoomed;cv.style.touchAction=zoomed?'none':'pan-y';
   }
+  const clampV=()=>{V.z=Math.max(fitZ,Math.min(MAXZ,V.z));if(V.z<=fitZ+0.01){V.x=(X0+X1)/2;V.y=(Y0+Y1)/2;}};
+  const zoomAt=(px,py,dz)=>{const sc0=256*2**V.z,wx=V.x+(px-W/2)/sc0,wy=V.y+(py-H/2)/sc0;V.z+=dz;clampV();const sc=256*2**V.z;
+    if(V.z>fitZ+0.01){V.x=wx-(px-W/2)/sc;V.y=wy-(py-H/2)/sc;}draw();};
+  fitB.onclick=()=>{V.z=fitZ;clampV();draw();};
+  cv.onwheel=e=>{e.preventDefault();const r=cv.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,-e.deltaY*0.002);};
+  const pt=new Map();let pinch=null,moved=false,lastTap=0;
+  cv.onpointerdown=e=>{pt.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=false;
+    if(pt.size===2){const[a,b]=[...pt.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),z:V.z};}};
+  cv.onpointermove=e=>{const p=pt.get(e.pointerId);if(!p)return;const r=cv.getBoundingClientRect();
+    if(pt.size===2&&pinch){p.x=e.clientX;p.y=e.clientY;const[a,b]=[...pt.values()],d=Math.hypot(a.x-b.x,a.y-b.y);
+      zoomAt((a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top,pinch.z+Math.log2(Math.max(1,d)/Math.max(1,pinch.d))-V.z);moved=true;return;}
+    const dx=e.clientX-p.x,dy=e.clientY-p.y;if(Math.abs(dx)+Math.abs(dy)>3)moved=true;
+    if(V.z>fitZ+0.01){const sc=256*2**V.z;V.x-=dx/sc;V.y-=dy/sc;draw();}p.x=e.clientX;p.y=e.clientY;};
+  cv.onpointerup=cv.onpointercancel=e=>{pt.delete(e.pointerId);if(pt.size<2)pinch=null;
+    if(e.type==='pointerup'&&!moved&&!trAdding){const now=Date.now(),r=cv.getBoundingClientRect();
+      if(now-lastTap<320){zoomAt(e.clientX-r.left,e.clientY-r.top,V.z>=MAXZ-0.1?fitZ-V.z:1);lastTap=0;}else lastTap=now;}};
   // adding a turn: tap the outline where it is
-  cv.onclick=e=>{if(!trAdding)return;const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;let bi=-1,bd=1e9;
+  cv.onclick=e=>{if(!trAdding||moved)return;const r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;let bi=-1,bd=1e9;
     L.forEach(([a,o],i)=>{const[x,y]=P(a,o),d=Math.hypot(x-mx,y-my);if(d<bd){bd=d;bi=i;}});
     if(bd>30){toast('Tap on the track outline');return;}trAddTurn(t,L[bi]);};
   trRedraw=()=>{if(cv.isConnected)draw();};draw();
@@ -2033,14 +2045,14 @@ async function refreshState(){
 function renderSettings(live){
   if(!S)return;
   document.querySelectorAll('#setMode button').forEach(b=>b.classList.toggle('on',+b.dataset.m===S.mode));
-  {const R=S.radio;$('setRadio').closest('.card').hidden=!R;if(R){document.querySelectorAll('#setRadio button').forEach(b=>b.classList.toggle('on',+b.dataset.r===(R.want?1:0)));
-    $('setRadioNote').textContent=!R.want?'Sends your laps and position to a base station for live timing. Leave it off when you\'re not racing - it uses a little more battery.':R.base?'On · base station heard'+(R.waiting?' · '+R.waiting+' lap'+(R.waiting>1?'s':'')+' still to send':''):'On · no base station heard yet';}}
+  {const R=S.radio;$('setRadio').closest('.setRow').hidden=!R;if(R){document.querySelectorAll('#setRadio button').forEach(b=>b.classList.toggle('on',+b.dataset.r===(R.want?1:0)));
+    $('setRadioNote').textContent=!R.want?'For racing with a base station':R.base?'On · base station heard'+(R.waiting?' · '+R.waiting+' lap'+(R.waiting>1?'s':'')+' still to send':''):'On · no base station heard yet';}}
   if(!live){$('setName').value=S.id&&S.unit===S.id?'':S.unit;$('setName').placeholder=S.id||'MX-…';}
-  {const g=S.gps;$('stSum').textContent=[!g.alive?'No GPS':!g.fix?'No fix':g.sats+' sats',S.has.battery&&S.battMv?(S.battMv/1000).toFixed(2)+' V':null,(S.flash.free/1048576).toFixed(1)+' MB free','v'+S.fw].filter(Boolean).join(' · ');}
+  {const g=S.gps;$('stSum').textContent=[!g.alive?'No GPS':!g.fix?'No fix':g.sats+' sats',S.has.battery&&S.battMv?(S.battMv/1000).toFixed(2)+' V':null,rideLeft(S).replace(' of riding left',' left'),'v'+S.fw].filter(Boolean).join(' · ');}
   const g=S.gps,kv=[['GPS',g.alive?g.kind+(g.baud?' · '+g.baud+' baud':''):'Nothing heard - check the wiring'],
     ['Fix',g.fix?(g.q===2?'DGPS (corrections in use)':'GPS')+' · '+g.sats+' sats · HDOP '+g.hdop.toFixed(1)+' · '+g.rate+'/s':'No fix yet'],
     ['Recording',S.ride.stopped?'Stopped: '+S.ride.stopped:S.ride.active?'Ride '+S.ride.n+(S.ride.paused?' (paused)':'')+' · '+S.ride.fixes+' fixes':S.ride.armed?'On - starts at the first GPS fix':'Off - hold the button 1 s or tap Start recording'],
-    ['Storage',(S.flash.free/1048576).toFixed(1)+' MB free of '+(S.flash.total/1048576).toFixed(1)+' MB'],
+    ['Storage',(S.flash.free/1048576).toFixed(1)+' MB free of '+(S.flash.total/1048576).toFixed(1)+' MB · '+rideLeft(S)],
     ['Battery',!S.has.battery?'Not fitted yet (power bank)':S.batt<0?'No cell - running from USB'+(S.battMv?' ('+(S.battMv/1000).toFixed(2)+' V)':''):S.batt+'% · '+(S.battMv/1000).toFixed(2)+' V'+(S.batt<15?' · low, charge soon':'')],
     ['IMU',S.imu?(S.imu.ok?S.imu.chip+' · logging '+S.imu.rate+' samples/s':(S.has.imu?'Not found - check the wiring (optional)':'Switched off')):'-'],
     ['Fitted',['ledbar','sideleds','imu','sd'].filter(k=>S.has[k]).join(', ')||'GPS only (test rig)'],
@@ -2425,7 +2437,6 @@ async function pickBase(){if(!BLE.supported()){toast('This browser can\'t do Blu
   try{const d=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'RT-Base'}],optionalServices:[SVC]});
     const old=BLE.dev;BLE.dev=null;BLE.ok=false;try{old&&old.gatt&&old.gatt.disconnect();}catch(e){}
     BLE.dev=d;BLE.watch();await BLE.open();await refreshState();}catch(e){if(e&&e.name!=='NotFoundError')toast('Couldn\'t connect to the base: '+(e.message||e));}}
-$('raceBtn').onclick=()=>pickBase();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 (async()=>{
   try{TR=JSON.parse(LS.get('mxTracks','{"tracks":[]}'));if(!Array.isArray(TR.tracks))TR={tracks:[]};}catch(x){TR={tracks:[]};}
